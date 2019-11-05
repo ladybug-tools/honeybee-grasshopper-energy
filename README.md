@@ -1,4 +1,4 @@
-# honeybee-grasshopper-plugin
+# honeybee-grasshopper-energy
 :honeybee: :green_book: :fire: Honeybee Energy plugin for Grasshopper (aka. honeybee[+]).
 
 This repository contains all energy modeling Grasshopper components for the honeybee
