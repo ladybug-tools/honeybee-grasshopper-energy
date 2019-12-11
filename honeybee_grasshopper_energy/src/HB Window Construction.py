@@ -8,28 +8,23 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Create an EnergyPlus window construction. Layer inputs can be either the name of
+Create an EnergyPlus window construction. Material inputs can be either the name of
 a material within the material library or a custom material made with any of the
 EnergyPlus Material components.
 _
-Note that _layer_1 is always the outermost (exterior) layer and the last layer
-in the component is always the innermost (interior) layer.
-_
-To add more layers in the construction, zoom into the component and hit the
-lowest "+" sign that shows up on the input side. 
-_
-To remove layers from the construction, zoom into the component and hit the
-lowest "-" sign that shows up on the input side.
+Note that the _materials should be ordered from outermost (exterior) layer to the
+innermost (interior) layer.
 -
 
     Args:
         _name: A unique name for the window construction.
-        _layer_1: The first outer-most material layer of the construction.
-        _layer_2: The second outer-most material layer of the construction.
-        _layer_3: The third outer-most material layer of the construction.
+        _materials: List of materials in the construction (from exterior to interior).
+            Note that a native Grasshopper "Merge" component can be used to help
+            order the materials correctly for the input here.
+    
     Returns:
         constr: A window construction that can be assigned to Honeybee
-            Faces or ConstructionSets.
+            Apertures or ConstructionSets.
 """
 
 ghenv.Component.Name = "HB Window Construction"
@@ -50,28 +45,10 @@ try:  # import ladybug_rhino dependencies
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
-# check that max material layers has not been exceeded
-num_inputs = ghenv.Component.Params.Input.Count
-if num_inputs > 9:
-    raise ValueError("Maximum number of layers in an EnergyPlus window construction"
-        " is 8.\n Remove the last input you just added to the component.")
-
-# set the names of the component inputs
-layer_text = ('first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh',
-              'eigth')
-description = 'The {} outer-most material layer of the construction.'
-for i in range(1, num_inputs):
-    input_name = '_layer_' + str(i)
-    ghenv.Component.Params.Input[i].NickName = input_name
-    ghenv.Component.Params.Input[i].Name = input_name
-    ghenv.Component.Params.Input[i].Description = description.format(layer_text[i - 1])
-
 
 if all_required_inputs(ghenv.Component):
     material_objs = []
-    for i in range(1, num_inputs):
-        layer_name = ghenv.Component.Params.Input[i].NickName
-        exec('material = ' + layer_name)  # Python is wonderful
+    for material in _materials:
         if isinstance(material, str):
             material = window_material_by_name(material)
         material_objs.append(material)
