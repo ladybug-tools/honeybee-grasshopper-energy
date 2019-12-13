@@ -43,9 +43,9 @@ Deconstruct an opaque or window construction into its constituient materials.
 
 ghenv.Component.Name = "HB Deconstruct Construction"
 ghenv.Component.NickName = 'DecnstrConstr'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
-ghenv.Component.SubCategory = "1 :: Construction"
+ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
 

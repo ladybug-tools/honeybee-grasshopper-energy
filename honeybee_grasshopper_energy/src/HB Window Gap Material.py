@@ -30,10 +30,10 @@ This material can be plugged into the "HB Window Construction" component.
 
 ghenv.Component.Name = "HB Window Gap Material"
 ghenv.Component.NickName = 'GapMat'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
-ghenv.Component.SubCategory = "1 :: Construction"
-ghenv.Component.AdditionalHelpFromDocStrings = "5"
+ghenv.Component.SubCategory = "1 :: Constructions"
+ghenv.Component.AdditionalHelpFromDocStrings = "6"
 
 
 try:  # import the honeybee-energy dependencies

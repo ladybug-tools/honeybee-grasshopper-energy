@@ -54,10 +54,10 @@ Window blind properties consist of flat, equally-spaced slats.
 
 ghenv.Component.Name = "HB Blind Material"
 ghenv.Component.NickName = 'BlindMat'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
-ghenv.Component.SubCategory = "1 :: Construction"
-ghenv.Component.AdditionalHelpFromDocStrings = "5"
+ghenv.Component.SubCategory = "1 :: Constructions"
+ghenv.Component.AdditionalHelpFromDocStrings = "6"
 
 
 try:  # import the honeybee-energy dependencies
