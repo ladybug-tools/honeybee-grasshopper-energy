@@ -28,9 +28,9 @@ Deconstruct a material into its constituient attributes and values.
 
 ghenv.Component.Name = "HB Deconstruct Material"
 ghenv.Component.NickName = 'DecnstrMat'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
-ghenv.Component.SubCategory = "1 :: Construction"
+ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
 import re

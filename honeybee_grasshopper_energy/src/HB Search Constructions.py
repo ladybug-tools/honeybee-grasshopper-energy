@@ -33,9 +33,9 @@ Search for available Constructions within the honeybee energy standards library.
 
 ghenv.Component.Name = "HB Search Constructions"
 ghenv.Component.NickName = 'SearchConstrs'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
-ghenv.Component.SubCategory = "1 :: Construction"
+ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
 
 try:  # import the honeybee-core dependencies

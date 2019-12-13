@@ -25,15 +25,15 @@ do not have layers and are only defined by their exterior reflectance.
     
     Returns:
         constr: A shade construction that can be assigned to Honeybee
-            Faces or ConstructionSets.
+            Shades or ConstructionSets.
 """
 
 ghenv.Component.Name = "HB Shade Construction"
 ghenv.Component.NickName = 'ShadeConstr'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
-ghenv.Component.SubCategory = "1 :: Construction"
-ghenv.Component.AdditionalHelpFromDocStrings = "3"
+ghenv.Component.SubCategory = "1 :: Constructions"
+ghenv.Component.AdditionalHelpFromDocStrings = "4"
 
 
 try:  # import the honeybee-energy dependencies

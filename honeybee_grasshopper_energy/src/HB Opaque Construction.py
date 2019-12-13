@@ -19,8 +19,11 @@ innermost (interior) layer.
     Args:
         _name: A unique name for the opaque construction.
         _materials: List of materials in the construction (from exterior to interior).
-            Note that a native Grasshopper "Merge" component can be used to help
-            order the materials correctly for the input here.
+            These materials can be either fully-detailed material objects built
+            with the material components or text for a material name to be looked
+            up in the opaque material library.  Note that a native Grasshopper
+            "Merge" component can be used to help order the materials correctly
+            for the input here.
     
     Returns:
         constr: An opaque construction that can be assigned to Honeybee
@@ -29,10 +32,10 @@ innermost (interior) layer.
 
 ghenv.Component.Name = "HB Opaque Construction"
 ghenv.Component.NickName = 'OpaqueConstr'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
-ghenv.Component.SubCategory = "1 :: Construction"
-ghenv.Component.AdditionalHelpFromDocStrings = "3"
+ghenv.Component.SubCategory = "1 :: Constructions"
+ghenv.Component.AdditionalHelpFromDocStrings = "4"
 
 
 try:  # import the honeybee-energy dependencies
