@@ -55,13 +55,13 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
 
 ghenv.Component.Name = "HB Simulation Parameter"
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
 try:
-    from ladybug.dt import Date
+    from ladybug.dt import Date, DateTime
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
@@ -90,7 +90,10 @@ if daylight_saving_ is not None:
 
 # set the holidays if requested.
 if len(holidays_) != 0:
-    dates = tuple(Date.from_date_string(date) for date in holidays_)
+    try:
+        dates = tuple(Date.from_date_string(date) for date in holidays_)
+    except ValueError:
+        dates = tuple(DateTime.from_date_time_string(date).date() for date in holidays_)
     _run_period_.holidays = dates
 
 # set the start day of the week if it is input
