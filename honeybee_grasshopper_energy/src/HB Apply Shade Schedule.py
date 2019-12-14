@@ -8,43 +8,46 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Apply a ShadeConstruction to Honeybee Shade objects. Alternatively, it can
-assign a ShadeConstruction to all of the child shades of an Aperture, Face,
+Apply a transmittance schedule to Honeybee Shade objects. Alternatively, it can
+assign a transmittance schedule to all of the child shades of an Aperture, Face,
 or a Room.
 _
-This component supports the assigning of different constructions based on cardinal
-orientation, provided that a list of ShadeConstructions are input to the _constr. 
+This component supports the assigning of different schedules based on cardinal
+orientation, provided that a list of transmittance schedule are input to
+the _trans_sch. 
 -
 
     Args:
         _hb_objs: Honeybee Shades, Apertures, Faces, or Rooms to which the input
-            _constr should be assigned. For the case of a Honeybee Aperture,
+            _trans_sch should be assigned. For the case of a Honeybee Aperture,
             Face or Room, the ShadeConstruction will be assigned to only the
             child shades directly assigned to that object. So passing in a Room
-            will not change the construction of shades assigned to Apertures
+            will not change the schedule of shades assigned to Apertures
             of the Room's Faces. If this is the desired outcome, then the Room
             should be deconstructed into its child apertures before using
             this component.
-        _constr: A Honeybee ShadeConstruction to be applied to the input _hb_objs.
-            This can also be text for a construction to be looked up in the shade
-            construction library. If an array of text or construction objects
-            are input here, different constructions will be assigned based on
-            cardinal direction, starting with north and moving clockwise.
+        _trans_sch: A Honeybee ScheduleRuleset or ScheduleFixedInterval to be
+            applied to the input _hb_objs. This can also be text for a schedule
+            to be looked up in the shade schedule library. If an array of text
+            or schedule objects are input here, different schedules will be
+            assigned based on cardinal direction, starting with north and
+            moving clockwise.
     
     Returns:
-        hb_objs: The input honeybee objects with their constructions edited.
+        hb_objs: The input honeybee objects with their shade transmittance
+            schedules edited.
 """
 
-ghenv.Component.Name = "HB Apply Shade Construction"
-ghenv.Component.NickName = 'ApplyShadeConstr'
+ghenv.Component.Name = "HB Apply Shade Schedule"
+ghenv.Component.NickName = 'ApplyShadeSch'
 ghenv.Component.Message = '0.1.0'
 ghenv.Component.Category = 'Energy'
-ghenv.Component.SubCategory = '1 :: Constructions'
+ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 
 try:  # import the honeybee-energy extension
-    from honeybee_energy.lib.constructions import shade_construction_by_name
+    from honeybee_energy.lib.schedules import schedule_by_name
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -67,37 +70,37 @@ if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
     hb_objs = [obj.duplicate() for obj in _hb_objs]
     
-    # process the input constructions
-    for i, constr in enumerate(_constr):
-        if isinstance(constr, str):
-            _constr[i] = shade_construction_by_name(constr)
+    # process the input schedule
+    for i, sch in enumerate(_trans_sch):
+        if isinstance(sch, str):
+            _trans_sch[i] = schedule_by_name(sch)
     
     # error message for unrecognized object
     error_msg = 'Input _hb_objs must be a Room, Face, Aperture, or Shade. Not {}.'
     
-    # assign the constructions
-    if len(_constr) == 1:
+    # assign the schedules
+    if len(_trans_sch) == 1:
         for obj in hb_objs:
             if isinstance(obj, Shade):
-                obj.properties.energy.construction = _constr[0]
+                obj.properties.energy.transmittance_schedule = _trans_sch[0]
             elif isinstance(obj, (Aperture, Face, Room)):
                 for shd in obj.shades:
-                    shd.properties.energy.construction = _constr[0]
+                    shd.properties.energy.transmittance_schedule = _trans_sch[0]
             else:
                 raise TypeError(error_msg.format(type(obj)))
-    else:  # assign constructions based on cardinal direction
-        angles = angles_from_num_orient(len(_constr))
+    else:  # assign schedules based on cardinal direction
+        angles = angles_from_num_orient(len(_trans_sch))
         for obj in hb_objs:
             if isinstance(obj, (Aperture, Face)):
                 orient_i = face_orient_index(obj, angles)
                 if orient_i is not None:
                     for shd in obj.shades:
-                        shd.properties.energy.construction = _constr[orient_i]
+                        shd.properties.energy.transmittance_schedule = _trans_sch[orient_i]
             elif isinstance(obj, Shade):
-                obj.properties.energy.construction = _constr[0]
+                obj.properties.energy.transmittance_schedule = _trans_sch[0]
             elif isinstance(obj, Room):
                  for shd in obj.shades:
-                    shd.properties.energy.construction = _constr[0]
+                    shd.properties.energy.transmittance_schedule = _trans_sch[0]
             else:
                 raise TypeError(error_msg.format(type(obj)))
 

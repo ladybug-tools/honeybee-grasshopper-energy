@@ -37,7 +37,7 @@ ghenv.Component.NickName = 'Infiltration'
 ghenv.Component.Message = '0.1.0'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '3 :: Loads'
-ghenv.Component.AdditionalHelpFromDocStrings = "1"
+ghenv.Component.AdditionalHelpFromDocStrings = "3"
 
 import uuid
 

@@ -7,7 +7,7 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Write a honeybee Model to an IDF file and run them through EnergyPlus.
+Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 -
     Args:
@@ -56,7 +56,7 @@ Write a honeybee Model to an IDF file and run them through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"

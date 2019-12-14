@@ -17,20 +17,20 @@ orientation, provided that a list of WindowConstructions are input to the _const
 -
 
     Args:
-        _hb_obj: Honeybee Apertures, Faces, Doors or Rooms to which the input
+        _hb_objs: Honeybee Apertures, Faces, Doors or Rooms to which the input
             _constr should be assigned. For the case of a Honeybee Room, the
             construction will only be applied to the apertures in the the
             Room's outdoor walls. Note that, if you need to assign a construction
             to all the skylights, glass doors, etc. of a Room, the best practice
             is to create a ConstructionSet and assing that to the Room.
-        _constr: A Honeybee WindowConstruction to be applied to the input _hb_obj.
+        _constr: A Honeybee WindowConstruction to be applied to the input _hb_objs.
             This can also be text for a construction to be looked up in the window
             construction library. If an array of text or construction objects
             are input here, different constructions will be assigned based on
             cardinal direction, starting with north and moving clockwise.
     
     Returns:
-        hb_obj: The input honeybee objects with their constructions edited.
+        hb_objs: The input honeybee objects with their constructions edited.
 """
 
 ghenv.Component.Name = "HB Apply Window Construction"
@@ -71,7 +71,7 @@ def is_exterior_wall(face):
 
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
-    hb_obj = [obj.duplicate() for obj in _hb_obj]
+    hb_objs = [obj.duplicate() for obj in _hb_objs]
     
     # process the input constructions
     for i, constr in enumerate(_constr):
@@ -79,11 +79,11 @@ if all_required_inputs(ghenv.Component):
             _constr[i] = window_construction_by_name(constr)
     
     # error message for unrecognized object
-    error_msg = 'Input _hb_obj must be a Room, Face, Aperture, or Door. Not {}.'
+    error_msg = 'Input _hb_objs must be a Room, Face, Aperture, or Door. Not {}.'
     
     # assign the constructions
     if len(_constr) == 1:  # assign indiscriminately, even if it's a horizontal object
-        for obj in hb_obj:
+        for obj in hb_objs:
             if isinstance(obj, (Aperture, Door)):
                 obj.properties.energy.construction = _constr[0]
             elif isinstance(obj, Face):
@@ -98,7 +98,7 @@ if all_required_inputs(ghenv.Component):
                 raise TypeError(error_msg.format(type(obj)))
     else:  # assign constructions only to non-horizontal objects based on cardinal direction
         angles = angles_from_num_orient(len(_constr))
-        for obj in hb_obj:
+        for obj in hb_objs:
             if isinstance(obj, (Aperture, Door)):
                 orient_i = face_orient_index(obj, angles)
                 if orient_i is not None:
