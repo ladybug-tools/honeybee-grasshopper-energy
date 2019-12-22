@@ -7,14 +7,15 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Write a honeybee Model to an IDF file and then run it through EnergyPlus.
+Write a honeybee Model to an OSM file (OpenStudio Model), which can then be translated
+to an IDF file and then run through EnergyPlus.
 
 -
     Args:
         model: A honeybee model object possessing all geometry and corresponding
             energy simulation properties.
-        _epw_ile: Path to an .epw file on your system as a text string.
-        _ddy_file_: An optional path to a .ddy file on your system, which contains
+        _epw_ile: Path to an .epw file on this computer as a text string.
+        _ddy_file_: An optional path to a .ddy file on this computer, which contains
             information about the design days used to size the hvac system. If None,
             this component will look for a .ddy file next to the .epw and extract
             all 99.6% and 0.4% design days.
@@ -26,22 +27,30 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
             written into the IDF.  The strings input here should be complete
             EnergyPlus objects that are correctly formatted. This input can be used to
             write objects into the IDF that are not currently supported by Honeybee.
-        _folder_: An optional folder on your system, into which your IDF and result
+        _folder_: An optional folder on this computer, into which the IDF and result
             files will be written.  NOTE THAT DIRECTORIES INPUT HERE SHOULD NOT HAVE
             ANY SPACES OR UNDERSCORES IN THE FILE PATH.
         _write: Set to "True" to translate the model to an IDF file.
             The file path of the resulting file will appear in the idf output of
             this component.  Note that only setting this to "True" and not setting
             run_ to "True" will not automatically run the IDF through EnergyPlus.
-        run_: Set to "True" to run your IDF through EnergyPlus once it is written.
+        readable_: If "True" the honeybee JSON files of the model written out by
+            this component will include indetations to make it human-readable.
+            Otherwise, no indentations will be included and the JSON will be in
+            the most compact form possible.
+        run_: Set to "True" to run the  IDF through EnergyPlus once it is written.
             This will ensure that result files appear in their respective outputs.
     
     Returns:
         report: Check here to see a report of the EnergyPlus run.
-        idf: The file path of the IDF file that has been generated on your machine.
-        sql: The file path of the SQL result file that has been generated on your
-            machine. This will be None unless run_ is set to True.
-        eio:  The file path of the EIO file that has been generated on your machine.
+        json: The file path of the JSON file that describes the Model and has been
+            generated on this computer.
+        osm: The file path to the OpenStudio Model (OSM) that has been generated
+            on this computer.
+        idf: The file path of the IDF file that has been generated on this computer.
+        sql: The file path of the SQL result file that has been generated on this
+            computer. This will be None unless run_ is set to True.
+        eio:  The file path of the EIO file that has been generated on this computer.
             This file contains information about the sizes of all HVAC equipment
             from the simulation.
         rdd: The file path of the Result Data Dictionary (.rdd) file that is
@@ -54,29 +63,32 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
             run_ is set to True.
 """
 
-ghenv.Component.Name = "HB Model to IDF"
-ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.2.1'
+ghenv.Component.Name = "HB Model to OSM"
+ghenv.Component.NickName = 'ModelToOSM'
+ghenv.Component.Message = '0.1.0'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
 
 import os
+import sys
+import json as python_json
+import shutil
 
 try:
     from ladybug.designday import DDY
-    from ladybug.futil import write_to_file_by_name, nukedir
+    from ladybug.futil import preparedir, nukedir, write_to_file_by_name, copy_file_tree
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
 try:
-    from honeybee.config import folders
+    import honeybee.config as hb_config
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from honeybee_energy.simulationparameter import SimulationParameter
-    from honeybee_energy.run import run_idf_windows
+    from honeybee_energy.run import to_openstudio_osw, run_osw_windows, run_idf_windows
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -120,9 +132,8 @@ if all_required_inputs(ghenv.Component) and _write:
     add_str = '/n'.join(add_str_) if add_str_ is not None else ''
     
     # process the simulation folder name and the directory
-    _folder_ = folders.default_simulation_folder if _folder_ is None else _folder_
-    directory = os.path.join(_folder_, _model.name, 'EnergyPlus')
-    sch_directory = os.path.join(directory, 'schedules')
+    _folder_ = hb_config.folders.default_simulation_folder if _folder_ is None else _folder_
+    directory = os.path.join(_folder_, _model.name, 'OpenStudio')
     
     # check the model to be sure there are no orphaned faces, apertures, or doors
     assert len(_model.orphaned_faces) == 0, orphaned_warning('Face')
@@ -135,18 +146,28 @@ if all_required_inputs(ghenv.Component) and _write:
         _model = _model.duplicate()  # duplicate model to avoid scaling the input
         _model.scale(meters_conversion)
     
-    # create the strings for simulation paramters and model
-    sim_par_str = _sim_par_.to_idf()
-    model_str = _model.to.idf(_model, schedule_directory=sch_directory,
-                              solar_distribution=_sim_par_.shadow_calculation.solar_distribution)
-    idf_str = '\n\n'.join([sim_par_str, '\n\n'.join(ddy_strs), model_str, add_str])
-    
-    # delete any existing files in the directory
+    # delete any existing files in the directory and prepare it for simulation
     nukedir(directory)
+    preparedir(directory)
     
-    # write the final string into an IDF.
-    idf = os.path.join(directory, 'in.idf')
-    write_to_file_by_name(directory, 'in.idf', idf_str, True)
+    # set the default JSON indent for maximal compactness
+    json_indent = 4 if readable_ else None
+    
+    # write the model parameter JSONs
+    model_dict = _model.to_dict(triangulate_sub_faces=True)
+    json = os.path.join(directory, '{}.json'.format(_model.name))
+    with open(json, 'w') as fp:
+        python_json.dump(model_dict, fp, indent=json_indent)
+    
+    # write the simulation parameter JSONs
+    sim_par_dict = _sim_par_.to_dict()
+    sp_json = os.path.join(directory, 'simulation_parameter.json')
+    with open(sp_json, 'w') as fp:
+        python_json.dump(sim_par_dict, fp, indent=json_indent)
+    
+    # run the measure to translate the model JSON to an openstudio measure
+    wf_osw_path = to_openstudio_osw(directory, json, sp_json, _epw_file)
+    osm, idf = run_osw_windows(wf_osw_path)
     
     if run_:
         sql, eio, rdd, html = run_idf_windows(idf, _epw_file)
