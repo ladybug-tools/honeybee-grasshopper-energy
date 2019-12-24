@@ -9,6 +9,9 @@
 
 """
 Search for available ProgramTypes within the honeybee energy standards library.
+_
+Note that the Room ProgramTypes output from this component effectively map to
+space types within OpenStudio.
 -
 
     Args:
@@ -18,6 +21,9 @@ Search for available ProgramTypes within the honeybee energy standards library.
         _vintage_: Text for the building vintage to search (eg. "2013", "pre_1980",
             etc.). The Honeybee "Building Vintages" component lists all of the
             vintages available in the library. Default: "2013" (for ASHRAE 90.1 2013).
+            Note that vintages are often called "templates" within the OpenStudio
+            standards gem and so this property effective maps to the standards
+            gem "template".
         keywords_: Optional keywords to be used to narrow down the output list of
             room programs. If nothing is input here, all available room programs
             will be output.
@@ -29,7 +35,7 @@ Search for available ProgramTypes within the honeybee energy standards library.
 
 ghenv.Component.Name = "HB Search Programs"
 ghenv.Component.NickName = 'SearchProg'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
