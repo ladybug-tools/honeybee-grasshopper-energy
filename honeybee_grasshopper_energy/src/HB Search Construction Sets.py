@@ -23,6 +23,9 @@ Search for available ProgramTypes within the honeybee energy standards library.
         _vintage_: Text for the building vintage to search (eg. "2013", "pre_1980",
             etc.). The Honeybee "Building Vintages" component lists all of the
             vintages available in the library. Default: "2013" (for ASHRAE 90.1 2013).
+            Note that vintages are often called "templates" within the OpenStudio
+            standards gem and so this property effective maps to the standards
+            gem "template".
         _constr_type_: Text for the construction type of the set. (eg. "SteelFramed",
             "WoodFramed", "Mass", "Metal Building"). The Honeybee "Construction Types"
             component lists all of the construction types available in the library.
@@ -34,7 +37,7 @@ Search for available ProgramTypes within the honeybee energy standards library.
 
 ghenv.Component.Name = "HB Search Construction Sets"
 ghenv.Component.NickName = 'SearchConstrSet'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
