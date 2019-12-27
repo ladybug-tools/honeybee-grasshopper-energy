@@ -8,7 +8,7 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Apply values for specific load objects to Rooms.
+Apply load values to a Room or ProgramType.
 _
 This component will not edit any of the schedule objects associated with each load
 value. If no schedule currently exists to describe how the load varies over the
@@ -16,7 +16,9 @@ simulation, the "Always On" schedule will be used as a default.
 -
 
     Args:
-        _rooms: Honeybee Rooms to which the input load objects should be assigned.
+        _room_or_program: Honeybee Rooms or ProgramType objects to which the input
+            load objects should be assigned. This can also be the name of a
+            ProgramType to be looked up in the program type library.
         people_per_floor_: A numerical value for the number of people per square
             meter of floor area.
         lighting_per_floor_: A numerical value for the lighting power density in
@@ -47,15 +49,20 @@ simulation, the "Always On" schedule will be used as a default.
     
     Returns:
         report: Reports, errors, warnings, etc.
-        rooms: The input Rooms with their load values edited.
+        mod_obj: The input Rooms or ProgramTypes with their load values modified.
 """
 
 ghenv.Component.Name = "HB Apply Load Values"
 ghenv.Component.NickName = 'ApplyLoadVals'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
+
+try:
+    from honeybee.room import Room
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from honeybee_energy.load.people import People
@@ -64,6 +71,8 @@ try:
     from honeybee_energy.load.infiltration import Infiltration
     from honeybee_energy.load.ventilation import Ventilation
     from honeybee_energy.lib.schedules import schedule_by_name
+    from honeybee_energy.lib.programtypes import program_type_by_name
+    from honeybee_energy.programtype import ProgramType
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 try:
@@ -72,84 +81,95 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
+# get the always on schedule
+always_on = schedule_by_name('Always On')
+
+
+def dup_load(hb_obj, object_name, object_class):
+    """Duplicate a load object assigned to a Room or ProgramType."""
+    # try to get the load object assgined to the Room or ProgramType
+    try:  # assume it's a Room
+        load_obj = hb_obj.properties
+        for attribute in ('energy', object_name):
+            load_obj = getattr(load_obj, attribute)
+    except AttributeError:  # it's a ProgramType
+        load_obj = getattr(hb_obj, object_name)
+    
+    try:  # duplicate the load object
+        return load_obj.duplicate()
+    except AttributeError:  # create a new object
+        try:  # assume it's People, Lighting, Equipment or Infiltration
+            return object_class('{}_{}'.format(hb_obj.name, object_name), 0, always_on)
+        except:  # it's a Ventilation object
+            return object_class('{}_{}'.format(hb_obj.name, object_name))
+
+
+def assign_load(hb_obj, load_obj, object_name):
+    """Assign a load object to a Room or a ProgramType."""
+    try:  # assume it's a Room
+        setattr(hb_obj.properties.energy, object_name, load_obj)
+    except AttributeError:  # it's a ProgramType
+        setattr(hb_obj, object_name, load_obj)
+
+
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
-    rooms = [obj.duplicate() for obj in _rooms]
-    
-    # get the always on schedule
-    always_on = schedule_by_name('Always On')
+    mod_obj = []
+    for obj in _room_or_program:
+        if isinstance(obj, (Room, ProgramType)):
+            mod_obj.append(obj.duplicate())
+        elif isinstance(obj, str):
+            program = program_type_by_name(obj)
+            mod_obj.append(program.duplicate())
+        else:
+            raise TypeError('Expected Honeybee Room or ProgramType. '
+                            'Got {}.'.format(type(obj)))
     
     # assign the people_per_floor_
     if people_per_floor_ is not None:
-        for room in rooms:
-            try:
-                people = room.properties.energy.people.duplicate()
-                people.people_per_area = people_per_floor_
-            except AttributeError:
-                people = People(
-                    '{}_People'.format(room.name), people_per_floor_, always_on)
-            room.properties.energy.people = people
+        for obj in mod_obj:
+            people = dup_load(obj, 'people', People)
+            people.people_per_area = people_per_floor_
+            assign_load(obj, people, 'people')
     
     # assign the lighting_per_floor_
     if lighting_per_floor_ is not None:
-        for room in rooms:
-            try:
-                lighting = room.properties.energy.lighting.duplicate()
-                lighting.watts_per_area = lighting_per_floor_
-            except AttributeError:
-                lighting = Lighting(
-                    '{}_Lighting'.format(room.name), lighting_per_floor_, always_on)
-            room.properties.energy.lighting = lighting
+        for obj in mod_obj:
+            lighting = dup_load(obj, 'lighting', Lighting)
+            lighting.watts_per_area = lighting_per_floor_
+            assign_load(obj, lighting, 'lighting')
     
     # assign the electric_per_floor_
     if electric_per_floor_ is not None:
-        for room in rooms:
-            try:
-                equip = room.properties.energy.electric_equipment.duplicate()
-                equip.watts_per_area = electric_per_floor_
-            except AttributeError:
-                equip = ElectricEquipment(
-                    '{}_ElectricEquip'.format(room.name), electric_per_floor_, always_on)
-            room.properties.energy.electric_equipment = equip
+        for obj in mod_obj:
+            equip = dup_load(obj, 'electric_equipment', ElectricEquipment)
+            equip.watts_per_area = electric_per_floor_
+            assign_load(obj, equip, 'electric_equipment')
     
     # assign the gas_per_floor_
     if gas_per_floor_ is not None:
-        for room in rooms:
-            try:
-                equip = room.properties.energy.gas_equipment.duplicate()
-                equip.watts_per_area = gas_per_floor_
-            except AttributeError:
-                equip = GasEquipment(
-                    '{}_GasEquip'.format(room.name), gas_per_floor_, always_on)
-            room.properties.energy.gas_equipment = equip
+        for obj in mod_obj:
+            equip = dup_load(obj, 'gas_equipment', GasEquipment)
+            equip.watts_per_area = gas_per_floor_
+            assign_load(obj, equip, 'gas_equipment')
     
     # assign the infilt_per_exterior_
     if infilt_per_exterior_ is not None:
-        for room in rooms:
-            try:
-                infilt = room.properties.energy.infiltration.duplicate()
-                infilt.flow_per_exterior_area = infilt_per_exterior_
-            except AttributeError:
-                infilt = Infiltration(
-                    '{}_Infiltration'.format(room.name), infilt_per_exterior_, always_on)
-            room.properties.energy.infiltration = infilt
+        for obj in mod_obj:
+            infilt = dup_load(obj, 'infiltration', Infiltration)
+            infilt.flow_per_exterior_area = infilt_per_exterior_
+            assign_load(obj, infilt, 'infiltration')
     
     # assign the vent_per_floor_
     if vent_per_floor_ is not None:
-        for room in rooms:
-            try:
-                vent = room.properties.energy.ventilation.duplicate()
-            except AttributeError:
-                vent = Ventilation('{}_Ventilation'.format(room.name))
+        for obj in mod_obj:
+            vent = dup_load(obj, 'ventilation', Ventilation)
             vent.flow_per_area = vent_per_floor_
-            room.properties.energy.ventilation = vent
+            assign_load(obj, vent, 'ventilation')
     
     # assign the vent_per_person_
     if vent_per_person_ is not None:
-        for room in rooms:
-            try:
-                vent = room.properties.energy.ventilation.duplicate()
-            except AttributeError:
-                vent = Ventilation('{}_Ventilation'.format(room.name))
+        for obj in mod_obj:
+            vent = dup_load(obj, 'ventilation', Ventilation)
             vent.flow_per_person = vent_per_person_
-            room.properties.energy.ventilation = vent
+            assign_load(obj, vent, 'ventilation')
