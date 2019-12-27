@@ -65,7 +65,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to OSM"
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -77,7 +77,7 @@ import shutil
 
 try:
     from ladybug.designday import DDY
-    from ladybug.futil import preparedir, nukedir, write_to_file_by_name, copy_file_tree
+    from ladybug.futil import preparedir, nukedir
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
@@ -88,7 +88,7 @@ except ImportError as e:
 
 try:
     from honeybee_energy.simulationparameter import SimulationParameter
-    from honeybee_energy.run import to_openstudio_osw, run_osw_windows, run_idf_windows
+    from honeybee_energy.run import to_openstudio_osw, run_osw, run_idf
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -167,7 +167,13 @@ if all_required_inputs(ghenv.Component) and _write:
     
     # run the measure to translate the model JSON to an openstudio measure
     wf_osw_path = to_openstudio_osw(directory, json, sp_json, _epw_file)
-    osm, idf = run_osw_windows(wf_osw_path)
+    osm, idf = run_osw(wf_osw_path)
+    
+    # process the additional strings
+    if add_str_ is not None:
+        add_str = '/n'.join(add_str_)
+        with open(idf, "a") as idf_file:
+            idf_file.write(add_str)
     
     if run_:
-        sql, eio, rdd, html = run_idf_windows(idf, _epw_file)
+        sql, eio, rdd, html, err = run_idf(idf, _epw_file)

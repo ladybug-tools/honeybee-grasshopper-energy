@@ -56,7 +56,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.2.1'
+ghenv.Component.Message = '0.3.0'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -76,7 +76,7 @@ except ImportError as e:
 
 try:
     from honeybee_energy.simulationparameter import SimulationParameter
-    from honeybee_energy.run import run_idf_windows
+    from honeybee_energy.run import run_idf
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -149,4 +149,4 @@ if all_required_inputs(ghenv.Component) and _write:
     write_to_file_by_name(directory, 'in.idf', idf_str, True)
     
     if run_:
-        sql, eio, rdd, html = run_idf_windows(idf, _epw_file)
+        sql, eio, rdd, html, err = run_idf(idf, _epw_file)
