@@ -46,6 +46,9 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
             the EnergyPlus Shadow Calculation. This can be generated from the "HB
             Shadow Calculation" component. Default: Average over 30 days with
             FullInteriorAndExteriorWithReflections.
+        _sizing_: A SizingParameter object with criteria for sizing the heating
+            and cooling system.  This can be generated from the "HB Sizing
+            Parameter" component.
     
     Returns:
         sim_par: A SimulationParameter object that can be connected to the
@@ -55,7 +58,7 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
 
 ghenv.Component.Name = "HB Simulation Parameter"
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -69,7 +72,7 @@ try:
     from honeybee_energy.simulation.output import SimulationOutput
     from honeybee_energy.simulation.runperiod import RunPeriod
     from honeybee_energy.simulation.daylightsaving import DaylightSavingTime
-    from honeybee_energy.simulationparameter import SimulationParameter
+    from honeybee_energy.simulation.parameter import SimulationParameter
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -108,4 +111,5 @@ sim_par = SimulationParameter(output=_output_,
                               run_period=_run_period_,
                               timestep=_timestep_,
                               simulation_control=_sim_control_,
-                              shadow_calculation=_shadow_calc_)
+                              shadow_calculation=_shadow_calc_,
+                              sizing_parameter=_sizing_)

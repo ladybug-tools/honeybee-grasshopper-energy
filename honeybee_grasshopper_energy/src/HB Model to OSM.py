@@ -15,13 +15,13 @@ to an IDF file and then run through EnergyPlus.
         model: A honeybee model object possessing all geometry and corresponding
             energy simulation properties.
         _epw_ile: Path to an .epw file on this computer as a text string.
-        _ddy_file_: An optional path to a .ddy file on this computer, which contains
-            information about the design days used to size the hvac system. If None,
-            this component will look for a .ddy file next to the .epw and extract
-            all 99.6% and 0.4% design days.
         _sim_par_: A honeybee Energy SimulationParameter object that describes all
             of the setting for the simulation. If None, some default simulation
             parameters will automatically be used.
+        measures_: An optional list of measures to apply to the OpenStudio model
+            upon export. Use the "HB Load Measure" component to load a measure
+            into Grasshopper.  Measures can be downloaded from the NREL
+            Building Components Library (BCL) at (https://bcl.nrel.gov/).
         add_str_: THIS OPTION IS JUST FOR ADVANCED USERS OF ENERGYPLUS.
             You can input additional text strings here that you would like
             written into the IDF.  The strings input here should be complete
@@ -30,21 +30,23 @@ to an IDF file and then run through EnergyPlus.
         _folder_: An optional folder on this computer, into which the IDF and result
             files will be written.  NOTE THAT DIRECTORIES INPUT HERE SHOULD NOT HAVE
             ANY SPACES OR UNDERSCORES IN THE FILE PATH.
-        _write: Set to "True" to translate the model to an IDF file.
-            The file path of the resulting file will appear in the idf output of
-            this component.  Note that only setting this to "True" and not setting
-            run_ to "True" will not automatically run the IDF through EnergyPlus.
-        readable_: If "True" the honeybee JSON files of the model written out by
-            this component will include indetations to make it human-readable.
-            Otherwise, no indentations will be included and the JSON will be in
-            the most compact form possible.
-        run_: Set to "True" to run the  IDF through EnergyPlus once it is written.
-            This will ensure that result files appear in their respective outputs.
+        _write: Set to "True" to write out the jsons and the osw for simulation.
+        run_: Set to "True" to translate the jsons to an osm and idf file and then
+            run the idf through EnergyPlus. This will ensure that all result
+            files appear in their respective outputs from this component. This
+            input can also be the integer "2", which will only translate the
+            jsons to an osm and idf format without running the model through
+            EnergyPlus.
     
     Returns:
         report: Check here to see a report of the EnergyPlus run.
-        json: The file path of the JSON file that describes the Model and has been
-            generated on this computer.
+        jsons: The file paths to the honeybee JSON files that describe the Model and
+            SimulationParameter. These will be translated to an OpenStudio
+            model using the honeybee energy_model_measure.
+        osw: File path to the OpenStudio Workflow JSON on this machine. This workflow
+            is executed using the OpenStudio command line interface (CLI) and
+            it includes the honeybee energy_model_measure as well as any other
+            connected measures_.
         osm: The file path to the OpenStudio Model (OSM) that has been generated
             on this computer.
         idf: The file path of the IDF file that has been generated on this computer.
@@ -65,18 +67,17 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to OSM"
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '0.3.0'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
 
 import os
 import sys
-import json as python_json
+import json
 import shutil
 
 try:
-    from ladybug.designday import DDY
     from ladybug.futil import preparedir, nukedir
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
@@ -87,7 +88,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
-    from honeybee_energy.simulationparameter import SimulationParameter
+    from honeybee_energy.simulation.parameter import SimulationParameter
     from honeybee_energy.run import to_openstudio_osw, run_osw, run_idf
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -108,25 +109,20 @@ def orphaned_warning(object_type):
 
 
 if all_required_inputs(ghenv.Component) and _write:
-    # process the design days
-    if _ddy_file_ is None:
-        folder, epw_file_name = os.path.split(_epw_file)
-        ddy_file = os.path.join(folder, epw_file_name.replace('.epw', '.ddy'))
-        if os.path.isfile(ddy_file):
-            ddy_obj = DDY.from_ddy_file(ddy_file)
-            ddy_strs = [ddy.ep_style_string for ddy in ddy_obj.design_days if
-                        '99.6%' in ddy.name or '.4%' in ddy.name]
-        else:
-            raise ValueError('No _ddy_file_ has been input and no .ddy file was '
-                             'found next to the _epw_file.')
-    else:
-        ddy_obj = DDY.from_ddy_file(_ddy_file_)
-        ddy_strs = [ddy.ep_style_string for ddy in ddy_obj.design_days]
-    
     # process the simulation parameters
     if _sim_par_ is None:
         _sim_par_ = SimulationParameter()
         _sim_par_.output.add_zone_energy_use()
+    
+    # assign design days from the EPW if there are not in the _sim_par_
+    if len(_sim_par_.sizing_parameter.design_days) == 0:
+        folder, epw_file_name = os.path.split(_epw_file)
+        ddy_file = os.path.join(folder, epw_file_name.replace('.epw', '.ddy'))
+        if os.path.isfile(ddy_file):
+            _sim_par_.sizing_parameter.add_from_ddy_996_004(ddy_file)
+        else:
+            raise ValueError('No _ddy_file_ has been input and no .ddy file was '
+                             'found next to the _epw_file.')
     
     # process the additional strings
     add_str = '/n'.join(add_str_) if add_str_ is not None else ''
@@ -147,33 +143,34 @@ if all_required_inputs(ghenv.Component) and _write:
         _model.scale(meters_conversion)
     
     # delete any existing files in the directory and prepare it for simulation
-    nukedir(directory)
+    nukedir(directory, True)
     preparedir(directory)
-    
-    # set the default JSON indent for maximal compactness
-    json_indent = 4 if readable_ else None
     
     # write the model parameter JSONs
     model_dict = _model.to_dict(triangulate_sub_faces=True)
-    json = os.path.join(directory, '{}.json'.format(_model.name))
-    with open(json, 'w') as fp:
-        python_json.dump(model_dict, fp, indent=json_indent)
+    model_json = os.path.join(directory, '{}.json'.format(_model.name))
+    with open(model_json, 'w') as fp:
+        json.dump(model_dict, fp)
     
     # write the simulation parameter JSONs
     sim_par_dict = _sim_par_.to_dict()
-    sp_json = os.path.join(directory, 'simulation_parameter.json')
-    with open(sp_json, 'w') as fp:
-        python_json.dump(sim_par_dict, fp, indent=json_indent)
+    sim_par_json = os.path.join(directory, 'simulation_parameter.json')
+    with open(sim_par_json, 'w') as fp:
+        json.dump(sim_par_dict, fp)
+    
+    # collect the two jsons for output and write out the osw file
+    jsons = [model_json, sim_par_json]
+    osw = to_openstudio_osw(directory, model_json, sim_par_json, _epw_file)
     
     # run the measure to translate the model JSON to an openstudio measure
-    wf_osw_path = to_openstudio_osw(directory, json, sp_json, _epw_file)
-    osm, idf = run_osw(wf_osw_path)
+    if run_ > 0:
+        osm, idf = run_osw(wf_osw_path)
+        # process the additional strings
+        if add_str_ is not None and idf is not None:
+            add_str = '/n'.join(add_str_)
+            with open(idf, "a") as idf_file:
+                idf_file.write(add_str)
     
-    # process the additional strings
-    if add_str_ is not None:
-        add_str = '/n'.join(add_str_)
-        with open(idf, "a") as idf_file:
-            idf_file.write(add_str)
-    
-    if run_:
+    # run the resulting idf throught EnergyPlus
+    if run_ == 1:
         sql, eio, rdd, html, err = run_idf(idf, _epw_file)
