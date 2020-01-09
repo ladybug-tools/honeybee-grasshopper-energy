@@ -14,10 +14,6 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
         model: A honeybee model object possessing all geometry and corresponding
             energy simulation properties.
         _epw_ile: Path to an .epw file on your system as a text string.
-        _ddy_file_: An optional path to a .ddy file on your system, which contains
-            information about the design days used to size the hvac system. If None,
-            this component will look for a .ddy file next to the .epw and extract
-            all 99.6% and 0.4% design days.
         _sim_par_: A honeybee Energy SimulationParameter object that describes all
             of the setting for the simulation. If None, some default simulation
             parameters will automatically be used.
@@ -56,7 +52,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.3.0'
+ghenv.Component.Message = '0.4.0'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -64,7 +60,6 @@ ghenv.Component.AdditionalHelpFromDocStrings = "1"
 import os
 
 try:
-    from ladybug.designday import DDY
     from ladybug.futil import write_to_file_by_name, nukedir
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
@@ -75,7 +70,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
-    from honeybee_energy.simulationparameter import SimulationParameter
+    from honeybee_energy.simulation.parameter import SimulationParameter
     from honeybee_energy.run import run_idf
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -96,25 +91,20 @@ def orphaned_warning(object_type):
 
 
 if all_required_inputs(ghenv.Component) and _write:
-    # process the design days
-    if _ddy_file_ is None:
-        folder, epw_file_name = os.path.split(_epw_file)
-        ddy_file = os.path.join(folder, epw_file_name.replace('.epw', '.ddy'))
-        if os.path.isfile(ddy_file):
-            ddy_obj = DDY.from_ddy_file(ddy_file)
-            ddy_strs = [ddy.ep_style_string for ddy in ddy_obj.design_days if
-                        '99.6%' in ddy.name or '.4%' in ddy.name]
-        else:
-            raise ValueError('No _ddy_file_ has been input and no .ddy file was '
-                             'found next to the _epw_file.')
-    else:
-        ddy_obj = DDY.from_ddy_file(_ddy_file_)
-        ddy_strs = [ddy.ep_style_string for ddy in ddy_obj.design_days]
-    
     # process the simulation parameters
     if _sim_par_ is None:
         _sim_par_ = SimulationParameter()
         _sim_par_.output.add_zone_energy_use()
+    
+    # assign design days from the EPW if there are not in the _sim_par_
+    if len(_sim_par_.sizing_parameter.design_days) == 0:
+        folder, epw_file_name = os.path.split(_epw_file)
+        ddy_file = os.path.join(folder, epw_file_name.replace('.epw', '.ddy'))
+        if os.path.isfile(ddy_file):
+            _sim_par_.sizing_parameter.add_from_ddy_996_004(ddy_file)
+        else:
+            raise ValueError('No _ddy_file_ has been input and no .ddy file was '
+                             'found next to the _epw_file.')
     
     # process the additional strings
     add_str = '/n'.join(add_str_) if add_str_ is not None else ''
@@ -139,7 +129,7 @@ if all_required_inputs(ghenv.Component) and _write:
     sim_par_str = _sim_par_.to_idf()
     model_str = _model.to.idf(_model, schedule_directory=sch_directory,
                               solar_distribution=_sim_par_.shadow_calculation.solar_distribution)
-    idf_str = '\n\n'.join([sim_par_str, '\n\n'.join(ddy_strs), model_str, add_str])
+    idf_str = '\n\n'.join([sim_par_str, model_str, add_str])
     
     # delete any existing files in the directory
     nukedir(directory)
