@@ -59,7 +59,7 @@ each schedule should be applied.
 
 ghenv.Component.Name = "HB Seasonal Schedule"
 ghenv.Component.NickName = 'SeasonalSchedule'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
@@ -91,7 +91,7 @@ if all_required_inputs(ghenv.Component):
         if isinstance(season_sch, str):
             season_sch = schedule_by_name(season_sch)
         season_rules = season_sch.to_rules(
-            a_period.st_time.date(), a_period.end_time.date())
+            a_period.st_time.date, a_period.end_time.date)
         for rule in reversed(season_rules):  # preserve priority order of rules
             schedule.add_rule(rule)
     

@@ -58,7 +58,7 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
 
 ghenv.Component.Name = "HB Simulation Parameter"
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '0.2.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -96,7 +96,7 @@ if len(holidays_) != 0:
     try:
         dates = tuple(Date.from_date_string(date) for date in holidays_)
     except ValueError:
-        dates = tuple(DateTime.from_date_time_string(date).date() for date in holidays_)
+        dates = tuple(DateTime.from_date_time_string(date).date for date in holidays_)
     _run_period_.holidays = dates
 
 # set the start day of the week if it is input

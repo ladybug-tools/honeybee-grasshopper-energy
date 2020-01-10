@@ -48,7 +48,7 @@ certain threshold.
 
 ghenv.Component.Name = "HB Schedule to Data"
 ghenv.Component.NickName = 'SchToData'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -79,8 +79,8 @@ if all_required_inputs(ghenv.Component):
     
     # process the analysis period if it is input
     if analysis_period_ is not None:
-        start_date = analysis_period_.st_time.date()
-        end_date = analysis_period_.end_time.date()
+        start_date = analysis_period_.st_time.date
+        end_date = analysis_period_.end_time.date
         timestep = analysis_period_.timestep
     else:
         start_date, end_date, timestep = Date(1, 1), Date(12, 31), 1
@@ -91,7 +91,7 @@ if all_required_inputs(ghenv.Component):
         try:
             holidays = tuple(Date.from_date_string(hol) for hol in holidays_)
         except ValueError:
-            holidays = tuple(DateTime.from_date_time_string(hol).date() for hol in holidays_)
+            holidays = tuple(DateTime.from_date_time_string(hol).date for hol in holidays_)
     
     # create the DataCollection
     if isinstance(_schedule, ScheduleRuleset):
