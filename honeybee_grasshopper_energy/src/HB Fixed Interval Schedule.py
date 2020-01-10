@@ -58,7 +58,7 @@ running over the entirety of the simulation period.
 
 ghenv.Component.Name = "HB Fixed Interval Schedule"
 ghenv.Component.NickName = 'FixedIntervalSchedule'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
@@ -83,7 +83,7 @@ if all_required_inputs(ghenv.Component):
     # set the defaults
     _timestep_ = 1 if _timestep_ is None else _timestep_
     start_date = Date(1, 1) if analysis_period_ is None else \
-        analysis_period_.st_time.date()
+        analysis_period_.st_time.date
     
     # get the ScheduleTypeLimit object
     if _type_limit_ is None:
