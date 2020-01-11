@@ -67,7 +67,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to OSM"
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.3.0'
+ghenv.Component.Message = '0.3.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -164,7 +164,7 @@ if all_required_inputs(ghenv.Component) and _write:
     
     # run the measure to translate the model JSON to an openstudio measure
     if run_ > 0:
-        osm, idf = run_osw(wf_osw_path)
+        osm, idf = run_osw(osw)
         # process the additional strings
         if add_str_ is not None and idf is not None:
             add_str = '/n'.join(add_str_)
