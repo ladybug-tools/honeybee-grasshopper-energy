@@ -50,11 +50,16 @@ Apply a customized IdealAirSystem to Honeybee Rooms.
 
 ghenv.Component.Name = "HB IdealAir"
 ghenv.Component.NickName = 'IdealAir'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
+
+try:  # import the honeybee extension
+    from honeybee.altnumber import autosize, no_limit
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy extension
     from honeybee_energy.hvac.idealair import IdealAirSystem
@@ -66,6 +71,14 @@ try:
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
+# dictionary to get alterante number types
+alt_numbers = {
+    'nolimit': no_limit,
+    'NoLimit': no_limit,
+    'autosize': autosize,
+    'Autosize': autosize,
+    None: autosize
+    }
 
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
@@ -91,9 +104,13 @@ if all_required_inputs(ghenv.Component):
                 new_ideal_air.heating_air_temperature = _heat_temp_
             if _cool_temp_ is not None:
                 new_ideal_air.cooling_air_temperature = _cool_temp_
-            if _heat_limit_ is not None:
+            try:
+                new_ideal_air.heating_limit = alt_numbers[_heat_limit_]
+            except KeyError:
                 new_ideal_air.heating_limit = _heat_limit_
-            if _cool_limit_ is not None:
+            try:
+                new_ideal_air.cooling_limit = alt_numbers[_cool_limit_]
+            except KeyError:
                 new_ideal_air.cooling_limit = _cool_limit_
             
             # assign the HVAC to the Room
