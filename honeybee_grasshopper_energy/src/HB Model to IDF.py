@@ -52,7 +52,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.4.0'
+ghenv.Component.Message = '0.4.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -76,7 +76,6 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.config import conversion_to_meters
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
@@ -118,12 +117,6 @@ if all_required_inputs(ghenv.Component) and _write:
     assert len(_model.orphaned_faces) == 0, orphaned_warning('Face')
     assert len(_model.orphaned_apertures) == 0, orphaned_warning('Aperture')
     assert len(_model.orphaned_doors) == 0, orphaned_warning('Door')
-    
-    # scale the model if the Rhino units are not meters
-    meters_conversion = conversion_to_meters()
-    if meters_conversion != 1:
-        _model = _model.duplicate()  # duplicate model to avoid scaling the input
-        _model.scale(meters_conversion)
     
     # create the strings for simulation paramters and model
     sim_par_str = _sim_par_.to_idf()

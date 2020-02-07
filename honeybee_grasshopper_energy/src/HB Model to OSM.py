@@ -67,7 +67,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to OSM"
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.3.1'
+ghenv.Component.Message = '0.3.2'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -94,7 +94,6 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.config import conversion_to_meters
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
@@ -136,11 +135,10 @@ if all_required_inputs(ghenv.Component) and _write:
     assert len(_model.orphaned_apertures) == 0, orphaned_warning('Aperture')
     assert len(_model.orphaned_doors) == 0, orphaned_warning('Door')
     
-    # scale the model if the Rhino units are not meters
-    meters_conversion = conversion_to_meters()
-    if meters_conversion != 1:
-        _model = _model.duplicate()  # duplicate model to avoid scaling the input
-        _model.scale(meters_conversion)
+    # scale the model if the units are not meters
+    if _model.units != 'Meters':
+        _model = _model.duplicate()  # duplicate model to avoid mutating the input
+        _model.convert_to_units('Meters')
     
     # delete any existing files in the directory and prepare it for simulation
     nukedir(directory, True)
