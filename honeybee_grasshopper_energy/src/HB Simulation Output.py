@@ -36,9 +36,9 @@ The resulting object can be used to request output variables from EnergyPlus.
                 * Sensible - the sensible load added to the zone
                 * Latent - the latent load added to the zone
         summary_reports_: An optional list of EnergyPlus summary report names as strings.
-            If None, no summary reports will be output from EnergyPlus and no
-            HTML file will be written for the simulation. The most common type
-            of summary report is 'AllSummary'. Default: None.
+            If None, only the 'AllSummary' report will be requested from the simulation
+            and no HTML report will be generated. If any value is input here, an HTML
+            report will be requested and the summary report written into it.
             See the Input Output Reference SummaryReports section for a full
             list of all reports that can be requested. https://bigladdersoftware.com/
             epx/docs/9-1/input-output-reference/output-table-summaryreports.html
@@ -59,7 +59,7 @@ The resulting object can be used to request output variables from EnergyPlus.
 
 ghenv.Component.Name = "HB Simulation Output"
 ghenv.Component.NickName = 'SimOutput'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -86,6 +86,9 @@ sim_output = SimulationOutput(outputs=None,
                               include_sqlite=True,
                               include_html=_html,
                               summary_reports=summary_reports_)
+
+# ensure that we always include AllSummary in the reports; it's used in result parsing
+sim_output.add_summary_report('AllSummary')
 
 # set each of the requested outputs
 if zone_energy_use_:
