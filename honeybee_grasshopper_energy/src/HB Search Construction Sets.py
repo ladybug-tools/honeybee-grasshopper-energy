@@ -37,15 +37,15 @@ Search for available ProgramTypes within the honeybee energy standards library.
 
 ghenv.Component.Name = "HB Search Construction Sets"
 ghenv.Component.NickName = 'SearchConstrSet'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '0 :: Basic Properties'
-ghenv.Component.AdditionalHelpFromDocStrings = "3"
+ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
 try:
-    from honeybee_energy_standards.lib.programtypes import STANDARDS_REGISTRY
+    from honeybee_energy.lib.programtypes import STANDARDS_REGISTRY
 except ImportError as e:
-    raise ImportError('\nFailed to import honeybee_energy_standards:\n\t{}'.format(e))
+    raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
     from ladybug_rhino.grasshopper import all_required_inputs
