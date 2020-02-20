@@ -52,9 +52,9 @@ to an IDF file and then run through EnergyPlus.
         idf: The file path of the IDF file that has been generated on this computer.
         sql: The file path of the SQL result file that has been generated on this
             computer. This will be None unless run_ is set to True.
-        eio:  The file path of the EIO file that has been generated on this computer.
-            This file contains information about the sizes of all HVAC equipment
-            from the simulation.
+        zsz: Path to a .csv file containing detailed zone load information recorded
+            over the course of the design days. This will be None unless run_ is
+            set to True.
         rdd: The file path of the Result Data Dictionary (.rdd) file that is
             generated after running the file through EnergyPlus.  This file
             contains all possible outputs that can be requested from the EnergyPlus
@@ -67,7 +67,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to OSM"
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.3.2'
+ghenv.Component.Message = '0.3.3'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -171,4 +171,4 @@ if all_required_inputs(ghenv.Component) and _write:
     
     # run the resulting idf throught EnergyPlus
     if run_ == 1:
-        sql, eio, rdd, html, err = run_idf(idf, _epw_file)
+        sql, zsz, rdd, html, err = run_idf(idf, _epw_file)
