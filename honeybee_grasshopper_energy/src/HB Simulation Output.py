@@ -26,23 +26,13 @@ The resulting object can be used to request output variables from EnergyPlus.
             surface temperature.
         surface_energy_flow_: Set to True to add outputs for energy flow across
             all surfaces.
-        glazing_solar_: Set to True to add outputs for the transmitted solar gain
-            through individual window surfaces. This includes transmitted beam,
-            diffuse, and total solar gain.
         load_type_: An optional text value to set the type of load outputs requested.
             Default - 'Total'. Choose from the following:
                 * All - all energy use including heat lost from the zone
                 * Total - the total load added to the zone (both sensible and latent)
                 * Sensible - the sensible load added to the zone
                 * Latent - the latent load added to the zone
-        summary_reports_: An optional list of EnergyPlus summary report names as strings.
-            If None, only the 'AllSummary' report will be requested from the simulation
-            and no HTML report will be generated. If any value is input here, an HTML
-            report will be requested and the summary report written into it.
-            See the Input Output Reference SummaryReports section for a full
-            list of all reports that can be requested. https://bigladdersoftware.com/
-            epx/docs/9-1/input-output-reference/output-table-summaryreports.html
-        _reporting_frequency_: Text for the frequency at which the outputs
+        _report_frequency_: Text for the frequency at which the outputs
                 are reported. Default: 'Hourly'.
                 Choose from the following:
                     * Annual
@@ -50,6 +40,13 @@ The resulting object can be used to request output variables from EnergyPlus.
                     * Daily
                     * Hourly
                     * Timestep
+        summary_reports_: An optional list of EnergyPlus summary report names as strings.
+            If None, only the 'AllSummary' report will be requested from the simulation
+            and no HTML report will be generated. If any value is input here, an HTML
+            report will be requested and the summary report written into it.
+            See the Input Output Reference SummaryReports section for a full
+            list of all reports that can be requested. https://bigladdersoftware.com/
+            epx/docs/9-1/input-output-reference/output-table-summaryreports.html
     
     Returns:
         sim_output: A SimulationOutput object that can be connected to the
@@ -59,7 +56,7 @@ The resulting object can be used to request output variables from EnergyPlus.
 
 ghenv.Component.Name = "HB Simulation Output"
 ghenv.Component.NickName = 'SimOutput'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -71,8 +68,8 @@ except ImportError as e:
 
 
 # set default reporting frequency.
-_reporting_frequency_ = _reporting_frequency_.title() \
-    if _reporting_frequency_ is not None else 'Hourly'
+_report_frequency_ = _report_frequency_.title() \
+    if _report_frequency_ is not None else 'Hourly'
 
 # set the inclusion of HTML based on whether summary reports are requested.
 _html = False if len(summary_reports_) == 0 else True
@@ -82,7 +79,7 @@ load_type_ = load_type_.title() if load_type_ is not None else 'All'
 
 # create the starting simulation output object.
 sim_output = SimulationOutput(outputs=None,
-                              reporting_frequency=_reporting_frequency_,
+                              reporting_frequency=_report_frequency_,
                               include_sqlite=True,
                               include_html=_html,
                               summary_reports=summary_reports_)
@@ -102,5 +99,3 @@ if surface_temperature_:
     sim_output.add_surface_temperature()
 if surface_energy_flow_:
     sim_output.add_surface_energy_flow()
-if glazing_solar_:
-    sim_output.add_glazing_solar()
