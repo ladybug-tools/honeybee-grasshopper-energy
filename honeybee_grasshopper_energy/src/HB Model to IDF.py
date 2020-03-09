@@ -52,7 +52,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.5.0'
+ghenv.Component.Message = '0.5.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -77,7 +77,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -138,6 +138,6 @@ if all_required_inputs(ghenv.Component) and _write:
             err_obj = Err(err)
             print(err_obj.file_contents)
             for warn in err_obj.severe_errors:
-                give_warning(warn)
+                give_warning(ghenv.Component, warn)
             for error in err_obj.fatal_errors:
                 raise Exception(error)
