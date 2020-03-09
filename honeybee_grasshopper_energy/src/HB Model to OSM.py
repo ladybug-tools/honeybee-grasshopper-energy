@@ -67,7 +67,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to OSM"
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.4.0'
+ghenv.Component.Message = '0.4.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -177,6 +177,6 @@ if all_required_inputs(ghenv.Component) and _write:
             err_obj = Err(err)
             print(err_obj.file_contents)
             for warn in err_obj.severe_errors:
-                give_warning(warn)
+                give_warning(ghenv.Component, warn)
             for error in err_obj.fatal_errors:
                 raise Exception(error)

@@ -37,10 +37,10 @@ Search for available ProgramTypes within the honeybee energy standards library.
 
 ghenv.Component.Name = "HB Search Construction Sets"
 ghenv.Component.NickName = 'SearchConstrSet'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '0 :: Basic Properties'
-ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.AdditionalHelpFromDocStrings = "3"
 
 try:
     from honeybee_energy.lib.programtypes import STANDARDS_REGISTRY
