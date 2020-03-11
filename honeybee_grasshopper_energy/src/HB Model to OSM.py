@@ -1,8 +1,9 @@
-# Ladybug: A Plugin for Environmental Analysis (GPL) started by Mostapha Sadeghipour Roudsari
-# This file is part of Ladybug.
+# Honeybee: A Plugin for Environmental Analysis (GPL)
+# This file is part of Honeybee.
 #
+# Copyright (c) 2019, Ladybug Tools.
 # You should have received a copy of the GNU General Public License
-# along with Ladybug; If not, see <http://www.gnu.org/licenses/>.
+# along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
@@ -67,7 +68,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to OSM"
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.4.1'
+ghenv.Component.Message = '0.4.2'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -124,9 +125,6 @@ if all_required_inputs(ghenv.Component) and _write:
             raise ValueError('No _ddy_file_ has been input and no .ddy file was '
                              'found next to the _epw_file.')
     
-    # process the additional strings
-    add_str = '/n'.join(add_str_) if add_str_ is not None else ''
-    
     # process the simulation folder name and the directory
     _folder_ = hb_config.folders.default_simulation_folder if _folder_ is None else _folder_
     directory = os.path.join(_folder_, _model.name, 'OpenStudio')
@@ -165,7 +163,7 @@ if all_required_inputs(ghenv.Component) and _write:
     if run_ > 0:
         osm, idf = run_osw(osw)
         # process the additional strings
-        if add_str_ is not None and idf is not None:
+        if add_str_ != [] and add_str_[0] is not None and idf is not None:
             add_str = '/n'.join(add_str_)
             with open(idf, "a") as idf_file:
                 idf_file.write(add_str)

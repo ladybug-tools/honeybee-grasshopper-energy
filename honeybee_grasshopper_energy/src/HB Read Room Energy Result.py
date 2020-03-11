@@ -49,7 +49,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = "HB Read Room Energy Result"
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -154,7 +154,8 @@ if all_required_inputs(ghenv.Component):
     if len(vent_gain) == len(vent_loss) == len(cooling) == len(heating):
         mech_vent_loss = subtract_loss_from_gain(heating, vent_loss)
         mech_vent_gain = subtract_loss_from_gain(cooling, vent_gain)
-        mech_vent_load = subtract_loss_from_gain(mech_vent_gain, mech_vent_loss)
+        mech_vent_load = [data.duplicate() for data in
+                          subtract_loss_from_gain(mech_vent_gain, mech_vent_loss)]
         for load in mech_vent_load:
             load.header.metadata['type'] = \
                 'Zone Ideal Loads Ventilation Heat Energy'
