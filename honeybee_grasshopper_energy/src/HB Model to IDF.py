@@ -1,8 +1,9 @@
-# Ladybug: A Plugin for Environmental Analysis (GPL) started by Mostapha Sadeghipour Roudsari
-# This file is part of Ladybug.
+# Honeybee: A Plugin for Environmental Analysis (GPL)
+# This file is part of Honeybee.
 #
+# Copyright (c) 2019, Ladybug Tools.
 # You should have received a copy of the GNU General Public License
-# along with Ladybug; If not, see <http://www.gnu.org/licenses/>.
+# along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
@@ -52,7 +53,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.5.1'
+ghenv.Component.Message = '0.5.2'
 ghenv.Component.Category = "Energy"
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -73,6 +74,8 @@ try:
     from honeybee_energy.simulation.parameter import SimulationParameter
     from honeybee_energy.run import run_idf
     from honeybee_energy.result.err import Err
+    from honeybee_energy.writer import energyplus_idf_version
+    from honeybee_energy.config import folders as energy_folders
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -120,10 +123,12 @@ if all_required_inputs(ghenv.Component) and _write:
     assert len(_model.orphaned_doors) == 0, orphaned_warning('Door')
     
     # create the strings for simulation paramters and model
+    ver_str = energyplus_idf_version() if energy_folders.energyplus_version \
+        is not None else energyplus_idf_version((9, 2, 0))
     sim_par_str = _sim_par_.to_idf()
     model_str = _model.to.idf(_model, schedule_directory=sch_directory,
                               solar_distribution=_sim_par_.shadow_calculation.solar_distribution)
-    idf_str = '\n\n'.join([sim_par_str, model_str, add_str])
+    idf_str = '\n\n'.join([ver_str, sim_par_str, model_str, add_str])
     
     # delete any existing files in the directory
     nukedir(directory)
