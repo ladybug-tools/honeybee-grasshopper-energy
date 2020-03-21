@@ -36,7 +36,7 @@ Create an opaque material that has no mass, which can be plugged into the
 ghenv.Component.Name = "HB Opaque Material No Mass"
 ghenv.Component.NickName = 'OpaqueMatNoMass'
 ghenv.Component.Message = '0.1.1'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "5"
 

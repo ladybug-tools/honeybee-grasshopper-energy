@@ -41,7 +41,7 @@ used to edit or create a ConstructionSet object.
 ghenv.Component.Name = "HB Subface Subset"
 ghenv.Component.NickName = 'SubfaceSubset'
 ghenv.Component.Message = '0.1.0'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 

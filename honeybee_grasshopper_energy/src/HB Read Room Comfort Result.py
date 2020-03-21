@@ -26,7 +26,7 @@ file that has been generated from an energy simulation.
 ghenv.Component.Name = "HB Read Room Comfort Result"
 ghenv.Component.NickName = 'RoomComfortResult'
 ghenv.Component.Message = '0.1.0'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
 

@@ -39,7 +39,7 @@ Construction" component.
 ghenv.Component.Name = "HB Opaque Material"
 ghenv.Component.NickName = 'OpaqueMat'
 ghenv.Component.Message = '0.1.1'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "5"
 

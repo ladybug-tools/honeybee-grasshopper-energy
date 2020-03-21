@@ -24,7 +24,7 @@ Apply ConstructionSet to Honeybee Rooms.
 ghenv.Component.Name = "HB Apply ConstructionSet"
 ghenv.Component.NickName = 'ApplyConstrSet'
 ghenv.Component.Message = '0.1.0'
-ghenv.Component.Category = 'Energy'
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
 

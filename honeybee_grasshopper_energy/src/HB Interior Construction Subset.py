@@ -37,7 +37,7 @@ ConstructionSet object.
 ghenv.Component.Name = "HB Interior Construction Subset"
 ghenv.Component.NickName = 'InteriorSubset'
 ghenv.Component.Message = '0.1.0'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 

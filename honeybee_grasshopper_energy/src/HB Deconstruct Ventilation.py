@@ -46,7 +46,7 @@ in the simulation.
 ghenv.Component.Name = "HB Deconstruct Ventilation"
 ghenv.Component.NickName = 'DecnstrVentilation'
 ghenv.Component.Message = '0.1.0'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
 
