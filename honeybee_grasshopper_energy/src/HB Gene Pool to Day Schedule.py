@@ -43,7 +43,7 @@ timeseries over a day. Each slider runs from the _low_bound_ to _high_bound_.
 ghenv.Component.Name = "HB Gene Pool to Day Schedule"
 ghenv.Component.NickName = 'GenePoolToDaySch'
 ghenv.Component.Message = '0.1.0'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
 

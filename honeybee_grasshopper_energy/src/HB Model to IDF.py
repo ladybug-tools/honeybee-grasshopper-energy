@@ -54,7 +54,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
 ghenv.Component.Message = '0.5.3'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
 

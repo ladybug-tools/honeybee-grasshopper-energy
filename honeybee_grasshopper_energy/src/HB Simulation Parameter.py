@@ -59,7 +59,7 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
 ghenv.Component.Name = "HB Simulation Parameter"
 ghenv.Component.NickName = 'SimPar'
 ghenv.Component.Message = '0.2.1'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
 

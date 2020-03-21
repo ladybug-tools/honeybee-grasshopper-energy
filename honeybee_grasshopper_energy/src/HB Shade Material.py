@@ -49,7 +49,7 @@ the shade. Shades are considered to be perfect diffusers.
 ghenv.Component.Name = "HB Shade Material"
 ghenv.Component.NickName = 'ShadeMat'
 ghenv.Component.Message = '0.1.1'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "6"
 

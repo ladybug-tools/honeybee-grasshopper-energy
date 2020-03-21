@@ -33,7 +33,7 @@ calculations to run.
 ghenv.Component.Name = "HB Simulation Control"
 ghenv.Component.NickName = 'SimControl'
 ghenv.Component.Message = '0.1.0'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
 

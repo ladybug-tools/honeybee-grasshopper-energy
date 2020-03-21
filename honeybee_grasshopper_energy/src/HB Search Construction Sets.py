@@ -38,7 +38,7 @@ Search for available ProgramTypes within the honeybee energy standards library.
 ghenv.Component.Name = "HB Search Construction Sets"
 ghenv.Component.NickName = 'SearchConstrSet'
 ghenv.Component.Message = '0.1.3'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
 

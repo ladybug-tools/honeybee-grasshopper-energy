@@ -31,7 +31,7 @@ do not have layers and are only defined by their exterior reflectance.
 ghenv.Component.Name = "HB Shade Construction"
 ghenv.Component.NickName = 'ShadeConstr'
 ghenv.Component.Message = '0.1.1'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 

@@ -69,7 +69,7 @@ given load.
 ghenv.Component.Name = "HB Apply Room Schedules"
 ghenv.Component.NickName = 'ApplyRoomSch'
 ghenv.Component.Message = '0.2.0'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
 

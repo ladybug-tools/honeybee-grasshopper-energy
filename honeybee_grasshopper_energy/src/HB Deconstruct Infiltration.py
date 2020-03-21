@@ -31,7 +31,7 @@ Deconstruct an Infiltration object into its constituient properties.
 ghenv.Component.Name = "HB Deconstruct Infiltration"
 ghenv.Component.NickName = 'DecnstrInfiltration'
 ghenv.Component.Message = '0.1.0'
-ghenv.Component.Category = "Energy"
+ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
 
