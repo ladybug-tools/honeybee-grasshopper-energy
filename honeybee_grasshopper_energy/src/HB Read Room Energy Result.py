@@ -47,12 +47,12 @@ that has been generated from an energy simulation.
             (positive) in each room resulting from natural ventilation (kWh).
 """
 
-ghenv.Component.Name = "HB Read Room Energy Result"
+ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
-ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = "3"
+ghenv.Component.SubCategory = '6 :: Result'
+ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 try:
     from honeybee_energy.result.sql import SQLiteResult

@@ -23,12 +23,12 @@ file that has been generated from an energy simulation.
         rel_humidity: DataCollections for the relative humidity of each room (%).
 """
 
-ghenv.Component.Name = "HB Read Room Comfort Result"
+ghenv.Component.Name = 'HB Read Room Comfort Result'
 ghenv.Component.NickName = 'RoomComfortResult'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
-ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = "3"
+ghenv.Component.SubCategory = '6 :: Result'
+ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 try:
     from honeybee_energy.result.sql import SQLiteResult
