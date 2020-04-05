@@ -13,7 +13,8 @@ Create an opaque material that has no mass, which can be plugged into the
 -
 
     Args:
-        _name: Text string for material name.
+        _name: Text to set the name for the material and to be incorporated into
+            a unique material identifier.
         _r_value: Number for the R-value of the material [m2-K/W].
         _roughness_: Text describing the relative roughness of a particular material.
             Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
@@ -35,16 +36,21 @@ Create an opaque material that has no mass, which can be plugged into the
 
 ghenv.Component.Name = "HB Opaque Material No Mass"
 ghenv.Component.NickName = 'OpaqueMatNoMass'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "5"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.material.opaque import EnergyMaterialNoMass
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -56,7 +62,9 @@ if all_required_inputs(ghenv.Component):
     _roughness_ = 'MediumRough' if _roughness_ is None else _roughness_
     _therm_absp_ = 0.9 if _therm_absp_ is None else _therm_absp_
     _sol_absp_ = 0.7 if _sol_absp_ is None else _sol_absp_
-    
+
     # create the material
-    mat = EnergyMaterialNoMass(_name, _r_value, _roughness_, _therm_absp_,
-                               _sol_absp_, _vis_absp_)
+    mat = EnergyMaterialNoMass(
+        clean_and_id_ep_string(_name), _r_value, _roughness_, _therm_absp_,
+        _sol_absp_, _vis_absp_)
+    mat.display_name = _name

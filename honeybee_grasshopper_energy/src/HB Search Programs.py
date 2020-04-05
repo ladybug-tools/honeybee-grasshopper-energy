@@ -29,13 +29,13 @@ space types within OpenStudio.
             will be output.
     
     Returns:
-        room_prog: A list of room program names that meet the input criteria and
+        room_prog: A list of room program identifiers that meet the input criteria and
             can be applied to Honeybee Rooms.
 """
 
 ghenv.Component.Name = "HB Search Programs"
 ghenv.Component.NickName = 'SearchProg'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"

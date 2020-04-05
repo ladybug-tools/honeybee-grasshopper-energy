@@ -15,7 +15,7 @@ Deconstruct a Lighting object into its constituient properties.
         _lighting: A Lighting object to be deconstructed.
     
     Returns:
-        name: Text string for the lighting definition name.
+        name: Text string for the lighting display name.
          watts_per_area: A numerical value for the lighting power density in
             Watts per square meter of floor area.
         schedule: A fractional for the use of lights over the course of the year.
@@ -31,7 +31,7 @@ Deconstruct a Lighting object into its constituient properties.
 
 ghenv.Component.Name = "HB Deconstruct Lighting"
 ghenv.Component.NickName = 'DecnstrLighting'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -51,9 +51,9 @@ if all_required_inputs(ghenv.Component):
     # check the input
     assert isinstance(_lighting, Lighting), \
         'Expected Lighting object. Got {}.'.format(type(_lighting))
-    
+
     # get the properties of the object
-    name = _lighting.name
+    name = _lighting.display_name
     watts_per_area = _lighting.watts_per_area
     schedule = _lighting.schedule
     radiant_fract = _lighting.radiant_fraction

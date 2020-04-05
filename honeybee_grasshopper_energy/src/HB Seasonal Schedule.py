@@ -31,10 +31,8 @@ each schedule should be applied.
             overlap with one another, then the schedules that come later in
             this list will overwrite those that come earlier in the list for
             the duration of the overlapping time period.
-        _name: A text string representing a name for the schedule.  This name
-            should be unique among the schedules in your Grasshopper document
-            to ensure that there are no naming conflicts in the resulting
-            simulation files.
+        _name: Text to set the name for the Schedule and to be incorporated
+            into a unique Schedule identifier.
     
     Returns:
         report: Reports, errors, warnings, etc.
@@ -59,16 +57,22 @@ each schedule should be applied.
 
 ghenv.Component.Name = "HB Seasonal Schedule"
 ghenv.Component.NickName = 'SeasonalSchedule'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.schedule.ruleset import ScheduleRuleset
-    from honeybee_energy.lib.schedules import schedule_by_name
+    from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -80,21 +84,23 @@ if all_required_inputs(ghenv.Component):
     assert len(_season_scheds) == len(_analysis_periods), \
         'Length of the _season_scheds list must match that of the _analysis_periods.' \
         '\n{} does not equal {}'.format(len(_season_scheds), len(_analysis_periods))
-    
+
     # start by duplicating the base schedule
     if isinstance(_base_schedule, str):
-        _base_schedule = schedule_by_name(_base_schedule)
+        _base_schedule = schedule_by_identifier(_base_schedule)
     schedule = _base_schedule.duplicate()
-    
+    schedule.identifier = clean_and_id_ep_string(_name)
+    schedule.display_name = _name
+
     # translate the _season_scheds to individual Rules and apply them to the base
     for season_sch, a_period in zip(_season_scheds, _analysis_periods):
         if isinstance(season_sch, str):
-            season_sch = schedule_by_name(season_sch)
+            season_sch = schedule_by_identifier(season_sch)
         season_rules = season_sch.to_rules(
             a_period.st_time.date, a_period.end_time.date)
         for rule in reversed(season_rules):  # preserve priority order of rules
             schedule.add_rule(rule)
-    
+
     # get the idf strings of the schedule
     idf_year, idf_week = schedule.to_idf()
     idf_days = [day_sch.to_idf(schedule.schedule_type_limit)

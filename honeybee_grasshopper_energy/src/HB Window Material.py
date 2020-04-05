@@ -14,7 +14,8 @@ Construction" component.
 -
 
     Args:
-        _name: Text string for material name.
+        _name: Text to set the name for the material and to be incorporated into
+            a unique material identifier.
         _u_factor: A number for the U-factor of the glazing system [W/m2-K]
             including standard air gap resistances on either side of the
             glazing system.
@@ -33,16 +34,21 @@ Construction" component.
 
 ghenv.Component.Name = "HB Window Material"
 ghenv.Component.NickName = 'WindowMat'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "5"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.material.glazing import EnergyWindowMaterialSimpleGlazSys
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -52,6 +58,8 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # set the default material properties
     _t_vis_ = 0.6 if _t_vis_ is None else _t_vis_
-    
+
     # create the material
-    mat = EnergyWindowMaterialSimpleGlazSys(_name, _u_factor, _shgc, _t_vis_)
+    mat = EnergyWindowMaterialSimpleGlazSys(
+        clean_and_id_ep_string(_name), _u_factor, _shgc, _t_vis_)
+    mat.display_name = _name

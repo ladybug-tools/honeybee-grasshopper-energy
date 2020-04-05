@@ -13,8 +13,9 @@ directly to a Room.
 -
 
     Args:
-        _name_: Text string for the people definition name. If None, a unique
-            name will be generated.
+        _name_: Text to set the name for the People and to be incorporated
+            into a unique People identifier. If None, a unique name will
+            be generated.
          _ppl_per_area: A numerical value for the number of people per square
             meter of floor area.
         _occupancy_sch: A fractional schedule for the occupancy over the course
@@ -34,16 +35,21 @@ directly to a Room.
 
 ghenv.Component.Name = "HB People"
 ghenv.Component.NickName = 'People'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
 
 import uuid
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+
 try:
     from honeybee_energy.load.people import People
-    from honeybee_energy.lib.schedules import schedule_by_name
+    from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -56,13 +62,17 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # make a default People name if none is provided
     if _name_ is None:
-        _name_ = "People_{}".format(uuid.uuid4())
-    
+        name = "People_{}".format(uuid.uuid4())
+    else:
+        name = clean_and_id_ep_string(_name_)
+
     # get the schedules
     if isinstance(_occupancy_sch, str):
-        _occupancy_sch = schedule_by_name(_occupancy_sch)
+        _occupancy_sch = schedule_by_identifier(_occupancy_sch)
     if isinstance(_activity_sch_, str):
-        _activity_sch_ = schedule_by_name(_activity_sch_)
-    
+        _activity_sch_ = schedule_by_identifier(_activity_sch_)
+
     # create the People object
-    people = People(_name_, _ppl_per_area, _occupancy_sch, _activity_sch_)
+    people = People(name, _ppl_per_area, _occupancy_sch, _activity_sch_)
+    if _name_ is not None:
+        people.display_name = _name_

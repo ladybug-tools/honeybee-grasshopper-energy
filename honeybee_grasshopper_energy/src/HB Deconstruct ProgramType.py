@@ -12,8 +12,8 @@ Deconstruct a ProgramType object into its component load objects.
 -
 
     Args:
-        _program: A ProgramType object or text for the name of a ProgramType to
-            be looked up in the program type library.
+        _program: A ProgramType object or text for the identifier of a ProgramType
+            to be looked up in the program type library.
     
     Returns:
         people: A People object that describes the occupancy of the program. If None,
@@ -37,13 +37,13 @@ Deconstruct a ProgramType object into its component load objects.
 
 ghenv.Component.Name = "HB Deconstruct ProgramType"
 ghenv.Component.NickName = 'DeconstrProgram'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
 
 try:
-    from honeybee_energy.lib.programtypes import program_type_by_name
+    from honeybee_energy.lib.programtypes import program_type_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -54,10 +54,10 @@ except ImportError as e:
 
 
 if all_required_inputs(ghenv.Component):
-    # get the program from the library if it is a name
+    # get the program from the library if it is a identifier
     if isinstance(_program, str):
-        _program = program_type_by_name(_program)
-    
+        _program = program_type_by_identifier(_program)
+
     # get the components of the program
     people = _program.people
     lighting = _program.lighting

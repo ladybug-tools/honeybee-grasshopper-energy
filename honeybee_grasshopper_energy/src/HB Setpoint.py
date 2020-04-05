@@ -13,8 +13,9 @@ directly to a Room.
 -
 
     Args:
-        _name_: Text string for the setpoint definition name. If None, a unique
-            name will be generated.
+        _name_: Text to set the name for the Setpoint and to be incorporated
+            into a unique Setpoint identifier. If None, a unique name will
+            be generated.
          _heating_sch: A temperature schedule for the heating setpoint.
             The type limit of this schedule should be temperature and the
             values should be the temperature setpoint in degrees Celcius.
@@ -36,16 +37,21 @@ directly to a Room.
 
 ghenv.Component.Name = "HB Setpoint"
 ghenv.Component.NickName = 'Setpoint'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
 
 import uuid
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+
 try:
     from honeybee_energy.load.setpoint import Setpoint
-    from honeybee_energy.lib.schedules import schedule_by_name
+    from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -58,17 +64,21 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # make a default Setpoint name if none is provided
     if _name_ is None:
-        _name_ = "Setpoint_{}".format(uuid.uuid4())
-    
+        name = "Setpoint_{}".format(uuid.uuid4())
+    else:
+        name = clean_and_id_ep_string(_name_)
+
     # get the schedules
     if isinstance(_heating_sch, str):
-        _heating_sch = schedule_by_name(_heating_sch)
+        _heating_sch = schedule_by_identifier(_heating_sch)
     if isinstance(_cooling_sch, str):
-        _cooling_sch = schedule_by_name(_cooling_sch)
-    
+        _cooling_sch = schedule_by_identifier(_cooling_sch)
+
     # create the Setpoint object
-    setpoint = Setpoint(_name_, _heating_sch, _cooling_sch)
-    
+    setpoint = Setpoint(name, _heating_sch, _cooling_sch)
+    if _name_ is not None:
+        setpoint.display_name = _name_
+
     # assign the humidification and dehumidification setpoints if requested
     if humid_setpt_ is not None:
         setpoint.humidifying_setpoint = humid_setpt_

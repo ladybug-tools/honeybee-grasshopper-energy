@@ -14,19 +14,19 @@ ConstructionSet object.
 
     Args:
         _interior_wall_: A construction object for interior walls (or text for
-            the name of the construction within the library).
-        _ceiling_: A construction object for ceilings (or text for the name of
+            the identifier of the construction within the library).
+        _ceiling_: A construction object for ceilings (or text for the identifier of
             the construction within the library).
         _interior_floor_: A construction object for interior floors (or text for
-            the name of the construction within the library).
+            the identifier of the construction within the library).
         _interior_window_: A construction object for all apertures with a Surface
-            boundary condition. This can also be text for the name of the
+            boundary condition. This can also be text for the identifier of the
             construction within the library.
         _interior_door_: A construction object for all opaque doors with a Surface
-            boundary condition. This can also be text for the name of the
+            boundary condition. This can also be text for the identifier of the
             construction within the library.
         _int_glass_door_: A construction object for all glass doors with a Surface
-            boundary condition. This can also be text for the name of the
+            boundary condition. This can also be text for the identifier of the
             construction within the library.
     
     Returns:
@@ -36,7 +36,7 @@ ConstructionSet object.
 
 ghenv.Component.Name = "HB Interior Construction Subset"
 ghenv.Component.NickName = 'InteriorSubset'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
@@ -44,8 +44,8 @@ ghenv.Component.AdditionalHelpFromDocStrings = "4"
 try:  # import honeybee_energy dependencies
     from honeybee_energy.construction.opaque import OpaqueConstruction
     from honeybee_energy.construction.window import WindowConstruction
-    from honeybee_energy.lib.constructions import opaque_construction_by_name, \
-        window_construction_by_name
+    from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \
+        window_construction_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 try:  # import ladybug_rhino dependencies
@@ -57,7 +57,7 @@ except ImportError as e:
 def opaque_constr(construction, input_name):
     """Get an OpaqueConstrucion from the library if it's a string."""
     if isinstance(construction, str):
-        return opaque_construction_by_name(construction)
+        return opaque_construction_by_identifier(construction)
     else:
         assert isinstance(construction, OpaqueConstruction), \
             'Expected OpaqueConstruction for {}. Got {}'.format(
@@ -68,7 +68,7 @@ def opaque_constr(construction, input_name):
 def window_constr(construction, input_name):
     """Get an WindowConstrucion from the library if it's a string."""
     if isinstance(construction, str):
-        return window_construction_by_name(construction)
+        return window_construction_by_identifier(construction)
     else:
         assert isinstance(construction, WindowConstruction), \
             'Expected WindowConstruction for {}. Got {}'.format(

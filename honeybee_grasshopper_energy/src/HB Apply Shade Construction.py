@@ -37,14 +37,14 @@ orientation, provided that a list of ShadeConstructions are input to the _constr
 
 ghenv.Component.Name = "HB Apply Shade Construction"
 ghenv.Component.NickName = 'ApplyShadeConstr'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '0.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 
 try:  # import the honeybee-energy extension
-    from honeybee_energy.lib.constructions import shade_construction_by_name
+    from honeybee_energy.lib.constructions import shade_construction_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -71,7 +71,7 @@ if all_required_inputs(ghenv.Component):
     # process the input constructions
     for i, constr in enumerate(_constr):
         if isinstance(constr, str):
-            _constr[i] = shade_construction_by_name(constr)
+            _constr[i] = shade_construction_by_identifier(constr)
     
     # error message for unrecognized object
     error_msg = 'Input _hb_objs must be a Room, Face, Aperture, Door, or Shade. Not {}.'

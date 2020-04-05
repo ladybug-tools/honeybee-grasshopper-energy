@@ -19,7 +19,7 @@ in the simulation.
         _vent: An Ventilation object to be deconstructed.
     
     Returns:
-        name: Text string for the ventilation definition name.
+        name: Text string for the ventilation display name.
         flow_per_person: A numerical value for the intensity of ventilation
             in m3/s per person. Note that setting this value here does not mean
             that ventilation is varied based on real-time occupancy but rather
@@ -45,7 +45,7 @@ in the simulation.
 
 ghenv.Component.Name = "HB Deconstruct Ventilation"
 ghenv.Component.NickName = 'DecnstrVentilation'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -65,9 +65,9 @@ if all_required_inputs(ghenv.Component):
     # check the input
     assert isinstance(_vent, Ventilation), \
         'Expected Ventilation object. Got {}.'.format(type(_vent))
-    
+
     # get the properties of the object
-    name = _vent.name
+    name = _vent.display_name
     flow_per_person = _vent.flow_per_person
     flow_per_area = _vent.flow_per_area
     flow_per_zone = _vent.flow_per_zone

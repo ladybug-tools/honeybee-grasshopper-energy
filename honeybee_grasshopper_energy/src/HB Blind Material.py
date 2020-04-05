@@ -15,7 +15,8 @@ Window blind properties consist of flat, equally-spaced slats.
 -
 
     Args:
-        _name: Text string for material name.
+        _name: Text to set the name for the material and to be incorporated into
+            a unique material identifier.
         _vertical_: Set to "True" to have the blinds be vertically-oriented and
             set to "False" to have them be horizontally-oriented.
             Default: "False" for horizontal.
@@ -54,16 +55,21 @@ Window blind properties consist of flat, equally-spaced slats.
 
 ghenv.Component.Name = "HB Blind Material"
 ghenv.Component.NickName = 'BlindMat'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "6"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.material.shade import EnergyWindowMaterialBlind
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -87,6 +93,8 @@ if all_required_inputs(ghenv.Component):
     
     # create the material
     mat = EnergyWindowMaterialBlind(
-        _name, orientation, _slat_width_, _slat_separation_, _slat_thickness_,
-        _slat_angle_, _conductivity_, _transmittance_, _reflectance_, _transmittance_,
-        _reflectance_, _t_infrared_, _emissivity_, _dist_to_glass_, _open_mult_)
+        clean_and_id_ep_string(_name), orientation, _slat_width_, _slat_separation_,
+        _slat_thickness_, _slat_angle_, _conductivity_, _transmittance_,
+        _reflectance_, _transmittance_,  _reflectance_, _t_infrared_, _emissivity_,
+        _dist_to_glass_, _open_mult_)
+    mat.display_name = _name

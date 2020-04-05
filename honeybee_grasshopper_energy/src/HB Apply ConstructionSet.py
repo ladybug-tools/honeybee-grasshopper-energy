@@ -23,14 +23,14 @@ Apply ConstructionSet to Honeybee Rooms.
 
 ghenv.Component.Name = "HB Apply ConstructionSet"
 ghenv.Component.NickName = 'ApplyConstrSet'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 
 try:  # import the honeybee-energy extension
-    from honeybee_energy.lib.constructionsets import construction_set_by_name
+    from honeybee_energy.lib.constructionsets import construction_set_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -46,7 +46,7 @@ if all_required_inputs(ghenv.Component):
     
     # process the input construction set if it's a string
     if isinstance(_constr_set, str):
-        _constr_set = construction_set_by_name(_constr_set)
+        _constr_set = construction_set_by_identifier(_constr_set)
     
     # assign the construction set
     for rm in rooms:

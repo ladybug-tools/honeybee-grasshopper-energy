@@ -13,7 +13,8 @@ This material can be plugged into the "HB Window Construction" component.
 -
 
     Args:
-        _name: Text string for material name.
+        _name: Text to set the name for the material and to be incorporated into
+            a unique material identifier.
         _thickness_: Number for the thickness of the air gap layer [m].
             Default: 0.0125
         _gas_types_: A list of text describing the types of gas in the gap.
@@ -30,17 +31,22 @@ This material can be plugged into the "HB Window Construction" component.
 
 ghenv.Component.Name = "HB Window Gap Material"
 ghenv.Component.NickName = 'GapMat'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "6"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.material.gas import EnergyWindowMaterialGas, \
         EnergyWindowMaterialGasMixture
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -55,10 +61,12 @@ if all_required_inputs(ghenv.Component):
         len(_gas_ratios_) == 0 else _gas_ratios_
     assert len(_gas_types_) == len(_gas_ratios_), \
         'Length of _gas_types_ does not equal length of _gas_ratios_.'
-    
+
     # create the material
     if len(_gas_types_) == 1:
-        mat = EnergyWindowMaterialGas(_name, _thickness_, _gas_types_[0])
+        mat = EnergyWindowMaterialGas(
+            clean_and_id_ep_string(_name), _thickness_, _gas_types_[0])
     else:
         mat = EnergyWindowMaterialGasMixture(
-            _name, _thickness_, _gas_types_, _gas_ratios_)
+            clean_and_id_ep_string(_name), _thickness_, _gas_types_, _gas_ratios_)
+    mat.display_name = _name

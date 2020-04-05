@@ -15,22 +15,24 @@ used to edit or create a ConstructionSet object.
     Args:
         _window_: A construction object for apertures with an Outdoors boundary
             condition and a Wall face type for their parent face. This can also
-            be text for the name of the construction within the library.
+            be text for the identifier of the construction within the library.
         _skylight_: A construction object for apertures with an Outdoors boundary
             condition and a RoofCeiling or Floor face type for their parent face.
-            This can also be text for the name of the construction within the library.
+            This can also be text for the identifier of the construction within
+            the library.
         _operable_: A construction object for apertures with an Outdoors boundary
             condition and True is_operable property. This can also be text for
-            the name of the construction within the library.
+            the identifier of the construction within the library.
         _exterior_door_: A construction object for opaque doors with an Outdoors
             boundary condition and a Wall face type for their parent face. This
-            can also be text for the name of the construction within the library.
+            can also be text for the identifier of the construction within
+            the library.
         _overhead_door_: A construction object for opaque doors with an Outdoors
             boundary condition and a RoofCeiling or Floor face type for their
-            parent face. This can also be text for the name of the construction
+            parent face. This can also be text for the identifier of the construction
             within the library.
         _glass_door_: A construction object for all glass doors with an Outdoors
-            boundary condition. This can also be text for the name of the
+            boundary condition. This can also be text for the identifier of the
             construction within the library.
     
     Returns:
@@ -40,7 +42,7 @@ used to edit or create a ConstructionSet object.
 
 ghenv.Component.Name = "HB Subface Subset"
 ghenv.Component.NickName = 'SubfaceSubset'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
@@ -48,8 +50,8 @@ ghenv.Component.AdditionalHelpFromDocStrings = "4"
 try:  # import honeybee_energy dependencies
     from honeybee_energy.construction.opaque import OpaqueConstruction
     from honeybee_energy.construction.window import WindowConstruction
-    from honeybee_energy.lib.constructions import opaque_construction_by_name, \
-        window_construction_by_name
+    from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \
+        window_construction_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -57,7 +59,7 @@ except ImportError as e:
 def opaque_constr(construction, input_name):
     """Get an OpaqueConstrucion from the library if it's a string."""
     if isinstance(construction, str):
-        return opaque_construction_by_name(construction)
+        return opaque_construction_by_identifier(construction)
     else:
         assert isinstance(construction, OpaqueConstruction), \
             'Expected OpaqueConstruction for {}. Got {}'.format(
@@ -68,7 +70,7 @@ def opaque_constr(construction, input_name):
 def window_constr(construction, input_name):
     """Get an WindowConstrucion from the library if it's a string."""
     if isinstance(construction, str):
-        return window_construction_by_name(construction)
+        return window_construction_by_identifier(construction)
     else:
         assert isinstance(construction, WindowConstruction), \
             'Expected WindowConstruction for {}. Got {}'.format(

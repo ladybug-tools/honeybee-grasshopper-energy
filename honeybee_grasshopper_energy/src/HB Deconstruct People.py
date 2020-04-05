@@ -12,10 +12,10 @@ Deconstruct a People object into its constituient properties.
 -
 
     Args:
-        people: A People object to deconstruct.
+        _people: A People object to deconstruct.
     
     Returns:
-        name: Text string for the people object name.
+        name: Text string for the people object display name.
          ppl_per_area: A numerical value for the number of people per square
             meter of floor area.
         occupancy_sch: A fractional schedule for the occupancy over the course
@@ -29,7 +29,7 @@ Deconstruct a People object into its constituient properties.
 
 ghenv.Component.Name = "HB Deconstruct People"
 ghenv.Component.NickName = 'DecnstrPeople'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -49,9 +49,9 @@ if all_required_inputs(ghenv.Component):
     # check the input
     assert isinstance(_people, People), \
         'Expected People object. Got {}.'.format(type(_people))
-    
+
     # get the properties of the object
-    name = _people.name
+    name = _people.display_name
     ppl_per_area = _people.people_per_area
     occupancy_sch = _people.occupancy_schedule
     activity_sch = _people.activity_schedule

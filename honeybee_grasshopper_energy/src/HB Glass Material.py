@@ -14,7 +14,8 @@ Construction" component.
 -
 
     Args:
-        _name: Text string for material name.
+        _name: Text to set the name for the material and to be incorporated into
+            a unique material identifier.
         _thickness_: Number for the thickness of the glass layer [m].
             Default: 0.003 meters (3 mm).
         _transmittance_: Number between 0 and 1 for the transmittance of both solar
@@ -41,16 +42,21 @@ Construction" component.
 
 ghenv.Component.Name = "HB Glass Material"
 ghenv.Component.NickName = 'GlassMat'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "5"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -66,8 +72,10 @@ if all_required_inputs(ghenv.Component):
     _emiss_front_ = 0.84 if _emiss_front_ is None else _emiss_front_
     _emiss_back_ = 0.84 if _emiss_back_ is None else _emiss_back_
     _conductivity_ = 0.9 if _conductivity_ is None else _conductivity_
-    
+
     # create the material
     mat = EnergyWindowMaterialGlazing(
-        _name, _thickness_, _transmittance_, _reflectance_, _transmittance_,
-        _reflectance_, _t_infrared_, _emiss_front_, _emiss_back_, _conductivity_)
+        clean_and_id_ep_string(_name), _thickness_, _transmittance_, _reflectance_,
+        _transmittance_, _reflectance_, _t_infrared_, _emiss_front_, _emiss_back_,
+        _conductivity_)
+    mat.display_name = _name
