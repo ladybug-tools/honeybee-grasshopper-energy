@@ -20,7 +20,8 @@ where:
 -
 
     Args:
-        _name: Text string for material name.
+        _name: Text to set the name for the material and to be incorporated into
+            a unique material identifier.
         _thickness: Number for the thickness of the gas gap layer [m].
             Default: 0.0125
         _conductivity_a: First conductivity coefficient.
@@ -45,16 +46,21 @@ where:
 
 ghenv.Component.Name = "HB Custom Window Gap Material"
 ghenv.Component.NickName = 'CustomGapMat'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "6"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.material.gas import EnergyWindowMaterialGasCustom
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -68,13 +74,15 @@ if all_required_inputs(ghenv.Component):
     _specific_heat_b_ = 0 if _specific_heat_b_ is None else _specific_heat_b_
     _spec_heat_ratio_ = 1.0 if _spec_heat_ratio_ is None else _spec_heat_ratio_
     _mol_weight_ = 20.0 if _mol_weight_ is None else _mol_weight_
-    
+
     # set the non-exposed inputs
     _conductivity_c_, _viscosity_c_, _specific_heat_c_ = 0, 0, 0
-    
+
     # create the material
     mat = EnergyWindowMaterialGasCustom(
-        _name, _thickness, _conductivity_a, _viscosity_a, _specific_heat_a,
+        clean_and_id_ep_string(_name), _thickness,
+        _conductivity_a, _viscosity_a, _specific_heat_a,
         _conductivity_b_, _viscosity_b_, _specific_heat_b_,
         _conductivity_c_, _viscosity_c_, _specific_heat_c_,
         _spec_heat_ratio_, _mol_weight_)
+    mat.display_name = _name

@@ -40,14 +40,14 @@ the _trans_sch.
 
 ghenv.Component.Name = "HB Apply Shade Schedule"
 ghenv.Component.NickName = 'ApplyShadeSch'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '0.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 
 try:  # import the honeybee-energy extension
-    from honeybee_energy.lib.schedules import schedule_by_name
+    from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -70,15 +70,15 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
     hb_objs = [obj.duplicate() for obj in _hb_objs]
-    
+
     # process the input schedule
     for i, sch in enumerate(_trans_sch):
         if isinstance(sch, str):
-            _trans_sch[i] = schedule_by_name(sch)
-    
+            _trans_sch[i] = schedule_by_identifier(sch)
+
     # error message for unrecognized object
     error_msg = 'Input _hb_objs must be a Room, Face, Aperture, Door, or Shade. Not {}.'
-    
+
     # assign the schedules
     if len(_trans_sch) == 1:
         for obj in hb_objs:
@@ -104,4 +104,3 @@ if all_required_inputs(ghenv.Component):
                     shd.properties.energy.transmittance_schedule = _trans_sch[0]
             else:
                 raise TypeError(error_msg.format(type(obj)))
-

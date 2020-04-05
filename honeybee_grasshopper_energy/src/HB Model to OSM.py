@@ -68,7 +68,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to OSM"
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.4.3'
+ghenv.Component.Message = '0.4.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -114,7 +114,7 @@ if all_required_inputs(ghenv.Component) and _write:
     if _sim_par_ is None:
         _sim_par_ = SimulationParameter()
         _sim_par_.output.add_zone_energy_use()
-    
+
     # assign design days from the EPW if there are not in the _sim_par_
     if len(_sim_par_.sizing_parameter.design_days) == 0:
         folder, epw_file_name = os.path.split(_epw_file)
@@ -124,41 +124,41 @@ if all_required_inputs(ghenv.Component) and _write:
         else:
             raise ValueError('No _ddy_file_ has been input and no .ddy file was '
                              'found next to the _epw_file.')
-    
+
     # process the simulation folder name and the directory
     _folder_ = hb_config.folders.default_simulation_folder if _folder_ is None else _folder_
-    directory = os.path.join(_folder_, _model.name, 'OpenStudio')
-    
+    directory = os.path.join(_folder_, _model.identifier, 'OpenStudio')
+
     # check the model to be sure there are no orphaned faces, apertures, or doors
     assert len(_model.orphaned_faces) == 0, orphaned_warning('Face')
     assert len(_model.orphaned_apertures) == 0, orphaned_warning('Aperture')
     assert len(_model.orphaned_doors) == 0, orphaned_warning('Door')
-    
+
     # scale the model if the units are not meters
     if _model.units != 'Meters':
         _model = _model.duplicate()  # duplicate model to avoid mutating the input
         _model.convert_to_units('Meters')
-    
+
     # delete any existing files in the directory and prepare it for simulation
     nukedir(directory, True)
     preparedir(directory)
-    
+
     # write the model parameter JSONs
     model_dict = _model.to_dict(triangulate_sub_faces=True)
-    model_json = os.path.join(directory, '{}.json'.format(_model.name))
+    model_json = os.path.join(directory, '{}.json'.format(_model.identifier))
     with open(model_json, 'w') as fp:
         json.dump(model_dict, fp)
-    
+
     # write the simulation parameter JSONs
     sim_par_dict = _sim_par_.to_dict()
     sim_par_json = os.path.join(directory, 'simulation_parameter.json')
     with open(sim_par_json, 'w') as fp:
         json.dump(sim_par_dict, fp)
-    
+
     # collect the two jsons for output and write out the osw file
     jsons = [model_json, sim_par_json]
     osw = to_openstudio_osw(directory, model_json, sim_par_json, _epw_file)
-    
+
     # run the measure to translate the model JSON to an openstudio measure
     if run_ > 0:
         osm, idf = run_osw(osw)
@@ -167,7 +167,7 @@ if all_required_inputs(ghenv.Component) and _write:
             add_str = '/n'.join(add_str_)
             with open(idf, "a") as idf_file:
                 idf_file.write(add_str)
-    
+
     # run the resulting idf throught EnergyPlus
     if run_ == 1:
         sql, zsz, rdd, html, err = run_idf(idf, _epw_file)

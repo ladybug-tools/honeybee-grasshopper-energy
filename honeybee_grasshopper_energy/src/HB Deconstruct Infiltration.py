@@ -15,7 +15,7 @@ Deconstruct an Infiltration object into its constituient properties.
         _infil: An Infiltration object to be deconstructed.
     
     Returns:
-        name: Text string for the infiltration definition name.
+        name: Text string for the infiltration display name.
         flow_per_ext_area: A numerical value for the intensity of infiltration
             in m3/s per square meter of exterior surface area. Typical values for
             this property are as follows (note all values are at typical building
@@ -30,7 +30,7 @@ Deconstruct an Infiltration object into its constituient properties.
 
 ghenv.Component.Name = "HB Deconstruct Infiltration"
 ghenv.Component.NickName = 'DecnstrInfiltration'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -52,6 +52,6 @@ if all_required_inputs(ghenv.Component):
         'Expected Infiltration object. Got {}.'.format(type(_infil))
     
     # get the properties of the object
-    name = _infil.name
+    name = _infil.display_name
     flow_per_ext_area = _infil.flow_per_exterior_area
     schedule = _infil.schedule

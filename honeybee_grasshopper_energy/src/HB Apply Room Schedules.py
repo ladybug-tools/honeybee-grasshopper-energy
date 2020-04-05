@@ -20,10 +20,10 @@ given load.
 
     Args:
         _room_or_program: Honeybee Rooms or Honeybee ProgramType objects for which
-            schedules should be changed. This can also be the name of a
+            schedules should be changed. This can also be the identifier of a
             ProgramType to be looked up in the program type library.
         occupancy_sch_: A fractional schedule for the occupancy over the course
-            of the year. This can also be the name of a schedule to be looked
+            of the year. This can also be the identifier of a schedule to be looked
             up in the schedule library.
         activity_sch_: A schedule for the activity of the occupants over the
             course of the year. The type limt of this schedule should be "Power"
@@ -32,29 +32,29 @@ given load.
             schedule with 120 Watts per person will be used, which is typical of
             awake, adult humans who are seated.
          heating_setpt_sch_: A temperature schedule for the heating setpoint.
-            This can also be a name of a schedule to be looked up in the
+            This can also be a identifier of a schedule to be looked up in the
             schedule library. The type limit of this schedule should be
             temperature and the values should be the temperature setpoint in
             degrees Celcius.
         cooling_setpt_sch_: A temperature schedule for the cooling setpoint.
-            This can also be a name of a schedule to be looked up in the
+            This can also be a identifier of a schedule to be looked up in the
             schedule library. The type limit of this schedule should be
             temperature and the values should be the temperature setpoint in
             degrees Celcius.
         lighting_sch_: A fractional for the use of lights over the course of the year.
-            This can also be the name of a schedule to be looked up in the
+            This can also be the identifier of a schedule to be looked up in the
             schedule library.
         electric_equip_sch_: A fractional for the use of electric equipment over
-            the course of the year. This can also be the name of a schedule to
+            the course of the year. This can also be the identifier of a schedule to
             be looked up in the schedule library.
         gas_equip_sch_: A fractional for the use of gas equipment over
-            the course of the year. This can also be the name of a schedule to
+            the course of the year. This can also be the identifier of a schedule to
             be looked up in the schedule library.
         infiltration_sch_: A fractional schedule for the infiltration over the
-            course of the year. This can also be the name of a schedule to
+            course of the year. This can also be the identifier of a schedule to
             be looked up in the schedule library.
         ventilation_sch_: An optional fractional schedule for the ventilation over the
-            course of the year. This can also be the name of a schedule to be
+            course of the year. This can also be the identifier of a schedule to be
             looked up in the schedule library. The fractional values will get
             multiplied by the total design flow rate (determined from the fields
             above and the calculation_method) to yield a complete ventilation
@@ -68,7 +68,7 @@ given load.
 
 ghenv.Component.Name = "HB Apply Room Schedules"
 ghenv.Component.NickName = 'ApplyRoomSch'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '0.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -79,8 +79,8 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
-    from honeybee_energy.lib.schedules import schedule_by_name
-    from honeybee_energy.lib.programtypes import program_type_by_name
+    from honeybee_energy.lib.schedules import schedule_by_identifier
+    from honeybee_energy.lib.programtypes import program_type_by_identifier
     from honeybee_energy.programtype import ProgramType
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -92,9 +92,9 @@ except ImportError as e:
 
 
 def schedule_object(schedule):
-    """Get a schedule object by its name or return it it it's already a schedule."""
+    """Get a schedule object by its identifier or return it it it's already a schedule."""
     if isinstance(schedule, str):
-        return schedule_by_name(schedule)
+        return schedule_by_identifier(schedule)
     return schedule
 
 
@@ -107,7 +107,7 @@ def dup_load(hb_obj, object_name, input_name):
             load_obj = getattr(load_obj, attribute)
     except AttributeError:  # it's a ProgramType
         load_obj = getattr(hb_obj, object_name)
-    
+
     try:  # duplicate the load object
         return load_obj.duplicate()
     except AttributeError:
@@ -132,12 +132,12 @@ if all_required_inputs(ghenv.Component):
         if isinstance(obj, (Room, ProgramType)):
             mod_obj.append(obj.duplicate())
         elif isinstance(obj, str):
-            program = program_type_by_name(obj)
+            program = program_type_by_identifier(obj)
             mod_obj.append(program.duplicate())
         else:
             raise TypeError('Expected Honeybee Room or ProgramType. '
                             'Got {}.'.format(type(obj)))
-    
+
     # assign the occupancy schedule
     if occupancy_sch_ is not None:
         occupancy_sch_ = schedule_object(occupancy_sch_)
@@ -145,7 +145,7 @@ if all_required_inputs(ghenv.Component):
             people = dup_load(obj, 'people', 'occupancy_sch_')
             people.occupancy_schedule = occupancy_sch_
             assign_load(obj, people, 'people')
-    
+
     # assign the activity schedule
     if activity_sch_ is not None:
         activity_sch_ = schedule_object(activity_sch_)
@@ -153,7 +153,7 @@ if all_required_inputs(ghenv.Component):
             people = dup_load(obj, 'people', 'activity_sch_')
             people.activity_schedule = activity_sch_
             assign_load(obj, people, 'people')
-    
+
     # assign the lighting schedule
     if lighting_sch_ is not None:
         lighting_sch_ = schedule_object(lighting_sch_)
@@ -161,7 +161,7 @@ if all_required_inputs(ghenv.Component):
             lighting = dup_load(obj, 'lighting', 'lighting_sch_')
             lighting.schedule = lighting_sch_
             assign_load(obj, lighting, 'lighting')
-    
+
     # assign the electric equipment schedule
     if electric_equip_sch_ is not None:
         electric_equip_sch_ = schedule_object(electric_equip_sch_)
@@ -169,7 +169,7 @@ if all_required_inputs(ghenv.Component):
             equip = dup_load(obj, 'electric_equipment', 'electric_equip_sch_')
             equip.schedule = electric_equip_sch_
             assign_load(obj, equip, 'electric_equipment')
-    
+
     # assign the gas equipment schedule
     if gas_equip_sch_ is not None:
         gas_equip_sch_ = schedule_object(gas_equip_sch_)
@@ -177,7 +177,7 @@ if all_required_inputs(ghenv.Component):
             equip = dup_load(obj, 'gas_equipment', 'gas_equip_sch_')
             equip.schedule = gas_equip_sch_
             assign_load(obj, equip, 'gas_equipment')
-    
+
     # assign the infiltration schedule
     if infiltration_sch_ is not None:
         infiltration_sch_ = schedule_object(infiltration_sch_)
@@ -185,7 +185,7 @@ if all_required_inputs(ghenv.Component):
             infiltration = dup_load(obj, 'infiltration', 'infiltration_sch_')
             infiltration.schedule = infiltration_sch_
             assign_load(obj, infiltration, 'infiltration')
-    
+
     # assign the ventilation schedule
     if ventilation_sch_ is not None:
         ventilation_sch_ = schedule_object(ventilation_sch_)
@@ -193,7 +193,7 @@ if all_required_inputs(ghenv.Component):
             ventilation = dup_load(obj, 'ventilation', 'ventilation_sch_')
             ventilation.schedule = ventilation_sch_
             assign_load(obj, ventilation, 'ventilation')
-    
+
     # assign the heating setpoint schedule
     if heating_setpt_sch_ is not None:
         heating_setpt_sch_ = schedule_object(heating_setpt_sch_)
@@ -201,7 +201,7 @@ if all_required_inputs(ghenv.Component):
             setpoint = dup_load(obj, 'setpoint', 'heating_setpt_sch_')
             setpoint.heating_schedule = heating_setpt_sch_
             assign_load(obj, setpoint, 'setpoint')
-    
+
     # assign the cooling setpoint schedule
     if cooling_setpt_sch_ is not None:
         cooling_setpt_sch_ = schedule_object(cooling_setpt_sch_)

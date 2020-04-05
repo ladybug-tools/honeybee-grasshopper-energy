@@ -14,7 +14,8 @@ and loads on the Room.
 -
 
     Args:
-        _name: Text string for the program type name.
+        _name: Text to set the name for the ProgramType and to be incorporated
+            into a unique ProgramType identifier.
         base_program_: An optional ProgramType object that will be used as the
             starting point for the new ProgramType output from this component.
             This can also be text for the name of a ProgramType within the library
@@ -48,14 +49,19 @@ and loads on the Room.
 
 ghenv.Component.Name = "HB ProgramType"
 ghenv.Component.NickName = 'ProgramType'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+
 try:
     from honeybee_energy.programtype import ProgramType
-    from honeybee_energy.lib.programtypes import program_type_by_name
+    from honeybee_energy.lib.programtypes import program_type_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -68,12 +74,14 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # get the base program type
     if base_program_ is None:
-        program = ProgramType(_name)
+        program = ProgramType(clean_and_id_ep_string(_name))
+        program.display_name = _name
     else:
         if isinstance(base_program_, str):
-            base_program_ = program_type_by_name(base_program_)
+            base_program_ = program_type_by_identifier(base_program_)
         program = base_program_.duplicate()
-        program.name = _name
+        program.identifier = clean_and_id_ep_string(_name)
+        program.display_name = _name
     
     # go through each input load and assign it to the set
     if _people_ is not None:

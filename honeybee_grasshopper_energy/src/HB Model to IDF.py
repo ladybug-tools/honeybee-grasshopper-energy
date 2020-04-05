@@ -53,7 +53,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.5.3'
+ghenv.Component.Message = '0.5.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -114,7 +114,7 @@ if all_required_inputs(ghenv.Component) and _write:
     
     # process the simulation folder name and the directory
     _folder_ = folders.default_simulation_folder if _folder_ is None else _folder_
-    directory = os.path.join(_folder_, _model.name, 'EnergyPlus')
+    directory = os.path.join(_folder_, _model.identifier, 'EnergyPlus')
     sch_directory = os.path.join(directory, 'schedules')
     
     # check the model to be sure there are no orphaned faces, apertures, or doors

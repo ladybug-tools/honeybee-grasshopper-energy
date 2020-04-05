@@ -28,7 +28,7 @@ Deconstruct a material into its constituient attributes and values.
 
 ghenv.Component.Name = "HB Deconstruct Material"
 ghenv.Component.NickName = 'DecnstrMat'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -37,8 +37,8 @@ import re
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.reader import parse_idf_string
-    from honeybee_energy.lib.materials import opaque_material_by_name
-    from honeybee_energy.lib.materials import window_material_by_name
+    from honeybee_energy.lib.materials import opaque_material_by_identifier
+    from honeybee_energy.lib.materials import window_material_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 try:  # import ladybug_rhino dependencies
@@ -56,9 +56,9 @@ if all_required_inputs(ghenv.Component):
     # check the input
     if isinstance(_mat, str):
         try:
-            _mat = opaque_material_by_name(_mat)
+            _mat = opaque_material_by_identifier(_mat)
         except ValueError:
-            _mat = window_material_by_name(_mat)
+            _mat = window_material_by_identifier(_mat)
     
     # get the values and attribute names
     mat_str = str(_mat)

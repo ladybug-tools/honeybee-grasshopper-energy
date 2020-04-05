@@ -17,7 +17,7 @@ simulation, the "Always On" schedule will be used as a default.
 
     Args:
         _room_or_program: Honeybee Rooms or ProgramType objects to which the input
-            load objects should be assigned. This can also be the name of a
+            load objects should be assigned. This can also be the identifier of a
             ProgramType to be looked up in the program type library.
         people_per_floor_: A numerical value for the number of people per square
             meter of floor area.
@@ -54,7 +54,7 @@ simulation, the "Always On" schedule will be used as a default.
 
 ghenv.Component.Name = "HB Apply Load Values"
 ghenv.Component.NickName = 'ApplyLoadVals'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '0.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -70,8 +70,8 @@ try:
     from honeybee_energy.load.equipment import ElectricEquipment, GasEquipment
     from honeybee_energy.load.infiltration import Infiltration
     from honeybee_energy.load.ventilation import Ventilation
-    from honeybee_energy.lib.schedules import schedule_by_name
-    from honeybee_energy.lib.programtypes import program_type_by_name
+    from honeybee_energy.lib.schedules import schedule_by_identifier
+    from honeybee_energy.lib.programtypes import program_type_by_identifier
     from honeybee_energy.programtype import ProgramType
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -82,7 +82,7 @@ except ImportError as e:
 
 
 # get the always on schedule
-always_on = schedule_by_name('Always On')
+always_on = schedule_by_identifier('Always On')
 
 
 def dup_load(hb_obj, object_name, object_class):
@@ -94,14 +94,14 @@ def dup_load(hb_obj, object_name, object_class):
             load_obj = getattr(load_obj, attribute)
     except AttributeError:  # it's a ProgramType
         load_obj = getattr(hb_obj, object_name)
-    
+
     try:  # duplicate the load object
         return load_obj.duplicate()
     except AttributeError:  # create a new object
         try:  # assume it's People, Lighting, Equipment or Infiltration
-            return object_class('{}_{}'.format(hb_obj.name, object_name), 0, always_on)
+            return object_class('{}_{}'.format(hb_obj.identifier, object_name), 0, always_on)
         except:  # it's a Ventilation object
-            return object_class('{}_{}'.format(hb_obj.name, object_name))
+            return object_class('{}_{}'.format(hb_obj.identifier, object_name))
 
 
 def assign_load(hb_obj, load_obj, object_name):
@@ -119,33 +119,33 @@ if all_required_inputs(ghenv.Component):
         if isinstance(obj, (Room, ProgramType)):
             mod_obj.append(obj.duplicate())
         elif isinstance(obj, str):
-            program = program_type_by_name(obj)
+            program = program_type_by_identifier(obj)
             mod_obj.append(program.duplicate())
         else:
             raise TypeError('Expected Honeybee Room or ProgramType. '
                             'Got {}.'.format(type(obj)))
-    
+
     # assign the people_per_floor_
     if people_per_floor_ is not None:
         for obj in mod_obj:
             people = dup_load(obj, 'people', People)
             people.people_per_area = people_per_floor_
             assign_load(obj, people, 'people')
-    
+
     # assign the lighting_per_floor_
     if lighting_per_floor_ is not None:
         for obj in mod_obj:
             lighting = dup_load(obj, 'lighting', Lighting)
             lighting.watts_per_area = lighting_per_floor_
             assign_load(obj, lighting, 'lighting')
-    
+
     # assign the electric_per_floor_
     if electric_per_floor_ is not None:
         for obj in mod_obj:
             equip = dup_load(obj, 'electric_equipment', ElectricEquipment)
             equip.watts_per_area = electric_per_floor_
             assign_load(obj, equip, 'electric_equipment')
-    
+
     # assign the gas_per_floor_
     if gas_per_floor_ is not None:
         for obj in mod_obj:
@@ -159,14 +159,14 @@ if all_required_inputs(ghenv.Component):
             infilt = dup_load(obj, 'infiltration', Infiltration)
             infilt.flow_per_exterior_area = infilt_per_exterior_
             assign_load(obj, infilt, 'infiltration')
-    
+
     # assign the vent_per_floor_
     if vent_per_floor_ is not None:
         for obj in mod_obj:
             vent = dup_load(obj, 'ventilation', Ventilation)
             vent.flow_per_area = vent_per_floor_
             assign_load(obj, vent, 'ventilation')
-    
+
     # assign the vent_per_person_
     if vent_per_person_ is not None:
         for obj in mod_obj:

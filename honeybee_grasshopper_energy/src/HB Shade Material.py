@@ -16,7 +16,8 @@ the shade. Shades are considered to be perfect diffusers.
 -
 
     Args:
-        _name: Text string for material name.
+        _name: Text to set the name for the material and to be incorporated into
+            a unique material identifier.
         _thickness_: Number for the thickness of the shade layer [m].
             Default: 0.005 meters (5 mm).
         _transmittance_:  Number between 0 and 1 for the transmittance of both solar
@@ -48,16 +49,21 @@ the shade. Shades are considered to be perfect diffusers.
 
 ghenv.Component.Name = "HB Shade Material"
 ghenv.Component.NickName = 'ShadeMat'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "6"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.material.shade import EnergyWindowMaterialShade
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -78,6 +84,7 @@ if all_required_inputs(ghenv.Component):
     
     # create the material
     mat = EnergyWindowMaterialShade(
-        _name, _thickness_, _transmittance_, _reflectance_, _transmittance_,
-        _reflectance_, _t_infrared_, _emissivity_, _conductivity_, _dist_to_glass_,
-        _open_mult_, _permeability_)
+        clean_and_id_ep_string(_name), _thickness_, _transmittance_, _reflectance_,
+        _transmittance_, _reflectance_, _t_infrared_, _emissivity_, _conductivity_,
+        _dist_to_glass_, _open_mult_, _permeability_)
+    mat.display_name = _name

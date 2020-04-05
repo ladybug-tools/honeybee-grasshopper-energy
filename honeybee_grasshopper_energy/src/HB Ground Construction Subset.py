@@ -14,11 +14,11 @@ ConstructionSet object.
 
     Args:
         _ground_wall_: A construction object for underground walls (or text for
-            the name of the construction within the library).
+            the identifier of the construction within the library).
         _ground_roof_: A construction object for underground roofs (or text for
-            the name of the construction within the library).
+            the identifier of the construction within the library).
         _ground_floor_: A construction object for ground-contact floors (or text
-            for the name of the construction within the library).
+            for the identifier of the construction within the library).
     
     Returns:
         ground_set: A list of ground constructions that can be used to edit
@@ -27,14 +27,14 @@ ConstructionSet object.
 
 ghenv.Component.Name = "HB Ground Construction Subset"
 ghenv.Component.NickName = 'GroundSubset'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 
 try:  # import honeybee_energy dependencies
     from honeybee_energy.construction.opaque import OpaqueConstruction
-    from honeybee_energy.lib.constructions import opaque_construction_by_name
+    from honeybee_energy.lib.constructions import opaque_construction_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -42,7 +42,7 @@ except ImportError as e:
 def opaque_constr(construction, input_name):
     """Get an OpaqueConstrucion from the library if it's a string."""
     if isinstance(construction, str):
-        return opaque_construction_by_name(construction)
+        return opaque_construction_by_identifier(construction)
     else:
         assert isinstance(construction, OpaqueConstruction), \
             'Expected OpaqueConstruction for {}. Got {}'.format(

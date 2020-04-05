@@ -15,7 +15,7 @@ Deconstruct an Equipment object into its constituient properties.
         _equip: An ElectricEquipment or a GasEquipment object to be deconstructed.
     
     Returns:
-        name_: Text string for the equipment definition name.
+        name_: Text string for the equipment display name.
          watts_per_area: A numerical value for the equipment power density in
             Watts per square meter of floor area.
         schedule: A fractional for the use of equipment over the course of the year.
@@ -35,7 +35,7 @@ Deconstruct an Equipment object into its constituient properties.
 
 ghenv.Component.Name = "HB Deconstruct Equipment"
 ghenv.Component.NickName = 'DecnstrEquipment'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -55,9 +55,9 @@ if all_required_inputs(ghenv.Component):
     # check the input
     assert isinstance(_equip, (ElectricEquipment, GasEquipment)), \
         'Expected Equipment object. Got {}.'.format(type(_equip))
-    
+
     # get the properties of the object
-    name = _equip.name
+    name = _equip.display_name
     watts_per_area = _equip.watts_per_area
     schedule = _equip.schedule
     radiant_fract = _equip.radiant_fraction

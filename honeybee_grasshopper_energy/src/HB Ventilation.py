@@ -17,8 +17,9 @@ in the simulation.
 -
 
     Args:
-        _name_: Text string for the ventilation definition name. If None, a unique
-            name will be generated.
+        _name_: Text to set the name for the Ventilation and to be incorporated
+            into a unique Ventilation identifier. If None, a unique name will
+            be generated.
         _flow_per_person_: A numerical value for the intensity of ventilation
             in m3/s per person. Note that setting this value here does not mean
             that ventilation is varied based on real-time occupancy but rather
@@ -52,16 +53,21 @@ in the simulation.
 
 ghenv.Component.Name = "HB Ventilation"
 ghenv.Component.NickName = 'Ventilation'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
 
 import uuid
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+
 try:
     from honeybee_energy.load.ventilation import Ventilation
-    from honeybee_energy.lib.schedules import schedule_by_name
+    from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -73,11 +79,13 @@ except ImportError as e:
 
 # make a default Ventilation name if none is provided
 if _name_ is None:
-    _name_ = "Ventilation_{}".format(uuid.uuid4())
+    name = "Ventilation_{}".format(uuid.uuid4())
+else:
+    name = clean_and_id_ep_string(_name_)
 
 # get the schedule
 if isinstance(_schedule_, str):
-    _schedule_ = schedule_by_name(_schedule_)
+    _schedule_ = schedule_by_identifier(_schedule_)
 
 # get default _flow_per_person_, _flow_per_area_, and _ach_
 _flow_per_person_ = _flow_per_person_ if _flow_per_person_ is not None else 0.0
@@ -86,5 +94,7 @@ _flow_per_zone_ = _flow_per_zone_ if _flow_per_zone_ is not None else 0.0
 _ach_ = _ach_ if _ach_ is not None else 0.0
 
 # create the Ventilation object
-vent = Ventilation(_name_, _flow_per_person_, _flow_per_area_,
+vent = Ventilation(name, _flow_per_person_, _flow_per_area_,
                     _flow_per_zone_, _ach_, _schedule_)
+if _name_ is not None:
+    vent.display_name = _name_

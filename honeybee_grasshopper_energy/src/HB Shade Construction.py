@@ -13,7 +13,8 @@ do not have layers and are only defined by their exterior reflectance.
 -
 
     Args:
-        _name: Text string for shade construction name.
+        _name: Text to set the name for the Construction and to be incorporated
+            into a unique Construction identifier.
         _sol_ref_: A number between 0 and 1 for the solar reflectance
             of the construction. Default: 0.2.
         _vis_ref_: A number between 0 and 1 for the visible reflectance
@@ -30,16 +31,21 @@ do not have layers and are only defined by their exterior reflectance.
 
 ghenv.Component.Name = "HB Shade Construction"
 ghenv.Component.NickName = 'ShadeConstr'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.construction.shade import ShadeConstruction
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -52,4 +58,6 @@ if all_required_inputs(ghenv.Component):
     specular_ = False if specular_ is None else specular_
     
     # create the construction
-    constr = ShadeConstruction(_name, _sol_ref_, _vis_ref_, specular_)
+    constr = ShadeConstruction(clean_and_id_ep_string(_name), _sol_ref_,
+                               _vis_ref_, specular_)
+    constr.display_name = _name

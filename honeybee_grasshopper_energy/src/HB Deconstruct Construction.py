@@ -20,7 +20,7 @@ Deconstruct an opaque or window construction into its constituient materials.
     Returns:
         materials: List of material objects that make up the construction
             (ordered from outside to inside).
-        layers: List of material names that make up the construction
+        layers: List of material identifiers that make up the construction
             (ordered from outside to inside).
         r_val_si: R-value of the construction in m2-K/W. Note that R-values do NOT
             include the resistance of air films on either side of the construction.
@@ -43,7 +43,7 @@ Deconstruct an opaque or window construction into its constituient materials.
 
 ghenv.Component.Name = "HB Deconstruct Construction"
 ghenv.Component.NickName = 'DecnstrConstr'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -52,8 +52,8 @@ ghenv.Component.AdditionalHelpFromDocStrings = "2"
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.construction.opaque import OpaqueConstruction
     from honeybee_energy.construction.window import WindowConstruction
-    from honeybee_energy.lib.constructions import opaque_construction_by_name
-    from honeybee_energy.lib.constructions import window_construction_by_name
+    from honeybee_energy.lib.constructions import opaque_construction_by_identifier
+    from honeybee_energy.lib.constructions import window_construction_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 try:  # import ladybug_rhino dependencies
@@ -71,9 +71,9 @@ if all_required_inputs(ghenv.Component):
     # check the input
     if isinstance(_constr, str):
         try:
-            _constr = opaque_construction_by_name(_constr)
+            _constr = opaque_construction_by_identifier(_constr)
         except ValueError:
-            _constr = window_construction_by_name(_constr)
+            _constr = window_construction_by_identifier(_constr)
     else:
         assert isinstance(_constr, (OpaqueConstruction, WindowConstruction)), \
             'Expected OpaqueConstruction or WindowConstruction. ' \

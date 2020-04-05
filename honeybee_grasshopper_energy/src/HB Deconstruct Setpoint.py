@@ -15,8 +15,7 @@ Deconstruct a Setpoint object into its constituient properties.
         _setpoint: A Setpoint object to be deconstructed.
     
     Returns:
-        name: Text string for the setpoint definition name. If None, a unique
-            name will be generated.
+        name: Text string for the setpoint display name.
          heating_sch: A temperature schedule for the heating setpoint.
             The type limit of this schedule should be temperature and the
             values should be the temperature setpoint in degrees Celcius.
@@ -34,7 +33,7 @@ Deconstruct a Setpoint object into its constituient properties.
 
 ghenv.Component.Name = "HB Deconstruct Setpoint"
 ghenv.Component.NickName = 'DecnstrSetpoint'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -54,9 +53,9 @@ if all_required_inputs(ghenv.Component):
     # check the input
     assert isinstance(_setpoint, Setpoint), \
         'Expected Setpoint object. Got {}.'.format(type(_setpoint))
-    
+
     # get the properties of the object
-    name = _setpoint.name
+    name = _setpoint.display_name
     heating_sch = _setpoint.heating_schedule
     cooling_sch = _setpoint.cooling_schedule
     humid_setpt = _setpoint.humidifying_setpoint

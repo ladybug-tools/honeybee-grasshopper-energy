@@ -13,8 +13,9 @@ directly to a Room.
 -
 
     Args:
-        _name_: Text string for the equipment definition name. If None, a unique
-            name will be generated.
+        _name_: Text to set the name for the Equipment and to be incorporated
+            into a unique Equipment identifier. If None, a unique name will
+            be generated.
          _watts_per_area: A numerical value for the equipment power density in
             Watts per square meter of floor area.
         _schedule: A fractional for the use of equipment over the course of the year.
@@ -38,16 +39,21 @@ directly to a Room.
 
 ghenv.Component.Name = "HB Equipment"
 ghenv.Component.NickName = 'Equipment'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
 
 import uuid
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+
 try:
     from honeybee_energy.load.equipment import ElectricEquipment, GasEquipment
-    from honeybee_energy.lib.schedules import schedule_by_name
+    from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -60,21 +66,25 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # make a default Equipment name if none is provided
     if _name_ is None:
-        _name_ = "Equipment_{}".format(uuid.uuid4())
-    
+        name = "Equipment_{}".format(uuid.uuid4())
+    else:
+        name = clean_and_id_ep_string(_name_)
+
     # get the schedule
     if isinstance(_schedule, str):
-        _schedule = schedule_by_name(_schedule)
-    
+        _schedule = schedule_by_identifier(_schedule)
+
     # get default radiant, latent, and lost fractions
     radiant_fract_ = radiant_fract_ if radiant_fract_ is not None else 0.0
     latent_fract_ = latent_fract_ if latent_fract_ is not None else 0.0
     lost_fract_ = lost_fract_ if lost_fract_ is not None else 0.0
-    
+
     # create the Equipment object
     if gas_:
-        equip = GasEquipment(_name_, _watts_per_area, _schedule,
+        equip = GasEquipment(name, _watts_per_area, _schedule,
                              radiant_fract_, latent_fract_, lost_fract_)
     else:
-        equip = ElectricEquipment(_name_, _watts_per_area, _schedule,
+        equip = ElectricEquipment(name, _watts_per_area, _schedule,
                                   radiant_fract_, latent_fract_, lost_fract_)
+    if _name_ is not None:
+        equip.display_name = _name_

@@ -41,7 +41,7 @@ Deconstruct a construction set into its constituient exterior constructions.
 
 ghenv.Component.Name = "HB Deconstruct ConstructionSet"
 ghenv.Component.NickName = 'DecnstrConstrSet'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -49,7 +49,7 @@ ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.constructionset import ConstructionSet
-    from honeybee_energy.lib.constructionsets import construction_set_by_name
+    from honeybee_energy.lib.constructionsets import construction_set_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 try:  # import ladybug_rhino dependencies
@@ -61,7 +61,7 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # check the input
     if isinstance(_constr_set, str):
-        _constr_set = construction_set_by_name(_constr_set)
+        _constr_set = construction_set_by_identifier(_constr_set)
     else:
         assert isinstance(_constr_set, ConstructionSet), \
             'Expected ConstructionSet. Got {}.'.format(type(_constr_set))

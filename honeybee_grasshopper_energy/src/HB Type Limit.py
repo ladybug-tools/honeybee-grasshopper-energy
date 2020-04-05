@@ -18,7 +18,8 @@ generally considered good practice.
 -
 
     Args:
-        _name: Text string for schedule type limit name.
+        _name: Text to set the name for the ScheduleTypeLimit. This should be
+            unique to avoif conflcit with other schedule types.
         low_limit_: An optional number for the lower limit for values in the
             schedule. If None, there will be no lower limit.
         up_limit_: An optional number for the upper limit for values in the
@@ -52,7 +53,7 @@ generally considered good practice.
 
 ghenv.Component.Name = "HB Type Limit"
 ghenv.Component.NickName = 'TypeLimit'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -62,6 +63,7 @@ try:  # import the honeybee-energy dependencies
     from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -72,7 +74,7 @@ if all_required_inputs(ghenv.Component):
     # set default values
     numeric_type = 'Discrete' if discrete_ else 'Continuous'
     _unit_type_ = 'Dimensionless' if _unit_type_ is None else _unit_type_
-    
+
     # create the ScheduleTypeLimit
     type_limit =  ScheduleTypeLimit(
         _name, low_limit_, up_limit_, numeric_type, _unit_type_)

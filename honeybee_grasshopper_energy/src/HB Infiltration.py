@@ -13,8 +13,9 @@ assigned directly to a Room.
 -
 
     Args:
-        _name_: Text string for the infiltration definition name. If None, a unique
-            name will be generated.
+        _name_: Text to set the name for the Infiltration and to be incorporated
+            into a unique Infiltration identifier. If None, a unique name will
+            be generated.
         _flow_per_ext_area: A numerical value for the intensity of infiltration
             in m3/s per square meter of exterior surface area. Typical values for
             this property are as follows (note all values are at typical building
@@ -34,16 +35,21 @@ assigned directly to a Room.
 
 ghenv.Component.Name = "HB Infiltration"
 ghenv.Component.NickName = 'Infiltration'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
 
 import uuid
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+
 try:
     from honeybee_energy.load.infiltration import Infiltration
-    from honeybee_energy.lib.schedules import schedule_by_name
+    from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -56,12 +62,16 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # make a default Infiltration name if none is provided
     if _name_ is None:
-        _name_ = "Infiltration_{}".format(uuid.uuid4())
-    
+        name = "Infiltration_{}".format(uuid.uuid4())
+    else:
+        name = clean_and_id_ep_string(_name_)
+
     # get the schedule
     _schedule_ = _schedule_ if _schedule_ is not None else 'Always On'
     if isinstance(_schedule_, str):
-        _schedule_ = schedule_by_name(_schedule_)
-    
+        _schedule_ = schedule_by_identifier(_schedule_)
+
     # create the Infiltration object
-    infil = Infiltration(_name_, _flow_per_ext_area, _schedule_)
+    infil = Infiltration(name, _flow_per_ext_area, _schedule_)
+    if _name_ is not None:
+        infil.display_name = _name_

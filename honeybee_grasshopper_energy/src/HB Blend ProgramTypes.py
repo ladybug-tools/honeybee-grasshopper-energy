@@ -13,7 +13,8 @@ average based on program ratios.
 -
 
     Args:
-        _name: Text string for the new blended program type name.
+        _name: Text to set the name for the ProgramType and to be incorporated
+            into a unique ProgramType identifier.
         _programs: A list of ProgramType objects that will be averaged
             together to make a new ProgramType.
         _ratios_: A list of fractional numbers with the same length as the input
@@ -28,14 +29,19 @@ average based on program ratios.
 
 ghenv.Component.Name = "HB Blend ProgramTypes"
 ghenv.Component.NickName = 'BlendPrograms'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+
 try:
     from honeybee_energy.programtype import ProgramType
-    from honeybee_energy.lib.programtypes import program_type_by_name
+    from honeybee_energy.lib.programtypes import program_type_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -48,11 +54,12 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # set default ratios to None
     _ratios_ = _ratios_ if len(_ratios_) != 0 else None
-    
+
     # get programs from library if a name is input
     for i, prog in enumerate(_programs):
         if isinstance(prog, str):
-            _programs[i] = program_type_by_name(prog)
-    
+            _programs[i] = program_type_by_identifier(prog)
+
     # create blended program
-    program = ProgramType.average(_name, _programs, _ratios_)
+    program = ProgramType.average(clean_and_id_ep_string(_name), _programs, _ratios_)
+    program.display_name = _name

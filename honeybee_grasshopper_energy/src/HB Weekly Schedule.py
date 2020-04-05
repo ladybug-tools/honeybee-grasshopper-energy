@@ -46,11 +46,9 @@ Create a schedule from lists of daily values for each day of the week.
             values at each hour of the summer design day. This can also be a
             single constant value for the whole day. If None, the daily
             schedule with the lowest average value will be used.
-        _name: A text string representing a name for the schedule.  This name
-            should be unique among the schedules in your Grasshopper document
-            to ensure that there are no naming conflicts in the resulting
-            simulation files.
-        _type_limit_: A text string from the name of the ScheduleTypeLimit to
+        _name: Text to set the name for the Schedule and to be incorporated
+            into a unique Schedule identifier.
+        _type_limit_: A text string from the identifier of the ScheduleTypeLimit to
             be looked up in the schedule type limit library. This can also be a
             custom ScheduleTypeLimit object from the "HB Type Limit" component.
             The input here will be used to validate schedule values against
@@ -89,16 +87,22 @@ Create a schedule from lists of daily values for each day of the week.
 
 ghenv.Component.Name = "HB Weekly Schedule"
 ghenv.Component.NickName = 'WeeklySchedule'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 
+try:  # import the core honeybee dependencies
+    from honeybee.typing import clean_and_id_ep_string
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
+
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.schedule.ruleset import ScheduleRuleset
-    from honeybee_energy.lib.scheduletypelimits import schedule_type_limit_by_name
+    from honeybee_energy.lib.scheduletypelimits import schedule_type_limit_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -127,19 +131,20 @@ if all_required_inputs(ghenv.Component):
     _holiday_ = _sun if len(_holiday_) == 0 else check_sched_values(_holiday_)
     _summer_des_ = None if len(_summer_des_) == 0 else check_sched_values(_summer_des_)
     _winter_des_ = None if len(_winter_des_) == 0 else check_sched_values(_winter_des_)
-    
+
     # get the ScheduleTypeLimit object
     if _type_limit_ is None:
-        _type_limit_ = schedule_type_limit_by_name('Fractional')
+        _type_limit_ = schedule_type_limit_by_identifier('Fractional')
     elif isinstance(_type_limit_, str):
-        _type_limit_ = schedule_type_limit_by_name(_type_limit_)
-    
+        _type_limit_ = schedule_type_limit_by_identifier(_type_limit_)
+
     # create the schedule object
     schedule = ScheduleRuleset.from_week_daily_values(
-        _name, _sun, _mon, _tue, _wed, _thu, _fri, _sat, _holiday_,
-        timestep=1, schedule_type_limit=_type_limit_,
+        clean_and_id_ep_string(_name), _sun, _mon, _tue, _wed, _thu, _fri, _sat,
+        _holiday_, timestep=1, schedule_type_limit=_type_limit_,
         summer_designday_values=_summer_des_, winter_designday_values=_winter_des_)
-    
+    schedule.display_name = _name
+
     # get the idf strings of the schedule
     idf_year, idf_week = schedule.to_idf()
     idf_days = [day_sch.to_idf(_type_limit_) for day_sch in schedule.day_schedules]

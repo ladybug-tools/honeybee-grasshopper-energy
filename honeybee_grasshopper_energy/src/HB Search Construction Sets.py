@@ -32,12 +32,12 @@ Search for available ProgramTypes within the honeybee energy standards library.
             Default: "SteelFramed".
     
     Returns:
-        constr_set: A ConstructionSet name that can be applied to Honeybee Rooms.
+        constr_set: A ConstructionSet identifier that can be applied to Honeybee Rooms.
 """
 
 ghenv.Component.Name = "HB Search Construction Sets"
 ghenv.Component.NickName = 'SearchConstrSet'
-ghenv.Component.Message = '0.1.3'
+ghenv.Component.Message = '0.1.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
