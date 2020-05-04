@@ -42,10 +42,10 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
             of calculations to run. This can be generated from the "HB
             Simulation Control" component. Default: perform a sizing calculation
             but only run the simulation for the RunPeriod.
-        _shadow_calc_: A ShadowCalculation object describing settings for
-            the EnergyPlus Shadow Calculation. This can be generated from the "HB
+        _shadow_calc_: A ShadowCalculation object describing settings for the
+            EnergyPlus Shadow Calculation. This can be generated from the "HB
             Shadow Calculation" component. Default: Average over 30 days with
-            FullInteriorAndExteriorWithReflections.
+            FullExteriorWithReflections.
         _sizing_: A SizingParameter object with criteria for sizing the heating
             and cooling system.  This can be generated from the "HB Sizing
             Parameter" component.
@@ -58,7 +58,7 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
 
 ghenv.Component.Name = "HB Simulation Parameter"
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '0.2.1'
+ghenv.Component.Message = '0.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
