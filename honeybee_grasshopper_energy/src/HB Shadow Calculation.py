@@ -14,7 +14,7 @@ Create settings for the EnergyPlus Shadow Calculation.
     Args:
         _solar_dist_: An integer or text desribing how EnergyPlus should treat beam solar
             radiation and reflectances from surfaces that strike the building surfaces.
-            Default - "FullInteriorAndExteriorWithReflections". Choose from the following.
+            Default - "FullExteriorWithReflections". Choose from the following.
             0 = "MinimalShadowing" - In this case, exterior shadowing is only computed
                 for windows and not for other opaque surfaces that might have their
                 surface temperature affected by the sun. All beam solar radiation
@@ -70,7 +70,7 @@ Create settings for the EnergyPlus Shadow Calculation.
 
 ghenv.Component.Name = "HB Shadow Calculation"
 ghenv.Component.NickName = 'ShadowCalc'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -99,7 +99,7 @@ SOLAR_DISTRIBUTIONS = {
 # process the solar distribution
 try:
     _solar_dist_ = SOLAR_DISTRIBUTIONS[_solar_dist_] if _solar_dist_ is not None \
-        else 'FullInteriorAndExteriorWithReflections'
+        else 'FullExteriorWithReflections'
 except KeyError:
     raise ValueError(' Input _solar_dist_ "{}" is not valid.\nChoose from the '
         'following:\n{}'.format(_solar_dist_, SOLAR_DISTRIBUTIONS.keys()))

@@ -13,7 +13,7 @@ to an IDF file and then run through EnergyPlus.
 
 -
     Args:
-        model: A honeybee model object possessing all geometry and corresponding
+        _model: A honeybee model object possessing all geometry and corresponding
             energy simulation properties.
         _epw_file: Path to an .epw file on this computer as a text string.
         _sim_par_: A honeybee Energy SimulationParameter object that describes all
@@ -68,7 +68,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to OSM"
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.4.4'
+ghenv.Component.Message = '0.4.5'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
