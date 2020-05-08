@@ -13,6 +13,12 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
 -
 
     Args:
+        _north_: A number between -360 and 360 for the counterclockwise
+            difference between the North and the positive Y-axis in degrees.
+            90 is West and 270 is East. Note that this is different than the
+            convention used in EnergyPlus, which uses clockwise difference
+            instead of counterclockwise difference. This can also be Vector
+            for the direction to North. (Default: 0)
         _output_: A SimulationOutput that lists the desired outputs from the
             simulation and the format in which to report them. This can be
             created using the "HB Simulation Output" component. Default is to
@@ -58,7 +64,7 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
 
 ghenv.Component.Name = "HB Simulation Parameter"
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '0.2.2'
+ghenv.Component.Message = '0.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -75,6 +81,11 @@ try:
     from honeybee_energy.simulation.parameter import SimulationParameter
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
+try:  # import the ladybug_rhino dependencies
+    from ladybug_rhino.togeometry import to_vector2d
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
 # set default simulation outputs
@@ -113,3 +124,10 @@ sim_par = SimulationParameter(output=_output_,
                               simulation_control=_sim_control_,
                               shadow_calculation=_shadow_calc_,
                               sizing_parameter=_sizing_)
+
+# set the north if it is not defaulted
+if _north_ is not None:
+    try:
+        sim_par.north_vector = to_vector2d(_north_)
+    except AttributeError:  # north angle instead of vector
+        sim_par.north_angle = float(_north_)
