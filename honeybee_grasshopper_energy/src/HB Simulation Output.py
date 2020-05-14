@@ -56,7 +56,7 @@ The resulting object can be used to request output variables from EnergyPlus.
 
 ghenv.Component.Name = "HB Simulation Output"
 ghenv.Component.NickName = 'SimOutput'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -71,9 +71,6 @@ except ImportError as e:
 _report_frequency_ = _report_frequency_.title() \
     if _report_frequency_ is not None else 'Hourly'
 
-# set the inclusion of HTML based on whether summary reports are requested.
-_html = False if len(summary_reports_) == 0 else True
-
 # set the default load_type
 load_type_ = load_type_.title() if load_type_ is not None else 'All'
 
@@ -81,7 +78,7 @@ load_type_ = load_type_.title() if load_type_ is not None else 'All'
 sim_output = SimulationOutput(outputs=None,
                               reporting_frequency=_report_frequency_,
                               include_sqlite=True,
-                              include_html=_html,
+                              include_html=True,
                               summary_reports=summary_reports_)
 
 # ensure that we always include AllSummary in the reports; it's used in result parsing
