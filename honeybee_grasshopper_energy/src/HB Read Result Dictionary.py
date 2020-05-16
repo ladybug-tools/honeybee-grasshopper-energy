@@ -27,10 +27,10 @@ can be requested from the simulation.
 
 ghenv.Component.Name = 'HB Read Result Dictionary'
 ghenv.Component.NickName = 'ReadRDD'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
-ghenv.Component.AdditionalHelpFromDocStrings = '1'
+ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 try:
     from honeybee_energy.result.rdd import RDD
