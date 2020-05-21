@@ -47,12 +47,12 @@ the shade. Shades are considered to be perfect diffusers.
             shade) that can be assigned to a Honeybee Window construction.
 """
 
-ghenv.Component.Name = "HB Shade Material"
+ghenv.Component.Name = 'HB Shade Material'
 ghenv.Component.NickName = 'ShadeMat'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = 'HB-Energy'
-ghenv.Component.SubCategory = "1 :: Constructions"
-ghenv.Component.AdditionalHelpFromDocStrings = "6"
+ghenv.Component.SubCategory = '1 :: Constructions'
+ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 try:  # import the core honeybee dependencies
     from honeybee.typing import clean_and_id_ep_string
