@@ -21,8 +21,9 @@ to an IDF file and then run through EnergyPlus.
             parameters will automatically be used.
         measures_: An optional list of measures to apply to the OpenStudio model
             upon export. Use the "HB Load Measure" component to load a measure
-            into Grasshopper.  Measures can be downloaded from the NREL
-            Building Components Library (BCL) at (https://bcl.nrel.gov/).
+            into Grasshopper and assign input arguments. Measures can be
+            downloaded from the NREL Building Components Library (BCL) at
+            (https://bcl.nrel.gov/).
         add_str_: THIS OPTION IS JUST FOR ADVANCED USERS OF ENERGYPLUS.
             You can input additional text strings here that you would like
             written into the IDF.  The strings input here should be complete
@@ -68,15 +69,13 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to OSM"
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.4.6'
+ghenv.Component.Message = '0.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
 
 import os
-import sys
 import json
-import shutil
 
 try:
     from ladybug.futil import preparedir, nukedir
@@ -90,7 +89,8 @@ except ImportError as e:
 
 try:
     from honeybee_energy.simulation.parameter import SimulationParameter
-    from honeybee_energy.run import to_openstudio_osw, run_osw, run_idf
+    from honeybee_energy.run import to_openstudio_osw, run_osw, run_idf, \
+        output_energyplus_files
     from honeybee_energy.result.err import Err
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -155,26 +155,38 @@ if all_required_inputs(ghenv.Component) and _write:
     with open(sim_par_json, 'w') as fp:
         json.dump(sim_par_dict, fp)
 
+    # process any measures input to the component
+    measures = None if len(measures_) == 0 or measures_[0] is None else measures_
+    no_report_meas = True if measures is None else \
+        all(meas.type != 'ReportingMeasure' for meas in measures)
+
     # collect the two jsons for output and write out the osw file
     jsons = [model_json, sim_par_json]
-    osw = to_openstudio_osw(directory, model_json, sim_par_json, epw_file=_epw_file)
+    osw = to_openstudio_osw(directory, model_json, sim_par_json,
+                            additional_measures=measures, epw_file=_epw_file)
 
     # run the measure to translate the model JSON to an openstudio measure
-    if run_ > 0:
+    if run_ > 0 and not no_report_meas:  # everything must run with OS CLI
+        osm, idf = run_osw(osw, measures_only=False)
+        sql, zsz, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
+    elif run_ > 0:  # no reporting measure; simulate separately from measure application
         osm, idf = run_osw(osw)
         # process the additional strings
         if add_str_ != [] and add_str_[0] is not None and idf is not None:
             add_str = '/n'.join(add_str_)
             with open(idf, "a") as idf_file:
                 idf_file.write(add_str)
+        if idf is None:  # measures failed to run correctly
+            raise Exception('Applying measures failed. Check run.log in:'
+                            '\n{}'.format(os.path.join(directory, 'run')))
+        if run_ == 1:  # run the resulting idf throught EnergyPlus
+            sql, zsz, rdd, html, err = run_idf(idf, _epw_file)
 
-    # run the resulting idf throught EnergyPlus
-    if run_ == 1:
-        sql, zsz, rdd, html, err = run_idf(idf, _epw_file)
-        if err is not None:
-            err_obj = Err(err)
-            print(err_obj.file_contents)
-            for warn in err_obj.severe_errors:
-                give_warning(ghenv.Component, warn)
-            for error in err_obj.fatal_errors:
-                raise Exception(error)
+    # parse the error log and report any warnings
+    if run_ == 1 and err is not None:
+        err_obj = Err(err)
+        print(err_obj.file_contents)
+        for warn in err_obj.severe_errors:
+            give_warning(ghenv.Component, warn)
+        for error in err_obj.fatal_errors:
+            raise Exception(error)
