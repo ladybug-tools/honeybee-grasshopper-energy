@@ -67,12 +67,12 @@ to an IDF file and then run through EnergyPlus.
             run_ is set to True.
 """
 
-ghenv.Component.Name = "HB Model to OSM"
+ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.5.0'
+ghenv.Component.Message = '0.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = "1"
+ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 import os
 import json
@@ -138,6 +138,10 @@ if all_required_inputs(ghenv.Component) and _write:
     if _model.units != 'Meters':
         _model = _model.duplicate()  # duplicate model to avoid mutating the input
         _model.convert_to_units('Meters')
+
+    # auto-assign stories if there are none; note this will edit the connected _model
+    if len(_model.stories) == 0:
+        _model.assign_stories_by_floor_height()
 
     # delete any existing files in the directory and prepare it for simulation
     nukedir(directory, True)
