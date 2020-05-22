@@ -35,7 +35,7 @@ https://bcl.nrel.gov/nrel/types/measure
 
 ghenv.Component.Name = 'HB Load Measure'
 ghenv.Component.NickName = 'LoadMeasure'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -154,7 +154,8 @@ def update_measure_arguments(measure):
         try:
             value = ghenv.Component.Params.Input[i].VolatileData[0][0]
             if value is not None:
-                measure.arguments[i - 1].value = str(value)
+                val = str(value)  # cast to string to avoid weird Grasshopper types
+                measure.arguments[i - 1].value = val if val != 'False' else False
         except IndexError:  # there is no input for this value; just ignore it
             pass
 
