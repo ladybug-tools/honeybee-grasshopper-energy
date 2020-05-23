@@ -16,6 +16,10 @@ The resulting object can be used to request output variables from EnergyPlus.
         zone_energy_use_: Set to True to add outputs for zone energy use when ideal
             air systems are assigned. This includes, ideal air heating + cooling,
             lighting, electric + gas equipment, and fan electric energy.
+        hvac_energy_use_: Set to True to add outputs for HVAC energy use from detailed
+            systems. This includes outputs for different pieces of equipment,
+            which together catch all energy-consuming parts of a system.
+            (eg. chillers, boilers, coils, humidifiers, fans, pumps).
         gains_and_losses_: Set to True to Add outputs for zone gains and losses.
             This includes such as people gains, solar gains, infiltration losses/gains,
             and ventilation losses/gains.
@@ -40,13 +44,6 @@ The resulting object can be used to request output variables from EnergyPlus.
                     * Daily
                     * Hourly
                     * Timestep
-        summary_reports_: An optional list of EnergyPlus summary report names as strings.
-            If None, only the 'AllSummary' report will be requested from the simulation
-            and no HTML report will be generated. If any value is input here, an HTML
-            report will be requested and the summary report written into it.
-            See the Input Output Reference SummaryReports section for a full
-            list of all reports that can be requested. https://bigladdersoftware.com/
-            epx/docs/9-1/input-output-reference/output-table-summaryreports.html
     
     Returns:
         sim_output: A SimulationOutput object that can be connected to the
@@ -56,7 +53,7 @@ The resulting object can be used to request output variables from EnergyPlus.
 
 ghenv.Component.Name = "HB Simulation Output"
 ghenv.Component.NickName = 'SimOutput'
-ghenv.Component.Message = '0.1.3'
+ghenv.Component.Message = '0.1.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -75,18 +72,13 @@ _report_frequency_ = _report_frequency_.title() \
 load_type_ = load_type_.title() if load_type_ is not None else 'All'
 
 # create the starting simulation output object.
-sim_output = SimulationOutput(outputs=None,
-                              reporting_frequency=_report_frequency_,
-                              include_sqlite=True,
-                              include_html=True,
-                              summary_reports=summary_reports_)
-
-# ensure that we always include AllSummary in the reports; it's used in result parsing
-sim_output.add_summary_report('AllSummary')
+sim_output = SimulationOutput(reporting_frequency=_report_frequency_)
 
 # set each of the requested outputs
 if zone_energy_use_:
     sim_output.add_zone_energy_use(load_type_)
+if hvac_energy_use_:
+    sim_output.add_hvac_energy_use()
 if gains_and_losses_:
     load_type = load_type_ if load_type_ != 'All' else 'Total'
     sim_output.add_gains_and_losses(load_type)

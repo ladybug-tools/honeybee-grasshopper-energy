@@ -30,9 +30,8 @@ The resulting object can be used to request output variables from EnergyPlus.
                     * Hourly
                     * Timestep
         summary_reports_: An optional list of EnergyPlus summary report names as strings.
-            If None, only the 'AllSummary' report will be requested from the simulation
-            and no HTML report will be generated. If any value is input here, an HTML
-            report will be requested and the summary report written into it.
+            If None, only the 'AllSummary' report will be requested from the
+            simulation and will appear in the HTML report output by EnergyPlus.
             See the Input Output Reference SummaryReports section for a full
             list of all reports that can be requested. https://bigladdersoftware.com/
             epx/docs/9-1/input-output-reference/output-table-summaryreports.html
@@ -45,7 +44,7 @@ The resulting object can be used to request output variables from EnergyPlus.
 
 ghenv.Component.Name = "HB Custom Simulation Output"
 ghenv.Component.NickName = 'CustomOutput'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
