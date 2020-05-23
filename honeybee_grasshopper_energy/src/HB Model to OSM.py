@@ -69,7 +69,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.5.1'
+ghenv.Component.Message = '0.5.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -114,6 +114,7 @@ if all_required_inputs(ghenv.Component) and _write:
     if _sim_par_ is None:
         _sim_par_ = SimulationParameter()
         _sim_par_.output.add_zone_energy_use()
+        _sim_par_.output.add_hvac_energy_use()
 
     # assign design days from the EPW if there are not in the _sim_par_
     if len(_sim_par_.sizing_parameter.design_days) == 0:
