@@ -26,9 +26,10 @@ to an IDF file and then run through EnergyPlus.
             (https://bcl.nrel.gov/).
         add_str_: THIS OPTION IS JUST FOR ADVANCED USERS OF ENERGYPLUS.
             You can input additional text strings here that you would like
-            written into the IDF.  The strings input here should be complete
-            EnergyPlus objects that are correctly formatted. This input can be used to
-            write objects into the IDF that are not currently supported by Honeybee.
+            written into the IDF.  The input here should be complete EnergyPlus
+            objects as a single string following the IDF format. This input ca
+            be used to write objects into the IDF that are not currently supported
+            by Honeybee.
         _folder_: An optional folder on this computer, into which the IDF and result
             files will be written.  NOTE THAT DIRECTORIES INPUT HERE SHOULD NOT HAVE
             ANY SPACES OR UNDERSCORES IN THE FILE PATH.
@@ -43,15 +44,15 @@ to an IDF file and then run through EnergyPlus.
     Returns:
         report: Check here to see a report of the EnergyPlus run.
         jsons: The file paths to the honeybee JSON files that describe the Model and
-            SimulationParameter. These will be translated to an OpenStudio
-            model using the honeybee energy_model_measure.
+            SimulationParameter. These will be translated to an OpenStudio model.
         osw: File path to the OpenStudio Workflow JSON on this machine. This workflow
             is executed using the OpenStudio command line interface (CLI) and
-            it includes the honeybee energy_model_measure as well as any other
-            connected measures_.
+            it includes measures to translate the Honeybee model JSON as well
+            as any other connected measures_.
         osm: The file path to the OpenStudio Model (OSM) that has been generated
             on this computer.
-        idf: The file path of the IDF file that has been generated on this computer.
+        idf: The file path of the EnergyPlus Input Data File (IDF) that has been
+            generated on this computer.
         sql: The file path of the SQL result file that has been generated on this
             computer. This will be None unless run_ is set to True.
         zsz: Path to a .csv file containing detailed zone load information recorded
@@ -60,16 +61,14 @@ to an IDF file and then run through EnergyPlus.
         rdd: The file path of the Result Data Dictionary (.rdd) file that is
             generated after running the file through EnergyPlus.  This file
             contains all possible outputs that can be requested from the EnergyPlus
-            model.  Use the Read Result Dictionary component to see what outputs
+            model. Use the "HB Read Result Dictionary" component to see what outputs
             can be requested.
-        html: The HTML file path of the Summary Reports. Note that this will be None
-            unless the input _sim_par_ denotes that an HTML report is requested and
-            run_ is set to True.
+        html: The HTML file path containing all requested Summary Reports.
 """
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.5.2'
+ghenv.Component.Message = '0.5.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -116,7 +115,7 @@ if all_required_inputs(ghenv.Component) and _write:
         _sim_par_.output.add_zone_energy_use()
         _sim_par_.output.add_hvac_energy_use()
 
-    # assign design days from the EPW if there are not in the _sim_par_
+    # assign design days from the DDY next to the EPW if there are None
     if len(_sim_par_.sizing_parameter.design_days) == 0:
         folder, epw_file_name = os.path.split(_epw_file)
         ddy_file = os.path.join(folder, epw_file_name.replace('.epw', '.ddy'))
