@@ -42,7 +42,7 @@ timeseries over a day. Each slider runs from the _low_bound_ to _high_bound_.
 
 ghenv.Component.Name = "HB Gene Pool to Day Schedule"
 ghenv.Component.NickName = 'GenePoolToDaySch'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -70,13 +70,13 @@ if all_required_inputs(ghenv.Component) and _run:
     _low_bound_ = 0.0 if _low_bound_ is None else _low_bound_
     _up_bound_ = 1.0 if _up_bound_ is None else _up_bound_
     _decimals_ =  1 if _decimals_ is None else _decimals_
-    
+
     # get the template values
     template = templates[_template_]
-    
+
     # get the gene pool 
     gp = ghenv.Component.Params.Input[0].Sources[0]
-    
+
     # modify the gene pool
     gp.Count = 24.0
     gp.Decimals = _decimals_
@@ -84,8 +84,12 @@ if all_required_inputs(ghenv.Component) and _run:
     gp.NickName = "DaySchedule"
     gp.Maximum = _up_bound_
     gp.Minimum = _low_bound_
-    
+
     # set gene pool values
-    gp.Count = 24
     for i in range(gp.Count):
         gp[i] = gp.Minimum + (template[i] * gp.Maximum)
+
+    # register the change on the component
+    gp.ExpireSolution(True)
+else:
+    print('Connect _gene_pool and a button to _run.')

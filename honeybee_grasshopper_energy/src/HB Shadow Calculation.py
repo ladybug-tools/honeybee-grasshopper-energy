@@ -50,11 +50,21 @@ Create settings for the EnergyPlus Shadow Calculation.
                 geometries are not supported by this solar distribution calculation
                 and it is recommeded that you either break up your zones in this
                 case or not use this solar distribution method.
-        _calc_method_: Text describing how the solar and shading models are calculated
-            with respect to the time of calculations during the simulation.
-            Default - AverageOverDaysInFrequency. Choose from the following:
-                * AverageOverDaysInFrequency
-                * TimestepFrequency
+        _calc_method_: Text noting whether CPU-based polygon clipping method or GPU-based
+            pixel counting method should be used. For low numbers of shading
+            surfaces (less than ~200), PolygonClipping requires less runtime than
+            PixelCounting. However, PixelCounting runtime scales significantly
+            better at higher numbers of shading surfaces. PixelCounting also has
+            no limitations related to zone concavity when used with any
+            “FullInterior” solar distribution options. (Default: PolygonClipping).
+            Choose from the following:
+                * PolygonClipping
+                * PixelCounting
+        _update_method_: Text describing how often the solar and shading calculations are
+            updated with respect to the flow of time in the simulation. (Default: Periodic)
+            Choose from the following:
+                * Periodic
+                * Timestep
         _frequency_: Integer for the number of days in each period in
             which a unique shadow calculation will be performed. This field is only
             used if the AverageOverDaysInFrequency method is used in the previous
@@ -70,7 +80,7 @@ Create settings for the EnergyPlus Shadow Calculation.
 
 ghenv.Component.Name = "HB Shadow Calculation"
 ghenv.Component.NickName = 'ShadowCalc'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -105,10 +115,11 @@ except KeyError:
         'following:\n{}'.format(_solar_dist_, SOLAR_DISTRIBUTIONS.keys()))
 
 # set other default values
-_calc_method_ = _calc_method_ if _calc_method_ is not None else 'AverageOverDaysInFrequency'
+_calc_method_ = _calc_method_ if _calc_method_ is not None else 'PolygonClipping'
+_update_method_ = _update_method_ if _update_method_ is not None else 'Periodic'
 _frequency_ = _frequency_ if _frequency_ is not None else 30
 _max_figures_ = _max_figures_ if _max_figures_ is not None else 15000
 
 # create the object
-shadow_calc = ShadowCalculation(_solar_dist_, _calc_method_, _frequency_,
-                                _max_figures_)
+shadow_calc = ShadowCalculation(
+    _solar_dist_, _calc_method_, _update_method_, _frequency_, _max_figures_)
