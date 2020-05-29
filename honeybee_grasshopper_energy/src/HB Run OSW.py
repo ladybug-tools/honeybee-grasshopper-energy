@@ -50,12 +50,12 @@ EnergyPlus.
             run_ is set to True.
 """
 
-ghenv.Component.Name = "HB Run OSW"
+ghenv.Component.Name = 'HB Run OSW'
 ghenv.Component.NickName = 'RunOSW'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = "0"
+ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 import os
 import System.Threading.Tasks as tasks

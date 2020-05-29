@@ -14,6 +14,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ladybug-tools/honeybee-grasshopper-energy",
     packages=setuptools.find_packages(exclude=["samples"]),
+    include_package_data=True,
     install_requires=[],
     classifiers=[
         "Programming Language :: Python :: 2.7",

@@ -53,7 +53,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.5.6'
+ghenv.Component.Message = '0.5.7'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -124,11 +124,11 @@ if all_required_inputs(ghenv.Component) and _write:
 
     # create the strings for simulation paramters and model
     ver_str = energyplus_idf_version() if energy_folders.energyplus_version \
-        is not None else energyplus_idf_version((9, 2, 0))
+        is not None else energyplus_idf_version((3, 0, 0))
     sim_par_str = _sim_par_.to_idf()
     model_str = _model.to.idf(_model, schedule_directory=sch_directory)
     idf_str = '\n\n'.join([ver_str, sim_par_str, model_str, add_str])
-    
+
     # delete any existing files in the directory
     nukedir(directory)
 
