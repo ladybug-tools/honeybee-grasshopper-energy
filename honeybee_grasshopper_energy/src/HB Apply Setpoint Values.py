@@ -31,7 +31,7 @@ Apply values for setpoints to a Room or ProgramType.
 
 ghenv.Component.Name = "HB Apply Setpoint Values"
 ghenv.Component.NickName = 'ApplySetpointVals'
-ghenv.Component.Message = '0.2.1'
+ghenv.Component.Message = '0.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -63,14 +63,17 @@ def dup_setpoint(hb_obj):
     except AttributeError:  # it's a ProgramType
         setpt_obj = hb_obj.setpoint
 
+    load_id = '{}_Setpoint'.format(hb_obj.identifier)
     try:  # duplicate the setpoint object
-        return setpt_obj.duplicate()
+        dup_load = setpt_obj.duplicate()
+        dup_load.identifier = load_id
+        return dup_load
     except AttributeError:  # create a new object if it does not exist
         heat_sch = ScheduleRuleset.from_constant_value(
             '{}_HtgSetp'.format(hb_obj.identifier), -50, _type_lib.temperature)
         cool_sch = ScheduleRuleset.from_constant_value(
             '{}_ClgSetp'.format(hb_obj.identifier), 50, _type_lib.temperature)
-        return Setpoint('{}_Setpoint'.format(hb_obj.identifier), heat_sch, cool_sch)
+        return Setpoint(load_id, heat_sch, cool_sch)
 
 
 def assign_setpoint(hb_obj, setpt_obj):
