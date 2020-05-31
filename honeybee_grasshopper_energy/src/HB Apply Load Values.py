@@ -54,7 +54,7 @@ simulation, the "Always On" schedule will be used as a default.
 
 ghenv.Component.Name = "HB Apply Load Values"
 ghenv.Component.NickName = 'ApplyLoadVals'
-ghenv.Component.Message = '0.2.1'
+ghenv.Component.Message = '0.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -95,13 +95,16 @@ def dup_load(hb_obj, object_name, object_class):
     except AttributeError:  # it's a ProgramType
         load_obj = getattr(hb_obj, object_name)
 
+    load_id = '{}_{}'.format(hb_obj.identifier, object_name)
     try:  # duplicate the load object
-        return load_obj.duplicate()
+        dup_load = load_obj.duplicate()
+        dup_load.identifier = load_id
+        return dup_load
     except AttributeError:  # create a new object
         try:  # assume it's People, Lighting, Equipment or Infiltration
-            return object_class('{}_{}'.format(hb_obj.identifier, object_name), 0, always_on)
+            return object_class(load_id, 0, always_on)
         except:  # it's a Ventilation object
-            return object_class('{}_{}'.format(hb_obj.identifier, object_name))
+            return object_class(load_id)
 
 
 def assign_load(hb_obj, load_obj, object_name):

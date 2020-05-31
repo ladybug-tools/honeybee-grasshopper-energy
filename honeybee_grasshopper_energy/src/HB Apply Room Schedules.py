@@ -68,7 +68,7 @@ given load.
 
 ghenv.Component.Name = "HB Apply Room Schedules"
 ghenv.Component.NickName = 'ApplyRoomSch'
-ghenv.Component.Message = '0.2.1'
+ghenv.Component.Message = '0.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -109,7 +109,9 @@ def dup_load(hb_obj, object_name, input_name):
         load_obj = getattr(hb_obj, object_name)
 
     try:  # duplicate the load object
-        return load_obj.duplicate()
+        dup_load = load_obj.duplicate()
+        dup_load.identifier = '{}_{}'.format(hb_obj.identifier, object_name)
+        return dup_load
     except AttributeError:
         raise ValueError(
             '{0} has been input but the Room or ProgramType posseses no {1} object.'
