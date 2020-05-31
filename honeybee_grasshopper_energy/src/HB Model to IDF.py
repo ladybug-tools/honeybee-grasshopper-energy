@@ -53,7 +53,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.5.7'
+ghenv.Component.Message = '0.5.8'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -94,6 +94,14 @@ def orphaned_warning(object_type):
 
 
 if all_required_inputs(ghenv.Component) and _write:
+    # process the simulation folder name and the directory
+    _folder_ = folders.default_simulation_folder if _folder_ is None else _folder_
+    directory = os.path.join(_folder_, _model.identifier, 'EnergyPlus')
+    sch_directory = os.path.join(directory, 'schedules')
+
+    # delete any existing files in the directory
+    nukedir(directory)
+
     # process the simulation parameters
     if _sim_par_ is None:
         _sim_par_ = SimulationParameter()
@@ -112,11 +120,6 @@ if all_required_inputs(ghenv.Component) and _write:
     # process the additional strings
     add_str = '/n'.join(add_str_) if add_str_ is not None else ''
 
-    # process the simulation folder name and the directory
-    _folder_ = folders.default_simulation_folder if _folder_ is None else _folder_
-    directory = os.path.join(_folder_, _model.identifier, 'EnergyPlus')
-    sch_directory = os.path.join(directory, 'schedules')
-
     # check the model to be sure there are no orphaned faces, apertures, or doors
     assert len(_model.orphaned_faces) == 0, orphaned_warning('Face')
     assert len(_model.orphaned_apertures) == 0, orphaned_warning('Aperture')
@@ -128,9 +131,6 @@ if all_required_inputs(ghenv.Component) and _write:
     sim_par_str = _sim_par_.to_idf()
     model_str = _model.to.idf(_model, schedule_directory=sch_directory)
     idf_str = '\n\n'.join([ver_str, sim_par_str, model_str, add_str])
-
-    # delete any existing files in the directory
-    nukedir(directory)
 
     # write the final string into an IDF.
     idf = os.path.join(directory, 'in.idf')
