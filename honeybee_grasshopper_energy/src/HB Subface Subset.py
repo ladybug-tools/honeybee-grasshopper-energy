@@ -40,16 +40,17 @@ used to edit or create a ConstructionSet object.
             to edit or create a ConstructionSet object.
 """
 
-ghenv.Component.Name = "HB Subface Subset"
+ghenv.Component.Name = 'HB Subface Subset'
 ghenv.Component.NickName = 'SubfaceSubset'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
-ghenv.Component.AdditionalHelpFromDocStrings = "4"
+ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import honeybee_energy dependencies
     from honeybee_energy.construction.opaque import OpaqueConstruction
     from honeybee_energy.construction.window import WindowConstruction
+    from honeybee_energy.construction.windowshade import WindowConstructionShade
     from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \
         window_construction_by_identifier
 except ImportError as e:
@@ -72,9 +73,9 @@ def window_constr(construction, input_name):
     if isinstance(construction, str):
         return window_construction_by_identifier(construction)
     else:
-        assert isinstance(construction, WindowConstruction), \
-            'Expected WindowConstruction for {}. Got {}'.format(
-                input_name, type(construction))
+        win_cls = (WindowConstruction, WindowConstructionShade)
+        assert isinstance(construction, win_cls), 'Expected WindowConstruction ' \
+            'for {}. Got {}'.format(input_name, type(construction))
     return construction
 
 

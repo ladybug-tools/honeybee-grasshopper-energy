@@ -34,12 +34,12 @@ ConstructionSet object.
             or create a ConstructionSet object.
 """
 
-ghenv.Component.Name = "HB Interior Construction Subset"
+ghenv.Component.Name = 'HB Interior Construction Subset'
 ghenv.Component.NickName = 'InteriorSubset'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
-ghenv.Component.AdditionalHelpFromDocStrings = "4"
+ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import honeybee_energy dependencies
     from honeybee_energy.construction.opaque import OpaqueConstruction
@@ -66,7 +66,7 @@ def opaque_constr(construction, input_name):
 
 
 def window_constr(construction, input_name):
-    """Get an WindowConstrucion from the library if it's a string."""
+    """Get a WindowConstrucion from the library if it's a string."""
     if isinstance(construction, str):
         return window_construction_by_identifier(construction)
     else:

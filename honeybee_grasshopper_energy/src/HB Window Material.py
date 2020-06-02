@@ -32,12 +32,12 @@ Construction" component.
             construction.
 """
 
-ghenv.Component.Name = "HB Window Material"
+ghenv.Component.Name = 'HB Window Material'
 ghenv.Component.NickName = 'WindowMat'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = 'HB-Energy'
-ghenv.Component.SubCategory = "1 :: Constructions"
-ghenv.Component.AdditionalHelpFromDocStrings = "5"
+ghenv.Component.SubCategory = '1 :: Constructions'
+ghenv.Component.AdditionalHelpFromDocStrings = '6'
 
 try:  # import the core honeybee dependencies
     from honeybee.typing import clean_and_id_ep_string
