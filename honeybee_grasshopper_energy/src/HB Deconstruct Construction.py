@@ -41,17 +41,18 @@ Deconstruct an opaque or window construction into its constituient materials.
             materials in the construction are ignored.
 """
 
-ghenv.Component.Name = "HB Deconstruct Construction"
+ghenv.Component.Name = 'HB Deconstruct Construction'
 ghenv.Component.NickName = 'DecnstrConstr'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = 'HB-Energy'
-ghenv.Component.SubCategory = "1 :: Constructions"
-ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.SubCategory = '1 :: Constructions'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 
 try:  # import the honeybee-energy dependencies
     from honeybee_energy.construction.opaque import OpaqueConstruction
     from honeybee_energy.construction.window import WindowConstruction
+    from honeybee_energy.construction.windowshade import WindowConstructionShade
     from honeybee_energy.lib.constructions import opaque_construction_by_identifier
     from honeybee_energy.lib.constructions import window_construction_by_identifier
 except ImportError as e:
@@ -75,10 +76,11 @@ if all_required_inputs(ghenv.Component):
         except ValueError:
             _constr = window_construction_by_identifier(_constr)
     else:
-        assert isinstance(_constr, (OpaqueConstruction, WindowConstruction)), \
-            'Expected OpaqueConstruction or WindowConstruction. ' \
+        con_cls  = (OpaqueConstruction, WindowConstruction, WindowConstructionShade)
+        assert isinstance(_constr, con_cls), \
+            'Expected OpaqueConstruction, WindowConstruction, or WindowConstructionShade. ' \
             'Got {}.'.format(type(_constr))
-    
+
     # get the materials, r-value and u-factor
     materials = _constr.materials
     layers = _constr.layers
@@ -86,11 +88,14 @@ if all_required_inputs(ghenv.Component):
     r_val_ip = RValue().to_ip([r_val_si], 'm2-K/W')[0][0]
     u_fac_si = _constr.u_factor
     u_fac_ip = UValue().to_ip([u_fac_si], 'W/m2-K')[0][0]
-    
+
     # get the transmittance
     if isinstance(_constr, WindowConstruction):
-        t_sol = _constr.unshaded_solar_transmittance
-        t_vis = _constr.unshaded_visible_transmittance
+        t_sol = _constr.solar_transmittance
+        t_vis = _constr.visible_transmittance
+    elif isinstance(_constr, WindowConstructionShade):  # get unshaded transmittance
+        t_sol = _constr.window_construction.solar_transmittance
+        t_vis = _constr.window_construction.visible_transmittance
     else:
         t_sol = 0
         t_vis = 0

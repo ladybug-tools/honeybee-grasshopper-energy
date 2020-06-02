@@ -8,9 +8,9 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Apply WindowConstruction to Honeybee Apertures or glass Doors. Alternatively,
-it can assign WindowConstructions to the child apertures of input Faces or the
-apertures within Room walls.
+Apply WindowConstruction or WindowConstructionShade to Honeybee Apertures or
+glass Doors. Alternatively, it can assign WindowConstructions to the child
+apertures of input Faces or the apertures within Room walls.
 _
 This component supports the assigning of different constructions based on cardinal
 orientation, provided that a list of WindowConstructions are input to the _constr. 
@@ -23,11 +23,12 @@ orientation, provided that a list of WindowConstructions are input to the _const
             Room's outdoor walls. Note that, if you need to assign a construction
             to all the skylights, glass doors, etc. of a Room, the best practice
             is to create a ConstructionSet and assing that to the Room.
-        _constr: A Honeybee WindowConstruction to be applied to the input _hb_objs.
-            This can also be text for a construction to be looked up in the window
-            construction library. If an array of text or construction objects
-            are input here, different constructions will be assigned based on
-            cardinal direction, starting with north and moving clockwise.
+        _constr: A Honeybee WindowConstruction or WindowConstructionShade to be
+            applied to the input _hb_objs. This can also be text for a construction
+            to be looked up in the window construction library. If an array of
+            text or construction objects are input here, different constructions
+            will be assigned based on cardinal direction, starting with north
+            and moving clockwise.
     
     Returns:
         hb_objs: The input honeybee objects with their constructions edited.
@@ -35,7 +36,7 @@ orientation, provided that a list of WindowConstructions are input to the _const
 
 ghenv.Component.Name = "HB Apply Window Construction"
 ghenv.Component.NickName = 'ApplyWindowConstr'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

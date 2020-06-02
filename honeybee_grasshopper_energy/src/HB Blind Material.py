@@ -55,10 +55,10 @@ Window blind properties consist of flat, equally-spaced slats.
 
 ghenv.Component.Name = 'HB Blind Material'
 ghenv.Component.NickName = 'BlindMat'
-ghenv.Component.Message = '0.1.3'
+ghenv.Component.Message = '0.1.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
-ghenv.Component.AdditionalHelpFromDocStrings = '0'
+ghenv.Component.AdditionalHelpFromDocStrings = '7'
 
 try:  # import the core honeybee dependencies
     from honeybee.typing import clean_and_id_ep_string
