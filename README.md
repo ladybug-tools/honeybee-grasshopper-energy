@@ -18,10 +18,11 @@ The honeybee-grasshopper-energy plugin has the following dependencies on core li
 
 * [ladybug-core](https://github.com/ladybug-tools/ladybug)
 * [ladybug-geometry](https://github.com/ladybug-tools/ladybug-geometry)
-* [ladybug-dotnet](https://github.com/ladybug-tools/ladybug-dotnet)
+* [ladybug-comfort](https://github.com/ladybug-tools/ladybug-comfort)
 * [ladybug-rhino](https://github.com/ladybug-tools/ladybug-rhino)
 * [honeybee-core](https://github.com/ladybug-tools/honeybee-core)
 * [honeybee-energy](https://github.com/ladybug-tools/honeybee-energy)
+* [honeybee-standards](https://github.com/ladybug-tools/honeybee-standards)
 * [honeybee-energy-standards](https://github.com/ladybug-tools/honeybee-energy-standards)
 
 ## Other Required Components
