@@ -58,7 +58,7 @@ Visualize Room-level energy simulation results as colored Room geometry.
 
 ghenv.Component.Name = "HB Color Rooms"
 ghenv.Component.NickName = 'ColorRooms'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -75,16 +75,12 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_dotnet.color import color_to_color
-except ImportError as e:
-    raise ImportError('\nFailed to import ladybug_dotnet:\n\t{}'.format(e))
-
-try:
     from ladybug_rhino.togeometry import to_point3d
     from ladybug_rhino.fromgeometry import from_face3ds_to_colored_mesh, \
         from_polyface3d_to_wireframe
     from ladybug_rhino.text import text_objects
     from ladybug_rhino.fromobjects import legend_objects
+    from ladybug_rhino.color import color_to_color
     from ladybug_rhino.grasshopper import all_required_inputs
     from ladybug_rhino.config import units_abbreviation
 except ImportError as e:
