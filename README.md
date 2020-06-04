@@ -3,14 +3,17 @@
 [![IronPython](https://img.shields.io/badge/ironpython-2.7-red.svg)](https://github.com/IronLanguages/ironpython2/releases/tag/ipy-2.7.8/)
 
 # honeybee-grasshopper-energy
+
 :honeybee: :green_book: :fire: Honeybee Energy plugin for Grasshopper (aka. honeybee[+]).
 
 This repository contains all energy modeling Grasshopper components for the honeybee
 plugin. The package includes both the userobjects (`.ghuser`) and the Python
 source (`.py`). Note that this library only possesses the Grasshopper components
-and, in order to run the plugin, the core libraries must be installed (see dependencies).
+and, in order to run the plugin, the core libraries must be installed in a way that
+they can be found by Rhino (see dependencies).
 
-# Dependencies
+## Dependencies
+
 The honeybee-grasshopper-energy plugin has the following dependencies on core libraries:
 
 * [ladybug-core](https://github.com/ladybug-tools/ladybug)
@@ -21,7 +24,8 @@ The honeybee-grasshopper-energy plugin has the following dependencies on core li
 * [honeybee-energy](https://github.com/ladybug-tools/honeybee-energy)
 * [honeybee-energy-standards](https://github.com/ladybug-tools/honeybee-energy-standards)
 
-# Oher Required Components
+## Other Required Components
+
 The honeybee-grasshopper-energy plugin also requires the Grasshopper components within the
 following repositories to be installed in order to work correctly:
 
