@@ -25,10 +25,24 @@ file that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Comfort Result'
 ghenv.Component.NickName = 'RoomComfortResult'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
+
+import os
+import subprocess
+import json
+
+try:
+    from ladybug.datacollection import HourlyContinuousCollection
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
+
+try:
+    from honeybee.config import folders
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from honeybee_energy.result.sql import SQLiteResult
@@ -41,16 +55,38 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
+def serialize_data(data_dicts):
+    """Reserialize a list of HourlyContinuousCollection dictionaries."""
+    return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]
+
+
+# List of all the output strings that will be requested
+oper_temp_output = 'Zone Operative Temperature'
+air_temp_output = 'Zone Mean Air Temperature'
+rad_temp_output = 'Zone Mean Radiant Temperature'
+rel_humidity_output = 'Zone Air Relative Humidity'
+all_output = [oper_temp_output, air_temp_output, rad_temp_output, rel_humidity_output]
+
+
 if all_required_inputs(ghenv.Component):
-    # create the SQL result parsing object
-    sql_obj = SQLiteResult(_sql)
-    
-    # get all of the results
-    oper_temp = sql_obj.data_collections_by_output_name(
-        'Zone Operative Temperature')
-    air_temp = sql_obj.data_collections_by_output_name(
-        'Zone Mean Air Temperature')
-    rad_temp = sql_obj.data_collections_by_output_name(
-        'Zone Mean Radiant Temperature')
-    rel_humidity = sql_obj.data_collections_by_output_name(
-        'Zone Air Relative Humidity')
+    if os.name == 'nt':  # we are on windows; use IronPython like usual
+        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object
+        # get all of the results
+        oper_temp = sql_obj.data_collections_by_output_name(oper_temp_output)
+        air_temp = sql_obj.data_collections_by_output_name(air_temp_output)
+        rad_temp = sql_obj.data_collections_by_output_name(rad_temp_output)
+        rel_humidity = sql_obj.data_collections_by_output_name(rel_humidity_output)
+
+    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
+        # Execute the honybee CLI to obtain the results via CPython
+        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
+                'data-by-outputs', _sql] + all_output
+        cmd = ' '.join(cmds)
+        process = subprocess.Popen(cmds, shell=True, stdout=subprocess.PIPE)
+        stdout = process.communicate()
+        data_coll_dicts = json.loads(stdout[0])
+        # get all of the results
+        oper_temp = serialize_data(data_coll_dicts[0])
+        air_temp = serialize_data(data_coll_dicts[1])
+        rad_temp = serialize_data(data_coll_dicts[2])
+        rel_humidity = serialize_data(data_coll_dicts[3])
