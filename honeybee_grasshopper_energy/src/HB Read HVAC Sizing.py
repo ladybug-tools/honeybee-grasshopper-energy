@@ -40,7 +40,7 @@ been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read HVAC Sizing'
 ghenv.Component.NickName = 'ReadHVAC'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '0.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -88,8 +88,7 @@ if all_required_inputs(ghenv.Component):
         # Execute the honybee CLI to obtain the zone sizes via CPython
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                 'zone-sizes', _sql]
-        cmd = ' '.join(cmds)
-        process = subprocess.Popen(cmds, shell=True, stdout=subprocess.PIPE)
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
         stdout = process.communicate()
         zone_size_dicts = json.loads(stdout[0])
         zone_cooling_sizes = [ZoneSize.from_dict(zs) for zs in zone_size_dicts['cooling']]
@@ -100,8 +99,7 @@ if all_required_inputs(ghenv.Component):
         if comp_type_ is not None:
             comp_types = comp_type_
             cmds.extend(['--component-type', comp_type_])
-        cmd = ' '.join(cmds)
-        process = subprocess.Popen(cmds, shell=True, stdout=subprocess.PIPE)
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
         stdout = process.communicate()
         comp_size_dicts = json.loads(stdout[0])
         component_sizes = [ComponentSize.from_dict(cs) for cs in comp_size_dicts]

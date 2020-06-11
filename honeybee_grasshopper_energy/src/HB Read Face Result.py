@@ -33,7 +33,7 @@ file that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Face Result'
 ghenv.Component.NickName = 'FaceResult'
-ghenv.Component.Message = '0.2.0'
+ghenv.Component.Message = '0.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -103,8 +103,7 @@ if all_required_inputs(ghenv.Component):
         # Execute the honybee CLI to obtain the results via CPython
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                 'data-by-outputs', _sql] + all_output
-        cmd = ' '.join(cmds)
-        process = subprocess.Popen(cmds, shell=True, stdout=subprocess.PIPE)
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
         stdout = process.communicate()
         data_coll_dicts = json.loads(stdout[0])
         # get all of the results
