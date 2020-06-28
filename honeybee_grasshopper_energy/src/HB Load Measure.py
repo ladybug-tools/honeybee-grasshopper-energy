@@ -35,7 +35,7 @@ https://bcl.nrel.gov/nrel/types/measure
 
 ghenv.Component.Name = 'HB Load Measure'
 ghenv.Component.NickName = 'LoadMeasure'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -75,13 +75,16 @@ def add_component_input_from_arg(argument):
     # assign the optional properties to the input if they exist
     if argument.type_text == 'Choice':
         descr = [argument.description] if argument.description else []
-        descr.append('Choose from the following options:')
-        descr = descr + list(argument.valid_choices)
+        if None not in argument.valid_choices:
+            descr.append('Choose from the following options:')
+            descr = descr + list(argument.valid_choices)
         param.Description = '\n '.join(descr)
     elif argument.description:
         param.Description = argument.description
     if argument.default_value is not None:
         param.AddVolatileData(gh.Data.GH_Path(0), 0, argument.default_value)
+    elif argument.type_text == 'Choice' and argument.valid_choices == (None,):
+        param.AddVolatileData(gh.Data.GH_Path(0), 0, 'None')
 
     # add the parameter to the compoent
     index = ghenv.Component.Params.Input.Count
@@ -155,7 +158,11 @@ def update_measure_arguments(measure):
             value = ghenv.Component.Params.Input[i].VolatileData[0][0]
             if value is not None:
                 val = str(value)  # cast to string to avoid weird Grasshopper types
-                measure.arguments[i - 1].value = val if val != 'False' else False
+                argument = measure.arguments[i - 1]
+                if argument.valid_choices == (None,) and val == 'None':
+                    pass  # choice argument with no valid choices
+                else:
+                    argument.value = val if val != 'False' else False
         except IndexError:  # there is no input for this value; just ignore it
             pass
 
