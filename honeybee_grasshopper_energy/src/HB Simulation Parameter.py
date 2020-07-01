@@ -64,7 +64,7 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
 
 ghenv.Component.Name = "HB Simulation Parameter"
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '0.3.0'
+ghenv.Component.Message = '0.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -92,6 +92,7 @@ except ImportError as e:
 if _output_ is None:
     _output_ = SimulationOutput()
     _output_.add_zone_energy_use()
+    _output_.add_hvac_energy_use()
 
 # set default simulation run period
 _run_period_ = RunPeriod.from_analysis_period(_run_period_) \
