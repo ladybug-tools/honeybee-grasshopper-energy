@@ -35,7 +35,7 @@ https://bcl.nrel.gov/nrel/types/measure
 
 ghenv.Component.Name = 'HB Load Measure'
 ghenv.Component.NickName = 'LoadMeasure'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -144,6 +144,8 @@ def check_arguments_and_set_defaults(measure):
         if not param.VolatileDataCount or param.VolatileData[0][0] is None:
             if arg.default_value is not None:
                 param.AddVolatileData(gh.Data.GH_Path(0), 0, arg.default_value)
+            elif arg.type_text == 'Choice' and arg.valid_choices == (None,):
+                param.AddVolatileData(gh.Data.GH_Path(0), 0, 'None')
 
 
 def update_measure_arguments(measure):
