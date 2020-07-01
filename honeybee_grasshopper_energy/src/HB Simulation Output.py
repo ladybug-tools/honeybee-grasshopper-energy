@@ -31,7 +31,7 @@ The resulting object can be used to request output variables from EnergyPlus.
         surface_energy_flow_: Set to True to add outputs for energy flow across
             all surfaces.
         load_type_: An optional text value to set the type of load outputs requested.
-            Default - 'Total'. Choose from the following:
+            Default - 'All'. Choose from the following:
                 * All - all energy use including heat lost from the zone
                 * Total - the total load added to the zone (both sensible and latent)
                 * Sensible - the sensible load added to the zone
@@ -53,7 +53,7 @@ The resulting object can be used to request output variables from EnergyPlus.
 
 ghenv.Component.Name = "HB Simulation Output"
 ghenv.Component.NickName = 'SimOutput'
-ghenv.Component.Message = '0.1.4'
+ghenv.Component.Message = '0.1.5'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
