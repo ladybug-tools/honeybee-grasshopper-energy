@@ -44,7 +44,7 @@ The resulting object can be used to request output variables from EnergyPlus.
 
 ghenv.Component.Name = "HB Custom Simulation Output"
 ghenv.Component.NickName = 'CustomOutput'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -60,9 +60,8 @@ sim_output = base_sim_output_.duplicate() if base_sim_output_ is not None \
     else SimulationOutput()
 
 # set reporting frequency
-_report_frequency_ = _report_frequency_.title() \
-    if _report_frequency_ is not None else 'Hourly'
-sim_output.reporting_frequency = _report_frequency_
+if _report_frequency_ is not None:
+    sim_output.reporting_frequency = _report_frequency_.title()
 
 # add the _output names
 for output_name in output_names_:
