@@ -49,7 +49,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '0.2.2'
+ghenv.Component.Message = '0.2.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -202,7 +202,7 @@ if all_required_inputs(ghenv.Component):
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                 'data-by-outputs', _sql]
         for outp in all_output:
-            out_str = json.dumps(outp) if isinstance(outp, tuple) else '"{}"'.format(outp)
+            out_str = json.dumps(outp) if isinstance(outp, tuple) else '["{}"]'.format(outp)
             cmds.append(out_str)
         process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
         stdout = process.communicate()
