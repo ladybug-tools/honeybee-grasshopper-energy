@@ -8,14 +8,14 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Execute an OpenStudio workflow (.osw) and run the resulting IDF file through
-EnergyPlus.
+Translate a fully-simualte-able OpenStudio model (.osm) to an IDF and run the it
+through EnergyPlus.
 
 -
     Args:
-        _osw: Path to an OSW file as a text string. This can also be a list of
-            OSW files.
-        _epw_file: Path to an .epw file as a text string.
+        _osm: Path to an OpenStudio Model (OSM) file as a text string. This can
+            also be a list of OSM files.
+        _epw_ile: Path to an .epw file as a text string.
         add_str_: THIS OPTION IS JUST FOR ADVANCED USERS OF ENERGYPLUS.
             You can input additional text strings here that you would like
             written into the IDF.  The strings input here should be complete
@@ -25,15 +25,12 @@ EnergyPlus.
             in parallel, which can greatly increase the speed of calculation but
             may not be desired when other processes are running. If False, all
             EnergyPlus simulations will be be run on a single core. Default: False.
-        _translate: Set to "True" to execute the input OSWs using the OpenStudio
-            command line interface (CLI). This will translate any honeybee jsons
-            referenced in the osw to an osm and idf file.
+        _translate: Set to "True" to translate the OSM files to IDFs using the
+            OpenStudio command line interface (CLI).
         run_: Set to "True" to run the resulting IDF through EnergyPlus.
     
     Returns:
         report: Check here to see a report of the EnergyPlus run.
-        osm: The file path to the OpenStudio Model (OSM) that has been generated
-            on this computer.
         idf: The file path of the IDF file that has been generated on this computer.
         sql: The file path of the SQL result file that has been generated on your
             machine. This will be None unless run_ is set to True.
@@ -50,13 +47,14 @@ EnergyPlus.
             run_ is set to True.
 """
 
-ghenv.Component.Name = 'HB Run OSW'
-ghenv.Component.NickName = 'RunOSW'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Name = 'HB Run OSM'
+ghenv.Component.NickName = 'RunOSM'
+ghenv.Component.Message = '0.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = '3'
+ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
+import json
 import os
 import System.Threading.Tasks as tasks
 
@@ -71,9 +69,15 @@ try:
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
-def run_osw_and_report_errors(i):
+def run_osm_and_report_errors(i):
     """Run an OSW through OpenStudio CLI."""
-    osw = _osw[i]
+    # create a blank osw for the translation
+    osw_dict = {'seed_file': _osm[i]}
+    osw_directory = os.path.dirname(_osm[i])
+    osw = os.path.join(osw_directory, 'workflow.osw')
+    with open(osw, 'w') as fp:
+        json.dump(osw_dict, fp, indent=4)
+
     osm_i, idf_i = run_osw(osw)
     # process the additional strings
     if add_str_ != [] and add_str_[0] is not None and idf is not None:
@@ -110,10 +114,10 @@ if all_required_inputs(ghenv.Component) and _translate:
 
     # run the OSW files through OpenStudio CLI
     if parallel_:
-        tasks.Parallel.ForEach(range(len(_osw)), run_osw_and_report_errors)
+        tasks.Parallel.ForEach(range(len(_osm)), run_osm_and_report_errors)
     else:
-        for i in range(len(_osw)):
-            run_osw_and_report_errors(i)
+        for i in range(len(_osm)):
+            run_osm_and_report_errors(i)
 
     # print out error report if it's only one file
     # otherwise it's too much data to be read-able
