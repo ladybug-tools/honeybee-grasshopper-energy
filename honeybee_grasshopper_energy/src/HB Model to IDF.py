@@ -53,7 +53,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.5.8'
+ghenv.Component.Message = '0.5.9'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -106,16 +106,33 @@ if all_required_inputs(ghenv.Component) and _write:
     if _sim_par_ is None:
         _sim_par_ = SimulationParameter()
         _sim_par_.output.add_zone_energy_use()
+    else:
+        _sim_par_ = _sim_par_.duplicate()  # ensure input is not edited
 
     # assign design days from the EPW if there are not in the _sim_par_
     if len(_sim_par_.sizing_parameter.design_days) == 0:
+        msg = None
         folder, epw_file_name = os.path.split(_epw_file)
         ddy_file = os.path.join(folder, epw_file_name.replace('.epw', '.ddy'))
         if os.path.isfile(ddy_file):
-            _sim_par_.sizing_parameter.add_from_ddy_996_004(ddy_file)
+            try:
+                _sim_par_.sizing_parameter.add_from_ddy_996_004(ddy_file)
+            except AssertionError:
+                msg = 'No ddy_file_ was input into the _sim_par_ sizing ' \
+                    'parameters\n and no design days were found in the .ddy file '\
+                    'next to the _epw_file.'
         else:
-            raise ValueError('No _ddy_file_ has been input and no .ddy file was '
-                             'found next to the _epw_file.')
+             msg = 'No ddy_file_ was input into the _sim_par_ sizing parameters\n' \
+                'and no .ddy file was found next to the _epw_file.'
+        if msg is not None:
+            epw_obj = EPW(_epw_file)
+            des_days = [epw_obj.approximate_design_day('WinterDesignDay'),
+                        epw_obj.approximate_design_day('SummerDesignDay')]
+            _sim_par_.sizing_parameter.design_days = des_days
+            msg = msg + '\nDesign days were generated from the input _epw_file but this ' \
+                '\nis not as accurate as design days from DDYs distributed with the EPW.'
+            give_warning(ghenv.Component, msg)
+            print msg
 
     # process the additional strings
     add_str = '/n'.join(add_str_) if add_str_ is not None else ''

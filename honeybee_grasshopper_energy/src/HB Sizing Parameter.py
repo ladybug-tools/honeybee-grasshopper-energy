@@ -16,6 +16,11 @@ Create parameters with criteria for sizing the heating and cooling system.
             information about the design days used to size the hvac system. If None,
             honeybee will look for a .ddy file next to the .epw and extract all
             99.6% and 0.4% design days.
+        filter_ddays_: Boolean to note whether the design days in the ddy_file_
+            should be filtered to only include 99.6% and 0.4% design days. If None
+            or False, all design days in the ddy_file_ will be incorporated into
+            the sizing parameters. This can also be the integer 2 to filter for
+            99.0% and 1.0% design days.
         _heating_fac_: A number that will get multiplied by the peak heating load
             for each zone in the model in order to size the heating system for
             the model. Must be greater than 0. Default: 1.25.
@@ -31,7 +36,7 @@ Create parameters with criteria for sizing the heating and cooling system.
 
 ghenv.Component.Name = "HB Sizing Parameter"
 ghenv.Component.NickName = 'SizingPar'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -51,4 +56,9 @@ sizing = SizingParameter(None, heating_fac, cooling_fac)
 
 # apply design days from ddy
 if ddy_file_ is not None:
-    sizing.add_from_ddy(ddy_file_)
+    if filter_ddays_ == 1:
+        sizing.add_from_ddy_996_004(ddy_file_)
+    elif filter_ddays_ == 2:
+        sizing.add_from_ddy_990_010(ddy_file_)
+    else:
+        sizing.add_from_ddy(ddy_file_)
