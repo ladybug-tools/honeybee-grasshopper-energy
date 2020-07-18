@@ -34,14 +34,14 @@ Make boundary conditions of Rooms or Faces adiabatic by face type.
 
 ghenv.Component.Name = "HB Adiabatic by Type"
 ghenv.Component.NickName = 'AdiabaticByType'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "5"
 
 
 try:  # import the core honeybee dependencies
-    from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
+    from honeybee.boundarycondition import Outdoors, Ground, Surface, boundary_conditions
     from honeybee.facetype import Wall, RoofCeiling, Floor
     from honeybee.room import Room
     from honeybee.face import Face
@@ -65,11 +65,11 @@ def check_and_assign_adiabatic_to_face(face):
     """Check if a face if of a relevant type and assign Adiabatic if so."""
     
     # assign the adiabatic property to roofs
-    if roofs_ and check_type(face, Outdoors, RoofCeiling):
+    if roofs_ and check_type(face, (Outdoors, Ground), RoofCeiling):
         face.boundary_condition = boundary_conditions.adiabatic
     
     # assign the adiabatic property to exposed floors
-    if exposed_floors_ and check_type(face, Outdoors, Floor):
+    if exposed_floors_ and check_type(face, (Outdoors, Ground), Floor):
         face.boundary_condition = boundary_conditions.adiabatic
     
     # assign the adiabatic property to exposed floors
@@ -91,12 +91,12 @@ if all_required_inputs(ghenv.Component):
         for obj in hb_objs:
             if isinstance(obj, Room):
                 for face in obj.faces:
-                    if check_type(face, Outdoors, Wall):
+                    if check_type(face, (Outdoors, Ground), Wall):
                         orient_i = face_orient_index(face, angles)
                         if orient_i is not None and exterior_walls_[orient_i]:
                             face.boundary_condition = boundary_conditions.adiabatic
             else:  # assume it is a Face
-                if check_type(obj, Outdoors, Wall):
+                if check_type(obj, (Outdoors, Ground), Wall):
                     orient_i = face_orient_index(obj, angles)
                     if orient_i is not None and exterior_walls_[orient_i]:
                         obj.boundary_condition = boundary_conditions.adiabatic
