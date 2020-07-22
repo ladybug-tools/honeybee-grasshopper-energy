@@ -23,8 +23,8 @@ Parse any time series data from an energy simulation SQL result file.
 """
 
 ghenv.Component.Name = 'HB Read Custom Result'
-ghenv.Component.NickName = 'RoomCustomResult'
-ghenv.Component.Message = '0.2.1'
+ghenv.Component.NickName = 'CustomResult'
+ghenv.Component.Message = '0.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

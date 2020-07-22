@@ -36,7 +36,7 @@ ConstructionSet object.
 
 ghenv.Component.Name = 'HB Interior Construction Subset'
 ghenv.Component.NickName = 'InteriorSubset'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -106,12 +106,13 @@ if _int_glass_door_ is not None:
 
 # check whether the ceiling has the revered materials of the floor
 if _ceiling_ is not None or _interior_floor_ is not None:
-    if constr_set.roof_ceiling_set.interior_construction != \
-            tuple(reversed(constr_set.floor_set.interior_construction)):
-        give_warning(
-            ghenv.Component, '_ceiling_ does not have materials in reversed ' \
+    if _ceiling_ is None or _interior_floor_ is  None or \
+            _ceiling_.layers != list(reversed(_interior_floor_.layers)):
+        warn = '_ceiling_ does not have materials in reversed ' \
             ' order of the _interior_floor_.\nThis can cause issues if the ' \
-            'resulting constr_set is applied across multiple Rooms.')
+            'resulting constr_set is applied across multiple Rooms.'
+        give_warning(ghenv.Component, warn)
+        print(warn)
 
 # return the final list from the component
 interior_set = [_interior_wall_, _ceiling_, _interior_floor_, _interior_window_,
