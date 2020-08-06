@@ -68,7 +68,7 @@ given load.
 
 ghenv.Component.Name = "HB Apply Room Schedules"
 ghenv.Component.NickName = 'ApplyRoomSch'
-ghenv.Component.Message = '0.2.2'
+ghenv.Component.Message = '0.2.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -86,7 +86,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, longest_list
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -141,73 +141,64 @@ if all_required_inputs(ghenv.Component):
                             'Got {}.'.format(type(obj)))
 
     # assign the occupancy schedule
-    if occupancy_sch_ is not None:
-        occupancy_sch_ = schedule_object(occupancy_sch_)
-        for obj in mod_obj:
+    if len(occupancy_sch_) != 0:
+        for i, obj in enumerate(mod_obj):
             people = dup_load(obj, 'people', 'occupancy_sch_')
-            people.occupancy_schedule = occupancy_sch_
+            people.occupancy_schedule = schedule_object(longest_list(occupancy_sch_, i))
             assign_load(obj, people, 'people')
 
     # assign the activity schedule
-    if activity_sch_ is not None:
-        activity_sch_ = schedule_object(activity_sch_)
-        for obj in mod_obj:
+    if len(activity_sch_) != 0:
+        for i, obj in enumerate(mod_obj):
             people = dup_load(obj, 'people', 'activity_sch_')
-            people.activity_schedule = activity_sch_
+            people.activity_schedule = schedule_object(longest_list(activity_sch_, i))
             assign_load(obj, people, 'people')
 
     # assign the lighting schedule
-    if lighting_sch_ is not None:
-        lighting_sch_ = schedule_object(lighting_sch_)
-        for obj in mod_obj:
+    if len(lighting_sch_) != 0:
+        for i, obj in enumerate(mod_obj):
             lighting = dup_load(obj, 'lighting', 'lighting_sch_')
-            lighting.schedule = lighting_sch_
+            lighting.schedule = schedule_object(longest_list(lighting_sch_, i))
             assign_load(obj, lighting, 'lighting')
 
     # assign the electric equipment schedule
-    if electric_equip_sch_ is not None:
-        electric_equip_sch_ = schedule_object(electric_equip_sch_)
-        for obj in mod_obj:
+    if len(electric_equip_sch_) != 0:
+        for i, obj in enumerate(mod_obj):
             equip = dup_load(obj, 'electric_equipment', 'electric_equip_sch_')
-            equip.schedule = electric_equip_sch_
+            equip.schedule = schedule_object(longest_list(electric_equip_sch_, i))
             assign_load(obj, equip, 'electric_equipment')
 
     # assign the gas equipment schedule
-    if gas_equip_sch_ is not None:
-        gas_equip_sch_ = schedule_object(gas_equip_sch_)
-        for obj in mod_obj:
+    if len(gas_equip_sch_) != 0:
+        for i, obj in enumerate(mod_obj):
             equip = dup_load(obj, 'gas_equipment', 'gas_equip_sch_')
-            equip.schedule = gas_equip_sch_
+            equip.schedule = schedule_object(longest_list(gas_equip_sch_, i))
             assign_load(obj, equip, 'gas_equipment')
 
     # assign the infiltration schedule
-    if infiltration_sch_ is not None:
-        infiltration_sch_ = schedule_object(infiltration_sch_)
-        for obj in mod_obj:
+    if len(infiltration_sch_) != 0:
+        for i, obj in enumerate(mod_obj):
             infiltration = dup_load(obj, 'infiltration', 'infiltration_sch_')
-            infiltration.schedule = infiltration_sch_
+            infiltration.schedule = schedule_object(longest_list(infiltration_sch_, i))
             assign_load(obj, infiltration, 'infiltration')
 
     # assign the ventilation schedule
-    if ventilation_sch_ is not None:
-        ventilation_sch_ = schedule_object(ventilation_sch_)
-        for obj in mod_obj:
+    if len(ventilation_sch_) != 0:
+        for i, obj in enumerate(mod_obj):
             ventilation = dup_load(obj, 'ventilation', 'ventilation_sch_')
-            ventilation.schedule = ventilation_sch_
+            ventilation.schedule = schedule_object(longest_list(ventilation_sch_, i))
             assign_load(obj, ventilation, 'ventilation')
 
     # assign the heating setpoint schedule
-    if heating_setpt_sch_ is not None:
-        heating_setpt_sch_ = schedule_object(heating_setpt_sch_)
-        for obj in mod_obj:
+    if len(heating_setpt_sch_) != 0:
+        for i, obj in enumerate(mod_obj):
             setpoint = dup_load(obj, 'setpoint', 'heating_setpt_sch_')
-            setpoint.heating_schedule = heating_setpt_sch_
+            setpoint.heating_schedule = schedule_object(longest_list(heating_setpt_sch_, i))
             assign_load(obj, setpoint, 'setpoint')
 
     # assign the cooling setpoint schedule
-    if cooling_setpt_sch_ is not None:
-        cooling_setpt_sch_ = schedule_object(cooling_setpt_sch_)
-        for obj in mod_obj:
+    if len(cooling_setpt_sch_) != 0:
+        for i, obj in enumerate(mod_obj):
             setpoint = dup_load(obj, 'setpoint', 'cooling_setpt_sch_')
-            setpoint.cooling_schedule = cooling_setpt_sch_
+            setpoint.cooling_schedule = schedule_object(longest_list(cooling_setpt_sch_, i))
             assign_load(obj, setpoint, 'setpoint')

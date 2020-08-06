@@ -64,7 +64,7 @@ the properties assigned by this component are still relevant for such simulation
 
 ghenv.Component.Name = 'HB Window Opening'
 ghenv.Component.NickName = 'WindowOpen'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -76,26 +76,32 @@ except ImportError as e:
 
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning, \
+        longest_list
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
 if all_required_inputs(ghenv.Component):
-    # set default properties for any missing inputs
-    _fract_area_oper_ = 0.5 if _fract_area_oper_ is None else _fract_area_oper_
-    _fract_height_oper_ = 1.0 if _fract_height_oper_ is None else _fract_height_oper_
-    _discharge_coeff_ = 0.17 if _discharge_coeff_ is None else _discharge_coeff_
-    vent_open = VentilationOpening(
-        _fract_area_oper_, _fract_height_oper_, _discharge_coeff_)
-
     # loop through the rooms and assign the objects
     op_count = 0
     rooms = []
-    for room_init in _rooms:
-        room = room_init.duplicate()
-        room.properties.energy.window_vent_control = _vent_cntrl
-        if _wind_cross_vent_ is None:
+    for i, room_init in enumerate(_rooms):
+        room = room_init.duplicate()  # duplicate to avoid editing the input
+
+        # assign the ventilation control for the windows
+        room.properties.energy.window_vent_control = longest_list(_vent_cntrl, i)
+
+        # create the base ventilation opening
+        f_area = 0.5 if len(_fract_area_oper_) == 0 else longest_list(_fract_area_oper_, i)
+        f_height = 1.0 if len(_fract_height_oper_) == 0 else longest_list(_fract_height_oper_, i)
+        discharge = 0.17 if len(_discharge_coeff_) == 0 else longest_list(_discharge_coeff_, i)
+        vent_open = VentilationOpening(f_area, f_height, discharge)
+
+        # assign the cross ventilation
+        cross_vent = longest_list(_wind_cross_vent_, i) if \
+            len(_wind_cross_vent_) != 0 else None
+        if cross_vent is None:
             # analyze  normals of room's apertures to test if cross vent is possible
             orient_angles = []
             for face in room.faces:
@@ -109,7 +115,7 @@ if all_required_inputs(ghenv.Component):
             else:
                 vent_open.wind_cross_vent = False
         else:
-            vent_open.wind_cross_vent = _wind_cross_vent_
+            vent_open.wind_cross_vent = cross_vent
         vent_aps = room.properties.energy.assign_ventilation_opening(vent_open)
         rooms.append(room)
         op_count += len(vent_aps)

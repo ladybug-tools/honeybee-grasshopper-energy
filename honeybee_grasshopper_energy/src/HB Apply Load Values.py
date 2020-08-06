@@ -54,7 +54,7 @@ simulation, the "Always On" schedule will be used as a default.
 
 ghenv.Component.Name = "HB Apply Load Values"
 ghenv.Component.NickName = 'ApplyLoadVals'
-ghenv.Component.Message = '0.2.2'
+ghenv.Component.Message = '0.2.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -76,7 +76,7 @@ try:
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, longest_list
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -129,50 +129,50 @@ if all_required_inputs(ghenv.Component):
                             'Got {}.'.format(type(obj)))
 
     # assign the people_per_floor_
-    if people_per_floor_ is not None:
-        for obj in mod_obj:
+    if len(people_per_floor_) != 0:
+        for i, obj in enumerate(mod_obj):
             people = dup_load(obj, 'people', People)
-            people.people_per_area = people_per_floor_
+            people.people_per_area = longest_list(people_per_floor_, i)
             assign_load(obj, people, 'people')
 
     # assign the lighting_per_floor_
-    if lighting_per_floor_ is not None:
-        for obj in mod_obj:
+    if len(lighting_per_floor_) != 0:
+        for i, obj in enumerate(mod_obj):
             lighting = dup_load(obj, 'lighting', Lighting)
-            lighting.watts_per_area = lighting_per_floor_
+            lighting.watts_per_area = longest_list(lighting_per_floor_, i)
             assign_load(obj, lighting, 'lighting')
 
     # assign the electric_per_floor_
-    if electric_per_floor_ is not None:
-        for obj in mod_obj:
+    if len(electric_per_floor_) != 0:
+        for i, obj in enumerate(mod_obj):
             equip = dup_load(obj, 'electric_equipment', ElectricEquipment)
-            equip.watts_per_area = electric_per_floor_
+            equip.watts_per_area = longest_list(electric_per_floor_, i)
             assign_load(obj, equip, 'electric_equipment')
 
     # assign the gas_per_floor_
-    if gas_per_floor_ is not None:
-        for obj in mod_obj:
+    if len(gas_per_floor_) != 0:
+        for i, obj in enumerate(mod_obj):
             equip = dup_load(obj, 'gas_equipment', GasEquipment)
-            equip.watts_per_area = gas_per_floor_
+            equip.watts_per_area = longest_list(gas_per_floor_, i)
             assign_load(obj, equip, 'gas_equipment')
     
     # assign the infilt_per_exterior_
-    if infilt_per_exterior_ is not None:
-        for obj in mod_obj:
+    if len(infilt_per_exterior_) != 0:
+        for i, obj in enumerate(mod_obj):
             infilt = dup_load(obj, 'infiltration', Infiltration)
-            infilt.flow_per_exterior_area = infilt_per_exterior_
+            infilt.flow_per_exterior_area = longest_list(infilt_per_exterior_, i)
             assign_load(obj, infilt, 'infiltration')
 
     # assign the vent_per_floor_
-    if vent_per_floor_ is not None:
-        for obj in mod_obj:
+    if len(vent_per_floor_) != 0:
+        for i, obj in enumerate(mod_obj):
             vent = dup_load(obj, 'ventilation', Ventilation)
-            vent.flow_per_area = vent_per_floor_
+            vent.flow_per_area = longest_list(vent_per_floor_, i)
             assign_load(obj, vent, 'ventilation')
 
     # assign the vent_per_person_
-    if vent_per_person_ is not None:
-        for obj in mod_obj:
+    if len(vent_per_person_) != 0:
+        for i, obj in enumerate(mod_obj):
             vent = dup_load(obj, 'ventilation', Ventilation)
-            vent.flow_per_person = vent_per_person_
+            vent.flow_per_person = longest_list(vent_per_person_, i)
             assign_load(obj, vent, 'ventilation')

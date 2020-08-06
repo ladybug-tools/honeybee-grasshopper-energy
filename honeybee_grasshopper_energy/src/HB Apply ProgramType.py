@@ -22,7 +22,7 @@ Apply ProgramType objects to Rooms.
 
 ghenv.Component.Name = "HB Apply ProgramType"
 ghenv.Component.NickName = 'ApplyProgram'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -33,7 +33,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, longest_list
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -42,10 +42,9 @@ if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
     rooms = [obj.duplicate() for obj in _rooms]
 
-    # get the program object if it is a string
-    if isinstance(_program, str):
-        _program = program_type_by_identifier(_program)
-
     # apply the program to the rooms
-    for room in rooms:
-        room.properties.energy.program_type = _program
+    for i, room in enumerate(rooms):
+        prog = longest_list(_program, i)
+        if isinstance(prog, str):  # get the program object if it is a string
+            prog = program_type_by_identifier(prog)
+        room.properties.energy.program_type = prog
