@@ -31,7 +31,7 @@ Apply values for setpoints to a Room or ProgramType.
 
 ghenv.Component.Name = "HB Apply Setpoint Values"
 ghenv.Component.NickName = 'ApplySetpointVals'
-ghenv.Component.Message = '0.2.2'
+ghenv.Component.Message = '0.2.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -50,7 +50,7 @@ try:
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, longest_list
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -98,29 +98,29 @@ if all_required_inputs(ghenv.Component):
                             'Got {}.'.format(type(obj)))
 
     # assign the cooling_setpt_
-    if cooling_setpt_ is not None:
-        for obj in mod_obj:
+    if len(cooling_setpt_) != 0:
+        for i, obj in enumerate(mod_obj):
             setpoint = dup_setpoint(obj)
-            setpoint.cooling_setpoint = cooling_setpt_
+            setpoint.cooling_setpoint = longest_list(cooling_setpt_, i)
             assign_setpoint(obj, setpoint)
 
     # assign the heating_setpt_
-    if heating_setpt_ is not None:
-        for obj in mod_obj:
+    if len(heating_setpt_) != 0:
+        for i, obj in enumerate(mod_obj):
             setpoint = dup_setpoint(obj)
-            setpoint.heating_setpoint = heating_setpt_
+            setpoint.heating_setpoint = longest_list(heating_setpt_, i)
             assign_setpoint(obj, setpoint)
 
     # assign the humid_setpt_
-    if humid_setpt_ is not None:
-        for obj in mod_obj:
+    if len(humid_setpt_) != 0:
+        for i, obj in enumerate(mod_obj):
             setpoint = dup_setpoint(obj)
-            setpoint.humidifying_setpoint = humid_setpt_
+            setpoint.humidifying_setpoint = longest_list(humid_setpt_, i)
             assign_setpoint(obj, setpoint)
 
     # assign the dehumid_setpt_
-    if dehumid_setpt_ is not None:
-        for obj in mod_obj:
+    if len(dehumid_setpt_) != 0:
+        for i, obj in enumerate(mod_obj):
             setpoint = dup_setpoint(obj)
-            setpoint.dehumidifying_setpoint = dehumid_setpt_
+            setpoint.dehumidifying_setpoint = longest_list(dehumid_setpt_, i)
             assign_setpoint(obj, setpoint)
