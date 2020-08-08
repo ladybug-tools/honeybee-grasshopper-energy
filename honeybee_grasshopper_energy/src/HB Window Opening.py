@@ -64,7 +64,7 @@ the properties assigned by this component are still relevant for such simulation
 
 ghenv.Component.Name = 'HB Window Opening'
 ghenv.Component.NickName = 'WindowOpen'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
