@@ -13,7 +13,8 @@ Apply a customized IdealAirSystem to Honeybee Rooms.
 
     Args:
         _rooms: Honeybee Rooms to which the input ideal air properties will
-            be assigned.
+            be assigned. This can also be a Honeybee Model for which all
+            conditioned Rooms will be assigned the ideal air system.
         _economizer_: Text to indicate the type of air-side economizer used on
             the ideal air system. Economizers will mix in a greater amount of
             outdoor air to cool the zone (rather than running the cooling system)
@@ -50,7 +51,7 @@ Apply a customized IdealAirSystem to Honeybee Rooms.
 
 ghenv.Component.Name = "HB IdealAir"
 ghenv.Component.NickName = 'IdealAir'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -58,6 +59,7 @@ ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 try:  # import the honeybee extension
     from honeybee.altnumber import autosize, no_limit
+    from honeybee.model import Model
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -81,9 +83,14 @@ alt_numbers = {
     }
 
 if all_required_inputs(ghenv.Component):
-    # duplicate the initial objects
-    rooms = [room.duplicate() for room in _rooms]
-    
+    # extract any rooms from input Models and duplicate the rooms
+    rooms = []
+    for hb_obj in _rooms:
+        if isinstance(hb_obj, Model):
+            rooms.extend([room.duplicate() for room in hb_obj.rooms])
+        else:
+            rooms.append(hb_obj.duplicate())
+
     for room in rooms:
         if room.properties.energy.is_conditioned:
             # check to be sure the assigned HVAC system is an IdealAirSystem

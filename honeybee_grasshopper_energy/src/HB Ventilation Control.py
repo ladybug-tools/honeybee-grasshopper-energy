@@ -52,7 +52,7 @@ are relevant to a given ventilation strategy.
 
 ghenv.Component.Name = 'HB Ventilation Control'
 ghenv.Component.NickName = 'VentControl'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
