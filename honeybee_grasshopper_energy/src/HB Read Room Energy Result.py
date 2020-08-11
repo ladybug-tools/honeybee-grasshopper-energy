@@ -49,7 +49,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '0.2.3'
+ghenv.Component.Message = '0.2.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -104,7 +104,9 @@ cooling_outputs = (
     'Chiller Electric Energy',
     'Zone VRF Air Terminal Cooling Electric Energy',
     'VRF Heat Pump Cooling Electric Energy',
-    'Chiller Heater System Cooling Electric Energy')
+    'Chiller Heater System Cooling Electric Energy',
+    'District Cooling Chilled Water Energy',
+    'Evaporative Cooler Electric Energy')
 heating_outputs = (
     'Zone Ideal Loads Supply Air Total Heating Energy',
     'Zone Ideal Loads Zone Sensible Heating Energy',
@@ -116,7 +118,12 @@ heating_outputs = (
     'Humidifier Electric Energy',
     'Zone VRF Air Terminal Heating Electric Energy',
     'VRF Heat Pump Heating Electric Energy',
-    'Chiller Heater System Heating Electric Energy')
+    'VRF Heat Pump Defrost Electric Energy',
+    'VRF Heat Pump Crankcase Heater Electric Energy',
+    'Chiller Heater System Heating Electric Energy',
+    'District Heating Hot Water Energy',
+    'Baseboard Electric Energy',
+    'Energy Management System Metered Output Variable 1')  # needed for ASHP electric
 lighting_outputs = (
     'Zone Lights Electric Energy',
     'Zone Lights Total Heating Energy')
