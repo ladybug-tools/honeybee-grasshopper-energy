@@ -10,18 +10,30 @@
 """
 Define the window opening properties for all operable apertures of a Room.
 _
-The default, simple ZoneVentilation can approximate airflow from both single-sided
-bouyancy-driven ventilation as well as wind-driven cross ventilation, which results
-from pressure differences across windows on two opposite sides of a Room.
+By default, the properties assigned by this component are translated into simple
+ZoneVentilation objects in the resulting IIDF, which can approximate airflow
+from both single-sided bouyancy-driven ventilation as well as wind-driven cross
+ventilation. Bouyancy-driven flow can happen for essentially all openings while
+wind-driven flow can only happen when there are pressure differences across
+windows on opposite sides of a Room.
 _
 Simple ZoneVentilation is computed using the following formulas:
-Ventilation Wind = Wind Coefficient * Opening Area * Schedule * WindSpd 
-Ventilation Stack = Stack Discharge Coefficient * Opening Area * Schedule * 
-    SQRT(2 * Gravity * Operable Height * (|(Temp Zone - Temp Outdoors)| / Temp Zone)) 
-Total Ventilation = SQRT((Ventilation Wind)^2 + (Ventilation Stack)^2)
 _
-More complex airflow phenomena can be modeled with the Airflow Network (AFN) and
-the properties assigned by this component are still relevant for such simulations.
+VentilationWind = WindCoefficient * OpeningArea * Schedule * WindSpeed
+VentilationStack = StackDischargeCoefficient * OpeningArea * ScheduleValue * 
+    SQRT(2 * GravityAccelration * HeightNPL * (|(TempZone - TempOutdoors)| / TempZone)) 
+TotalVentilation = SQRT((VentilationWind)^2 + (VentilationStack)^2)
+_
+Note that the (OpeningArea) term is derived from the _fract_area_oper_ and the area
+of each aperture while the (HeightNPL) term is derived from the _fract_height_oper_
+and the height of each aperture.  The "NPL" stands for "Neutral Plane" and the
+whole term represents the height from midpoint of lower opening to the neutral
+pressure level of the window (computed as 1/4 of the height of each Aperture in
+the translation from honeybee to IDF).
+_
+More complex airflow phenomena can be modeled by using this component in conjunction
+with with the Airflow Network (AFN) component. Note that the window opening
+properties assigned by this component are still relevant for such AFN simulations.
 -
 
     Args:
@@ -40,14 +52,14 @@ the properties assigned by this component are still relevant for such simulation
         _discharge_coeff_: A number between 0.0 and 1.0 that will be multipled
             by the area of the window in the stack (buoyancy-driven) part of the
             equation to account for additional friction from window geometry,
-            insect screens, etc. (Default: 0.17, for unobstructed windows with
+            insect screens, etc. (Default: 0.45, for unobstructed windows with
             insect screens). This value should be lowered if windows are of an
             awning or casement type and not allowed to fully open. Some common
             values for this coefficient include the following.
             -
                 * 0.0 - Completely discount stack ventilation from the calculation.
-                * 0.17 - For unobstructed windows with an insect screen.
-                * 0.25 - For unobstructed windows with NO insect screen.
+                * 0.45 - For unobstructed windows with an insect screen.
+                * 0.65 - For unobstructed windows with NO insect screen.
         _wind_cross_vent_: Boolean to indicate if there is an opening of roughly
             equal area on the opposite side of the Room such that wind-driven
             cross ventilation will be induced. If False, the assumption is that
@@ -64,7 +76,7 @@ the properties assigned by this component are still relevant for such simulation
 
 ghenv.Component.Name = 'HB Window Opening'
 ghenv.Component.NickName = 'WindowOpen'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -95,7 +107,7 @@ if all_required_inputs(ghenv.Component):
         # create the base ventilation opening
         f_area = 0.5 if len(_fract_area_oper_) == 0 else longest_list(_fract_area_oper_, i)
         f_height = 1.0 if len(_fract_height_oper_) == 0 else longest_list(_fract_height_oper_, i)
-        discharge = 0.17 if len(_discharge_coeff_) == 0 else longest_list(_discharge_coeff_, i)
+        discharge = 0.45 if len(_discharge_coeff_) == 0 else longest_list(_discharge_coeff_, i)
         vent_open = VentilationOpening(f_area, f_height, discharge)
 
         # assign the cross ventilation
