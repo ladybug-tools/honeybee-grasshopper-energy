@@ -39,13 +39,19 @@ Run an IDF file through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run IDF'
 ghenv.Component.NickName = 'RunIDF'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 import os
+import shutil
 import System.Threading.Tasks as tasks
+
+try:
+    from ladybug.futil import preparedir
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
 try:
     from honeybee_energy.run import run_idf
@@ -58,9 +64,10 @@ try:
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
+
 def run_idf_and_report_errors(i):
     """Run an IDF file through EnergyPlus and report errors/warnings on this component."""
-    idf = _idf[i]
+    idf = idfs[i]
     sql_i, zsz_i, rdd_i, html_i, err_i = run_idf(idf, _epw_file)
 
     # report any errors on this component
@@ -84,11 +91,24 @@ if all_required_inputs(ghenv.Component) and _run:
     # global lists of outputs to be filled
     sql, zsz, rdd, html, err, err_objs = [], [], [], [], [], []
 
+    # copy the IDFs into a sub-directory if they are not already labeled as in.idf
+    idfs = []
+    for idf_file_path in _idf:
+        idf_dir, idf_file_name = os.path.split(idf_file_path)
+        if idf_file_name != 'in.idf':  # copy the IDF file into a sub-directory
+            sub_dir = os.path.join(idf_dir, 'run')
+            target = os.path.join(sub_dir, 'in.idf')
+            preparedir(sub_dir)
+            shutil.copy(idf_file_path, target)
+            idfs.append(target)
+        else:
+            idfs.append(idf_file_path)
+
     # run the IDF files through E+
     if parallel_:
-        tasks.Parallel.ForEach(range(len(_idf)), run_idf_and_report_errors)
+        tasks.Parallel.ForEach(range(len(idfs)), run_idf_and_report_errors)
     else:
-        for i in range(len(_idf)):
+        for i in range(len(idfs)):
             run_idf_and_report_errors(i)
 
     # print out error report if it's only one
