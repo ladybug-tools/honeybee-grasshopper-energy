@@ -11,16 +11,17 @@
 Create a Ventilation Control object to dictate the temperature setpoints and
 schedule for ventilative cooling (eg. opening windows).
 _
-Note the all of the default setpoints of this object are set to not perform
-any ventilative cooling such that one can individually decide which setpoints
+Note the all of the default setpoints of this object are set to always perform
+ventilative cooling such that one can individually decide which setpoints
 are relevant to a given ventilation strategy.
 -
 
     Args:
         min_in_temp_: A number between -100 and 100 for the minimum indoor
             temperature at which to ventilate in Celsius. Typically,
-            this variable is used to initiate ventilation with valules
-            around room temperature (eg. 22 C). (Default: -100 C).
+            this variable is used to initiate ventilation with values
+            around room temperature above which the windows will open
+            (eg. 22 C). (Default: -100 C).
         max_in_temp_: A number between -100 and 100 for the maximum indoor
             temperature at which to ventilate in Celsius. This can be
             used to set a maximum temperature at which point ventilation is
@@ -35,9 +36,9 @@ are relevant to a given ventilation strategy.
             ventilative cooling. (Default: 100).
         delta_temp_: A number between -100 and 100 for the temperature differential
             in Celsius between indoor and outdoor below which ventilation
-            is shut off.  This should usually be a negative number so that
+            is shut off.  This should usually be a positive number so that
             ventilation only occurs when the outdoors is cooler than the indoors.
-            Positive numbers indicate how much hotter the outdoors can be than
+            Negative numbers indicate how much hotter the outdoors can be than
             the indoors before ventilation is stopped. (Default: -100).
         _schedule_: An optional schedule for the ventilation over the course of
             the year. This can also be the name of a schedule to be looked up
@@ -52,7 +53,7 @@ are relevant to a given ventilation strategy.
 
 ghenv.Component.Name = 'HB Ventilation Control'
 ghenv.Component.NickName = 'VentControl'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
