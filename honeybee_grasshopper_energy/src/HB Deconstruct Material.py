@@ -22,13 +22,13 @@ Deconstruct a material into its constituient attributes and values.
             notes the attribute name for each value.
         r_val_si: R-value of the material in m2-K/W. Note that R-values do NOT
             include the resistance of air films on either side of the material.
-        r_val_ip: R-value of the material in h·ft2·°F/Btu. Note that R-values do NOT
+        r_val_ip: R-value of the material in h-ft2-F/Btu. Note that R-values do NOT
             include the resistance of air films on either side of the material.
 """
 
 ghenv.Component.Name = "HB Deconstruct Material"
 ghenv.Component.NickName = 'DecnstrMat'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '0.1.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "2"

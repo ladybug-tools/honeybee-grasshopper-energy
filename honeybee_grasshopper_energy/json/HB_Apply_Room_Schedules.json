@@ -1,0 +1,92 @@
+{
+  "version": "0.2.3", 
+  "nickname": "ApplyRoomSch", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "mod_obj", 
+        "description": "The input Rooms or ProgramTypes with their schedules modified.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_room_or_program", 
+      "description": "Honeybee Rooms or Honeybee ProgramType objects for which\nschedules should be changed. This can also be the identifier of a\nProgramType to be looked up in the program type library.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "occupancy_sch_", 
+      "description": "A fractional schedule for the occupancy over the course\nof the year. This can also be the identifier of a schedule to be looked\nup in the schedule library.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "activity_sch_", 
+      "description": "A schedule for the activity of the occupants over the\ncourse of the year. The type limt of this schedule should be \"Power\"\nand the values of the schedule equal to the number of Watts given off\nby an individual person in the room. If None, it will a default constant\nschedule with 120 Watts per person will be used, which is typical of\nawake, adult humans who are seated.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "lighting_sch_", 
+      "description": "A fractional for the use of lights over the course of the year.\nThis can also be the identifier of a schedule to be looked up in the\nschedule library.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "electric_equip_sch_", 
+      "description": "A fractional for the use of electric equipment over\nthe course of the year. This can also be the identifier of a schedule to\nbe looked up in the schedule library.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "gas_equip_sch_", 
+      "description": "A fractional for the use of gas equipment over\nthe course of the year. This can also be the identifier of a schedule to\nbe looked up in the schedule library.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "infiltration_sch_", 
+      "description": "A fractional schedule for the infiltration over the\ncourse of the year. This can also be the identifier of a schedule to\nbe looked up in the schedule library.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "ventilation_sch_", 
+      "description": "An optional fractional schedule for the ventilation over the\ncourse of the year. This can also be the identifier of a schedule to be\nlooked up in the schedule library. The fractional values will get\nmultiplied by the total design flow rate (determined from the fields\nabove and the calculation_method) to yield a complete ventilation\nprofile. Setting this schedule to be the occupancy schedule of the\nzone will mimic demand controlled ventilation.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "heating_setpt_sch_", 
+      "description": "A temperature schedule for the heating setpoint.\nThis can also be a identifier of a schedule to be looked up in the\nschedule library. The type limit of this schedule should be\ntemperature and the values should be the temperature setpoint in\ndegrees Celcius.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "cooling_setpt_sch_", 
+      "description": "A temperature schedule for the cooling setpoint.\nThis can also be a identifier of a schedule to be looked up in the\nschedule library. The type limit of this schedule should be\ntemperature and the values should be the temperature setpoint in\ndegrees Celcius.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Schedules", 
+  "code": "\ntry:\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.lib.schedules import schedule_by_identifier\n    from honeybee_energy.lib.programtypes import program_type_by_identifier\n    from honeybee_energy.programtype import ProgramType\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, longest_list\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef schedule_object(schedule):\n    \"\"\"Get a schedule object by its identifier or return it it it's already a schedule.\"\"\"\n    if isinstance(schedule, str):\n        return schedule_by_identifier(schedule)\n    return schedule\n\n\ndef dup_load(hb_obj, object_name, input_name):\n    \"\"\"Duplicate a load object assigned to a Room or ProgramType.\"\"\"\n    # try to get the load object assgined to the Room or ProgramType\n    try:  # assume it's a Room\n        load_obj = hb_obj.properties\n        for attribute in ('energy', object_name):\n            load_obj = getattr(load_obj, attribute)\n    except AttributeError:  # it's a ProgramType\n        load_obj = getattr(hb_obj, object_name)\n\n    try:  # duplicate the load object\n        dup_load = load_obj.duplicate()\n        dup_load.identifier = '{}_{}'.format(hb_obj.identifier, object_name)\n        return dup_load\n    except AttributeError:\n        raise ValueError(\n            '{0} has been input but the Room or ProgramType posseses no {1} object.'\n            '\\nUse the \"HB Apply Load Values\" component to define a {1} '\n            'object.'.format(input_name, object_name))\n\n\ndef assign_load(hb_obj, load_obj, object_name):\n    \"\"\"Assign a load object to a Room or a ProgramType.\"\"\"\n    try:  # assume it's a Room\n        setattr(hb_obj.properties.energy, object_name, load_obj)\n    except AttributeError:  # it's a ProgramType\n        setattr(hb_obj, object_name, load_obj)\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    mod_obj = []\n    for obj in _room_or_program:\n        if isinstance(obj, (Room, ProgramType)):\n            mod_obj.append(obj.duplicate())\n        elif isinstance(obj, str):\n            program = program_type_by_identifier(obj)\n            mod_obj.append(program.duplicate())\n        else:\n            raise TypeError('Expected Honeybee Room or ProgramType. '\n                            'Got {}.'.format(type(obj)))\n\n    # assign the occupancy schedule\n    if len(occupancy_sch_) != 0:\n        for i, obj in enumerate(mod_obj):\n            people = dup_load(obj, 'people', 'occupancy_sch_')\n            people.occupancy_schedule = schedule_object(longest_list(occupancy_sch_, i))\n            assign_load(obj, people, 'people')\n\n    # assign the activity schedule\n    if len(activity_sch_) != 0:\n        for i, obj in enumerate(mod_obj):\n            people = dup_load(obj, 'people', 'activity_sch_')\n            people.activity_schedule = schedule_object(longest_list(activity_sch_, i))\n            assign_load(obj, people, 'people')\n\n    # assign the lighting schedule\n    if len(lighting_sch_) != 0:\n        for i, obj in enumerate(mod_obj):\n            lighting = dup_load(obj, 'lighting', 'lighting_sch_')\n            lighting.schedule = schedule_object(longest_list(lighting_sch_, i))\n            assign_load(obj, lighting, 'lighting')\n\n    # assign the electric equipment schedule\n    if len(electric_equip_sch_) != 0:\n        for i, obj in enumerate(mod_obj):\n            equip = dup_load(obj, 'electric_equipment', 'electric_equip_sch_')\n            equip.schedule = schedule_object(longest_list(electric_equip_sch_, i))\n            assign_load(obj, equip, 'electric_equipment')\n\n    # assign the gas equipment schedule\n    if len(gas_equip_sch_) != 0:\n        for i, obj in enumerate(mod_obj):\n            equip = dup_load(obj, 'gas_equipment', 'gas_equip_sch_')\n            equip.schedule = schedule_object(longest_list(gas_equip_sch_, i))\n            assign_load(obj, equip, 'gas_equipment')\n\n    # assign the infiltration schedule\n    if len(infiltration_sch_) != 0:\n        for i, obj in enumerate(mod_obj):\n            infiltration = dup_load(obj, 'infiltration', 'infiltration_sch_')\n            infiltration.schedule = schedule_object(longest_list(infiltration_sch_, i))\n            assign_load(obj, infiltration, 'infiltration')\n\n    # assign the ventilation schedule\n    if len(ventilation_sch_) != 0:\n        for i, obj in enumerate(mod_obj):\n            ventilation = dup_load(obj, 'ventilation', 'ventilation_sch_')\n            ventilation.schedule = schedule_object(longest_list(ventilation_sch_, i))\n            assign_load(obj, ventilation, 'ventilation')\n\n    # assign the heating setpoint schedule\n    if len(heating_setpt_sch_) != 0:\n        for i, obj in enumerate(mod_obj):\n            setpoint = dup_load(obj, 'setpoint', 'heating_setpt_sch_')\n            setpoint.heating_schedule = schedule_object(longest_list(heating_setpt_sch_, i))\n            assign_load(obj, setpoint, 'setpoint')\n\n    # assign the cooling setpoint schedule\n    if len(cooling_setpt_sch_) != 0:\n        for i, obj in enumerate(mod_obj):\n            setpoint = dup_load(obj, 'setpoint', 'cooling_setpt_sch_')\n            setpoint.cooling_schedule = schedule_object(longest_list(cooling_setpt_sch_, i))\n            assign_load(obj, setpoint, 'setpoint')\n", 
+  "category": "HB-Energy", 
+  "name": "HB Apply Room Schedules", 
+  "description": "Apply schedules to a Room or ProgramType.\n_\nNote that, if a schedule is assigned to a Room or ProgramType that posseses\nno value for a given load, an error will be raised. For example, assigning a\ngas_equip_sch_ to a Room that has no GasEquipment object associated with it.\nThis situation can be avoided by first passing the Rooms or ProgramTypes\nthrough the \"HB Apply Load Values\" component to eastablish a value for a\ngiven load.\n-"
+}

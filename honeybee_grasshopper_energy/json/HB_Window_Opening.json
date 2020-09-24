@@ -1,0 +1,71 @@
+{
+  "version": "0.1.3", 
+  "nickname": "WindowOpen", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "report", 
+        "description": "...", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "rooms", 
+        "description": "The input Honeybee Rooms with their window-opening properties edited.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms", 
+      "description": "Honeybee Room objects to which window ventilation opening properties\nwill be assigned. Note that this component only assigns such properties\nto operable Apertures on the rooms. If the is_operable property\nof any of a room's apertures is not True, no opening properties\nwill be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_vent_cntrl", 
+      "description": "A Ventilation Control object from the \"HB Ventilation Control\"\ncomponent, which dictates the opening behaviour of the Room's apertures.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_fract_area_oper_", 
+      "description": "A number between 0.0 and 1.0 for the fraction of the\nwindow area that is operable. (Default: 0.5, typical of sliding windows).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_fract_height_oper_", 
+      "description": "A number between 0.0 and 1.0 for the fraction\nof the distance from the bottom of the window to the top that is\noperable. (Default: 1.0, typical of windows that slide horizontally).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_discharge_coeff_", 
+      "description": "A number between 0.0 and 1.0 that will be multipled\nby the area of the window in the stack (buoyancy-driven) part of the\nequation to account for additional friction from window geometry,\ninsect screens, etc. (Default: 0.45, for unobstructed windows with\ninsect screens). This value should be lowered if windows are of an\nawning or casement type and not allowed to fully open. Some common\nvalues for this coefficient include the following.\n-\n* 0.0 - Completely discount stack ventilation from the calculation.\n* 0.45 - For unobstructed windows with an insect screen.\n* 0.65 - For unobstructed windows with NO insect screen.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_wind_cross_vent_", 
+      "description": "Boolean to indicate if there is an opening of roughly\nequal area on the opposite side of the Room such that wind-driven\ncross ventilation will be induced. If False, the assumption is that\nthe operable area is primarily on one side of the Room and there is\nno wind-driven ventilation. If None, the normal vectors of the\noperable aperturs of the input _rooms will be analyzed. If window\nnormals of a given room are found to have an angle difference greater\nthan 90 degrees, cross ventilation will be set to True. Otherwise,\nit will be False.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.ventcool.opening import VentilationOpening\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning, \\\n        longest_list\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # loop through the rooms and assign the objects\n    op_count = 0\n    rooms = []\n    for i, room_init in enumerate(_rooms):\n        room = room_init.duplicate()  # duplicate to avoid editing the input\n\n        # assign the ventilation control for the windows\n        room.properties.energy.window_vent_control = longest_list(_vent_cntrl, i)\n\n        # create the base ventilation opening\n        f_area = 0.5 if len(_fract_area_oper_) == 0 else longest_list(_fract_area_oper_, i)\n        f_height = 1.0 if len(_fract_height_oper_) == 0 else longest_list(_fract_height_oper_, i)\n        discharge = 0.45 if len(_discharge_coeff_) == 0 else longest_list(_discharge_coeff_, i)\n        vent_open = VentilationOpening(f_area, f_height, discharge)\n\n        # assign the cross ventilation\n        cross_vent = longest_list(_wind_cross_vent_, i) if \\\n            len(_wind_cross_vent_) != 0 else None\n        if cross_vent is None:\n            # analyze  normals of room's apertures to test if cross vent is possible\n            orient_angles = []\n            for face in room.faces:\n                for ap in face.apertures:\n                    if ap.is_operable:\n                        orient_angles.append(ap.horizontal_orientation())\n            if len(orient_angles) != 0:\n                orient_angles.sort()\n                vent_open.wind_cross_vent = \\\n                    True if orient_angles[-1] - orient_angles[0] >= 90 else False\n            else:\n                vent_open.wind_cross_vent = False\n        else:\n            vent_open.wind_cross_vent = cross_vent\n        vent_aps = room.properties.energy.assign_ventilation_opening(vent_open)\n        rooms.append(room)\n        op_count += len(vent_aps)\n\n    # give a warning if no operable windows were found among the connected rooms\n    if op_count == 0:\n        give_warning(\n            ghenv.Component, 'No operable Apertures were found among the connected _rooms.\\n'\n            'Make sure that you have set the is_oeprable property of Apertures to True.')", 
+  "category": "HB-Energy", 
+  "name": "HB Window Opening", 
+  "description": "Define the window opening properties for all operable apertures of a Room.\n_\nBy default, the properties assigned by this component are translated into simple\nZoneVentilation objects in the resulting IIDF, which can approximate airflow\nfrom both single-sided bouyancy-driven ventilation as well as wind-driven cross\nventilation. Bouyancy-driven flow can happen for essentially all openings while\nwind-driven flow can only happen when there are pressure differences across\nwindows on opposite sides of a Room.\n_\nSimple ZoneVentilation is computed using the following formulas:\n_\nVentilationWind = WindCoefficient * OpeningArea * Schedule * WindSpeed\nVentilationStack = StackDischargeCoefficient * OpeningArea * ScheduleValue * \n    SQRT(2 * GravityAccelration * HeightNPL * (|(TempZone - TempOutdoors)| / TempZone)) \nTotalVentilation = SQRT((VentilationWind)^2 + (VentilationStack)^2)\n_\nNote that the (OpeningArea) term is derived from the _fract_area_oper_ and the area\nof each aperture while the (HeightNPL) term is derived from the _fract_height_oper_\nand the height of each aperture.  The \"NPL\" stands for \"Neutral Plane\" and the\nwhole term represents the height from midpoint of lower opening to the neutral\npressure level of the window (computed as 1/4 of the height of each Aperture in\nthe translation from honeybee to IDF).\n_\nMore complex airflow phenomena can be modeled by using this component in conjunction\nwith with the Airflow Network (AFN) component. Note that the window opening\nproperties assigned by this component are still relevant for such AFN simulations.\n-"
+}

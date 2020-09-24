@@ -1,0 +1,71 @@
+{
+  "version": "0.1.3", 
+  "nickname": "RunIDF", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "sql", 
+        "description": "The file path of the SQL result file that has been generated on your\nmachine.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "zsz", 
+        "description": "Path to a .csv file containing detailed zone load information recorded\nover the course of the design days.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "rdd", 
+        "description": "The file path of the Result Data Dictionary (.rdd) file that is\ngenerated after running the file through EnergyPlus.  This file\ncontains all possible outputs that can be requested from the EnergyPlus\nmodel.  Use the Read Result Dictionary component to see what outputs\ncan be requested.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "html", 
+        "description": "The HTML file path of the Summary Reports. Note that this will be None\nunless the input _sim_par_ denotes that an HTML report is requested and\nrun_ is set to True.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_idf", 
+      "description": "Path to an IDF file as a text string. This can also be a list of\nIDF files.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_epw_file", 
+      "description": "The full file path to epw weather file that you would like the simulation to run with.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "parallel_", 
+      "description": "Set to \"True\" to run execute simulations of multiple IDF files\nin parallel, which can greatly increase the speed of calculation but\nmay not be desired when other processes are running. If False, all\nEnergyPlus simulations will be be run on a single core. Default: False.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to 'True' to run the simulation.", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "5 :: Simulate", 
+  "code": "\nimport os\nimport shutil\nimport System.Threading.Tasks as tasks\n\ntry:\n    from ladybug.futil import preparedir\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.run import run_idf\n    from honeybee_energy.result.err import Err\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef run_idf_and_report_errors(i):\n    \"\"\"Run an IDF file through EnergyPlus and report errors/warnings on this component.\"\"\"\n    idf = idfs[i]\n    sql_i, zsz_i, rdd_i, html_i, err_i = run_idf(idf, _epw_file)\n\n    # report any errors on this component\n    if err_i is not None:\n        err_obj = Err(err_i)\n        err_objs.append(err_obj)\n        for warn in err_obj.severe_errors:\n            give_warning(ghenv.Component, warn)\n        for error in err_obj.fatal_errors:\n            print err_obj.file_contents  # print before raising the error\n            raise Exception(error)\n\n    # append everything to the global lists\n    sql.append(sql_i)\n    zsz.append(zsz_i)\n    rdd.append(rdd_i)\n    html.append(html_i)\n    err.append(err_i)\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # global lists of outputs to be filled\n    sql, zsz, rdd, html, err, err_objs = [], [], [], [], [], []\n\n    # copy the IDFs into a sub-directory if they are not already labeled as in.idf\n    idfs = []\n    for idf_file_path in _idf:\n        idf_dir, idf_file_name = os.path.split(idf_file_path)\n        if idf_file_name != 'in.idf':  # copy the IDF file into a sub-directory\n            sub_dir = os.path.join(idf_dir, 'run')\n            target = os.path.join(sub_dir, 'in.idf')\n            preparedir(sub_dir)\n            shutil.copy(idf_file_path, target)\n            idfs.append(target)\n        else:\n            idfs.append(idf_file_path)\n\n    # run the IDF files through E+\n    if parallel_:\n        tasks.Parallel.ForEach(range(len(idfs)), run_idf_and_report_errors)\n    else:\n        for i in range(len(idfs)):\n            run_idf_and_report_errors(i)\n\n    # print out error report if it's only one\n    # otherwise it's too much data to be read-able\n    if len(err_objs) == 1:\n        print(err_objs[0].file_contents)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Run IDF", 
+  "description": "Run an IDF file through EnergyPlus.\n-"
+}

@@ -1,0 +1,43 @@
+{
+  "version": "0.1.1", 
+  "nickname": "DecnstrInfiltration", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "name", 
+        "description": "Text string for the infiltration display name.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "flow_per_ext_area", 
+        "description": "A numerical value for the intensity of infiltration\nin m3/s per square meter of exterior surface area. Typical values for\nthis property are as follows (note all values are at typical building\npressures of ~4 Pa):\n* 0.0001 (m3/s per m2 facade) - Tight building\n* 0.0003 (m3/s per m2 facade) - Average building\n* 0.0006 (m3/s per m2 facade) - Leaky building", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "schedule", 
+        "description": "A fractional schedule for the infiltration over the course\nof the year. The fractional values will get multiplied by the\nflow_per_exterior_area to yield a complete infiltration profile.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_infil", 
+      "description": "An Infiltration object to be deconstructed.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.load.infiltration import Infiltration\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_infil, Infiltration), \\\n        'Expected Infiltration object. Got {}.'.format(type(_infil))\n    \n    # get the properties of the object\n    name = _infil.display_name\n    flow_per_ext_area = _infil.flow_per_exterior_area\n    schedule = _infil.schedule\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct Infiltration", 
+  "description": "Deconstruct an Infiltration object into its constituient properties.\n-"
+}

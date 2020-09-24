@@ -1,0 +1,106 @@
+{
+  "version": "0.1.2", 
+  "nickname": "DecnstrConstrSet", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "exterior_wall", 
+        "description": "A construction object for the set's exterior walls.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "exterior_roof", 
+        "description": "A construction object for the set's exterior roofs.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "exposed_floor", 
+        "description": "A construction object for the set's exposed floors.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "ground_wall", 
+        "description": "A construction object for the set's underground walls.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "ground_roof", 
+        "description": "A construction object for the set's underground roofs.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "ground_floor", 
+        "description": "A construction object for the set's ground-contact floors.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "window", 
+        "description": "A construction object for apertures with an Outdoors boundary\ncondition and a Wall face type for their parent face.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "skylight", 
+        "description": "A construction object for apertures with an Outdoors boundary\ncondition and a RoofCeiling or Floor face type for their parent face.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "operable", 
+        "description": "A construction object for apertures with an Outdoors boundary\ncondition and True is_operable property.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "exterior_door", 
+        "description": "A construction object for opaque doors with an Outdoors\nboundary condition and a Wall face type for their parent face.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "overhead_door", 
+        "description": "A construction object for opaque doors with an Outdoors\nboundary condition and a RoofCeiling or Floor face type for their\nparent face.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "glass_door", 
+        "description": "A construction object for all glass doors with an Outdoors\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_constr_set", 
+      "description": "A construction set to be deconstructed. This can also be\ntext for a construction set to be looked up in the construction\nset library.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.constructionset import ConstructionSet\n    from honeybee_energy.lib.constructionsets import construction_set_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    if isinstance(_constr_set, str):\n        _constr_set = construction_set_by_identifier(_constr_set)\n    else:\n        assert isinstance(_constr_set, ConstructionSet), \\\n            'Expected ConstructionSet. Got {}.'.format(type(_constr_set))\n    \n    exterior_wall = _constr_set.wall_set.exterior_construction\n    exterior_roof = _constr_set.roof_ceiling_set.exterior_construction\n    exposed_floor = _constr_set.floor_set.exterior_construction\n    ground_wall = _constr_set.wall_set.ground_construction\n    ground_roof = _constr_set.roof_ceiling_set.ground_construction\n    ground_floor = _constr_set.floor_set.ground_construction\n    window = _constr_set.aperture_set.window_construction\n    skylight = _constr_set.aperture_set.skylight_construction\n    operable = _constr_set.aperture_set.operable_construction\n    exterior_door = _constr_set.door_set.exterior_construction\n    overhead_door = _constr_set.door_set.overhead_construction\n    glass_door = _constr_set.door_set.exterior_glass_construction\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct ConstructionSet", 
+  "description": "Deconstruct a construction set into its constituient exterior constructions.\n-"
+}

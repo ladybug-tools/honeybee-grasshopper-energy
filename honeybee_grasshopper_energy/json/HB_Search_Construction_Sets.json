@@ -1,0 +1,36 @@
+{
+  "version": "0.1.5", 
+  "nickname": "SearchConstrSet", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "constr_sets", 
+        "description": "A list of ConstructionSet identifiers that can be applied\nto Honeybee Rooms.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "keywords_", 
+      "description": "Optional keywords to be used to narrow down the output list of\nconstruction sets. If nothing is input here, all available\nconstruction sets will be output.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "join_words_", 
+      "description": "If False or None, this component will automatically split\nany strings of multiple keywords (spearated by spaces) into separate\nkeywords for searching. This results in a greater liklihood of\nfinding an item in the search but it may not be appropropriate for\nall cases. You may want to set it to True when you are searching for\na specific phrase that includes spaces. (Default: False).", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the honeybee-core dependencies\n    from honeybee.search import filter_array_by_keywords\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.lib.constructionsets import CONSTRUCTION_SETS\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\nif len(keywords_) == 0:\n    constr_sets = sorted(CONSTRUCTION_SETS)\nelse:\n    split_words = True if join_words_ is None else not join_words_\n    constr_sets = sorted(filter_array_by_keywords(\n        CONSTRUCTION_SETS, keywords_, split_words))\n", 
+  "category": "HB-Energy", 
+  "name": "HB Search Construction Sets", 
+  "description": "Search for available ConstructionSets within the honeybee energy standards library.\n-"
+}

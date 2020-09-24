@@ -1,0 +1,71 @@
+{
+  "version": "0.1.1", 
+  "nickname": "DeconstrProgram", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "people", 
+        "description": "A People object that describes the occupancy of the program. If None,\nno people are assumed to occupy the program.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "lighting", 
+        "description": "A Lighting object that describes the lighting usage of the program.\nIf None, no lights are assumed to be installed.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "electric_equip", 
+        "description": "An ElectricEquipment object to describe the usage\nof electric equipment within the program. If None, no electric equipment\nis assumed to be installed.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "gas_equip", 
+        "description": "A GasEquipment object to describe the usage of gas equipment\nwithin the program. If None, no gas equipment is assumed to be installed.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "infiltration", 
+        "description": "An Infiltration object to describe the outdoor air leakage of\nthe program. If None, no infiltration is be assumed for the program.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "ventilation", 
+        "description": "A Ventilation object to describe the minimum outdoor air\nrequirement of the program. If None, no ventilation requirement is\nbe assumed for the program.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "setpoint", 
+        "description": "A Setpoint object to describe the temperature and humidity\nsetpoints of the program.  If None, the ProgramType cannot be assigned\nto a Room that is conditioned.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_program", 
+      "description": "A ProgramType object or text for the identifier of a ProgramType\nto be looked up in the program type library.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.lib.programtypes import program_type_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # get the program from the library if it is a identifier\n    if isinstance(_program, str):\n        _program = program_type_by_identifier(_program)\n\n    # get the components of the program\n    people = _program.people\n    lighting = _program.lighting\n    electric_equip = _program.electric_equipment\n    gas_equip = _program.gas_equipment\n    infiltration = _program.infiltration\n    ventilation = _program.ventilation\n    setpoint = _program.setpoint\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct ProgramType", 
+  "description": "Deconstruct a ProgramType object into its component load objects.\n-"
+}

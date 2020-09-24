@@ -1,0 +1,64 @@
+{
+  "version": "0.1.1", 
+  "nickname": "DecnstrLighting", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "name", 
+        "description": "Text string for the lighting display name.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "watts_per_area", 
+        "description": "A numerical value for the lighting power density in\nWatts per square meter of floor area.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "schedule", 
+        "description": "A fractional for the use of lights over the course of the year.\nThe fractional values will get multiplied by the watts_per_area to\nyield a complete lighting profile.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "radiant_fract", 
+        "description": "A number between 0 and 1 for the fraction of the total\nlighting load given off as long wave radiant heat.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "visible_fract", 
+        "description": "A number between 0 and 1 for the fraction of the total\nlighting load given off as short wave visible light.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "return_fract", 
+        "description": "A number between 0 and 1 for the fraction of the total\nlighting load that goes into the zone return air.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_lighting", 
+      "description": "A Lighting object to be deconstructed.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.load.lighting import Lighting\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_lighting, Lighting), \\\n        'Expected Lighting object. Got {}.'.format(type(_lighting))\n\n    # get the properties of the object\n    name = _lighting.display_name\n    watts_per_area = _lighting.watts_per_area\n    schedule = _lighting.schedule\n    radiant_fract = _lighting.radiant_fraction\n    visible_fract = _lighting.visible_fraction\n    return_fract = _lighting.return_air_fraction\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct Lighting", 
+  "description": "Deconstruct a Lighting object into its constituient properties.\n-"
+}

@@ -1,0 +1,71 @@
+{
+  "version": "0.2.1", 
+  "nickname": "ReadHVAC", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "zone_names", 
+        "description": "A list of zone names (honeybee Room identifiers) that correspond\nto the zone_peak_load and zone_peak_heat below.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "zone_peak_cool", 
+        "description": "A list of numbers for the peak cooling load of each zone\non the summer design day. These correspond to the zone_names above.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "zone_peak_heat", 
+        "description": "A list of numbers for the peak heating load of each zone\non the winter design day. These correspond to the zone_names above.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "comp_types", 
+        "description": "A list of HVAC component types that are available in the results.\nThis will be equal to the input comp_type_ if a value is connected.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "comp_properties", 
+        "description": "A list of text descriptions for HVAC component properties.\nThese correspond to the comp_values below.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "comp_values", 
+        "description": "Values denoting the size of various zone HVAC components \n(eg. zone terminal sizes, boiler/chiller sizes, lengths of chilled\nbeams, etc.). These correspond to the comp_properties above.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_sql", 
+      "description": "The file path of the SQL result file that has been generated from\nan energy simulation.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "comp_type_", 
+      "description": "An optional name of a HVAC component type, which will filter\nthe HVAC components that appear in the output comp_props and\ncomp_values. Connecting nothing here will mean that all HVAC\ncomponent sizes are imported and a full list of possible components\nwill appear in the comp_types output.", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "6 :: Result", 
+  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.sql import SQLiteResult, ZoneSize, ComponentSize\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # create the lists to be filled\n    zone_names = []\n    zone_peak_cool = []\n    zone_peak_heat = []\n    comp_properties_mtx = []\n    comp_values_mtx = []\n\n    if os.name == 'nt':  # we are on windows; use IronPython like usual\n        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object\n        zone_cooling_sizes = sql_obj.zone_cooling_sizes\n        zone_heating_sizes = sql_obj.zone_heating_sizes\n        if comp_type_ is None:\n            comp_types = sql_obj.component_types\n            component_sizes = sql_obj.component_sizes\n        else:\n            comp_types = comp_type_\n            component_sizes = sql_obj.component_sizes_by_type(comp_type_)\n\n    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython\n        # Execute the honybee CLI to obtain the zone sizes via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'zone-sizes', _sql]\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)\n        stdout = process.communicate()\n        zone_size_dicts = json.loads(stdout[0])\n        zone_cooling_sizes = [ZoneSize.from_dict(zs) for zs in zone_size_dicts['cooling']]\n        zone_heating_sizes = [ZoneSize.from_dict(zs) for zs in zone_size_dicts['heating']]\n        # Execute the honybee CLI to obtain the component sizes via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'component-sizes', _sql]\n        if comp_type_ is not None:\n            comp_types = comp_type_\n            cmds.extend(['--component-type', comp_type_])\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)\n        stdout = process.communicate()\n        comp_size_dicts = json.loads(stdout[0])\n        component_sizes = [ComponentSize.from_dict(cs) for cs in comp_size_dicts]\n        if comp_type_ is None:  # get a set of all unique component types\n            _comp_types = set()\n            for comp in component_sizes:\n                _comp_types.add(comp.component_type)\n            comp_types = list(_comp_types)\n\n    # get the peak zone heating and cooling from the ZoneSize objects\n    for zone_size in zone_cooling_sizes:\n        zone_names.append(zone_size.zone_name)\n        zone_peak_cool.append(zone_size.calculated_design_load)\n    for zone_size in zone_heating_sizes:\n        zone_peak_heat.append(zone_size.calculated_design_load)\n\n    # get the HVAC component sizes from the ComponentSize objects\n    for comp_size in component_sizes:\n        comp_properties_mtx.append(comp_size.descriptions)\n        comp_values_mtx.append(comp_size.values)\n    # convert HVAC components to data trees\n    comp_properties = list_to_data_tree(comp_properties_mtx)\n    comp_values = list_to_data_tree(comp_values_mtx)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Read HVAC Sizing", 
+  "description": "Parse the peak load and HVAC component sizes from an SQL result file that has\nbeen generated from an energy simulation.\n-"
+}

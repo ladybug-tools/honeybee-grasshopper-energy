@@ -1,0 +1,71 @@
+{
+  "version": "0.1.0", 
+  "nickname": "WindowConstrShd", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "constr", 
+        "description": "A shaded window construction that can be assigned to Honeybee\nApertures or ConstructionSets.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the Construction and to be incorporated\ninto a unique Construction identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_win_constr", 
+      "description": "A WindowConstruction object that serves as the \"switched off\"\nversion of the construction (aka. the \"bare construction\"). The\nshade material and shade location will be used to modify this\nstarting construction. This can also be text for a construction\nidentifier to be looked up in the window construction library.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_shd_material", 
+      "description": "An Shade Material or an Blind Material that serves as the\nshading layer for this construction. This can also be a Glass Material,\nwhich will indicate that the WindowConstruction has a dynamically-\ncontrolled glass pane like an electrochromic window assembly. This\ncan also be text for a material identifier to be looked up in the\nwindow material library.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_shd_location_", 
+      "description": "Text to indicate where in the window assembly the shade material\nis located. (Default: \"Interior\"). Choose from the following 3 options:\n* Interior\n* Between\n* Exterior\nNote that the WindowConstruction must have at least one gas gap to use\nthe \"Between\" option. Also note that, for a WindowConstruction with more\nthan one gas gap, the \"Between\" option defalts to using the inner gap\nas this is the only option that EnergyPlus supports.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_control_type_", 
+      "description": "An integer or text to indicate how the shading device is controlled,\nwhich determines when the shading is \u201con\u201d or \u201coff.\u201d (Default: \"AlwaysOn\").\nChoose from the options below (units for the values of the corresponding\nsetpoint are noted in parentheses next to each option):\n0 = AlwaysOn\n1 = OnIfHighSolarOnWindow (W/m2)\n2 = OnIfHighHorizontalSolar (W/m2)\n3 = OnIfHighOutdoorAirTemperature (C)\n4 = OnIfHighZoneAirTemperature (C)\n5 = OnIfHighZoneCooling (W)\n6 = OnNightIfLowOutdoorTempAndOffDay (C)\n7 = OnNightIfLowInsideTempAndOffDay (C)\n8 = OnNightIfHeatingAndOffDay (W)", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "setpoint_", 
+      "description": "A number that corresponds to the specified control_type. This can\nbe a value in (W/m2), (C) or (W) depending upon the control type.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "schedule_", 
+      "description": "An optional ScheduleRuleset or ScheduleFixedInterval to be applied\non top of the control type. If None, the control type will govern all\nbehavior of the construction.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.construction.windowshade import WindowConstructionShade\n    from honeybee_energy.lib.constructions import window_construction_by_identifier\n    from honeybee_energy.lib.materials import window_material_by_identifier\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\n# dictionary to convert to acceptable control types\nCONTROL_TYPES = {\n    '0': 'AlwaysOn',\n    '1': 'OnIfHighSolarOnWindow',\n    '2': 'OnIfHighHorizontalSolar',\n    '3': 'OnIfHighOutdoorAirTemperature',\n    '4': 'OnIfHighZoneAirTemperature',\n    '5': 'OnIfHighZoneCooling',\n    '6': 'OnNightIfLowOutdoorTempAndOffDay',\n    '7': 'OnNightIfLowInsideTempAndOffDay',\n    '8': 'OnNightIfHeatingAndOffDay',\n    'AlwaysOn': 'AlwaysOn',\n    'OnIfHighSolarOnWindow': 'OnIfHighSolarOnWindow',\n    'OnIfHighHorizontalSolar': 'OnIfHighHorizontalSolar',\n    'OnIfHighOutdoorAirTemperature': 'OnIfHighOutdoorAirTemperature',\n    'OnIfHighZoneAirTemperature': 'OnIfHighZoneAirTemperature',\n    'OnIfHighZoneCooling': 'OnIfHighZoneCooling',\n    'OnNightIfLowOutdoorTempAndOffDay': 'OnNightIfLowOutdoorTempAndOffDay',\n    'OnNightIfLowInsideTempAndOffDay': 'OnNightIfLowInsideTempAndOffDay',\n    'OnNightIfHeatingAndOffDay': 'OnNightIfHeatingAndOffDay'\n    }\n\n\nif all_required_inputs(ghenv.Component):\n    # set default values\n    constr_id = clean_and_id_ep_string(_name)\n    _shd_location_ = 'Interior' if _shd_location_ is None else _shd_location_.title()\n    _control_type_ = 'AlwaysOn' if _control_type_ is None \\\n        else CONTROL_TYPES[_control_type_]\n\n    # get objects from the library if they are strings\n    if isinstance(_win_constr, str):\n        win_con = window_construction_by_identifier(_win_constr)\n        # duplicate and rename to avoid having the same construction name in one model\n        _win_constr = win_con.duplicate()\n        _win_constr.identifier = '{}_Unshaded'.format(constr_id)\n    if isinstance(_shd_material, str):\n        _shd_material = window_material_by_identifier(_shd_material)\n    if isinstance(schedule_, str):\n        schedule_ = schedule_by_identifier(schedule_)\n\n    # create the construction object\n    constr = WindowConstructionShade(\n        constr_id, _win_constr, _shd_material, _shd_location_, _control_type_,\n        setpoint_, schedule_)\n    constr.display_name = _name\n", 
+  "category": "HB-Energy", 
+  "name": "HB Window Construction Shade", 
+  "description": "Create an EnergyPlus window construction that includes shades/blinds or a dynamically-\ncontrolled glass pane.\n_\nThe result can be assigned to any Aperture or ConstructionSet just like any other\nWindowConstruction.\n-"
+}

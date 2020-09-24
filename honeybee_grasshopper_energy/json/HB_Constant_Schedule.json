@@ -1,0 +1,50 @@
+{
+  "version": "0.1.1", 
+  "nickname": "ConstantSchedule", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "schedule", 
+        "description": "A ScheduleRuleset object that can be assigned to a Room, a Load\nobject, or a ProgramType object.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "idf_text", 
+        "description": "Text strings for the EnergyPlus Schedule that will ultimately\nbe written into the IDF for simulation. This can also be used to add\nthe schedule to the schedule library that is loaded up upon the start\nof Honeybee by copying this text into the honeybee/library/schedules/\nuser_library.idf file.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_values", 
+      "description": "A list of 24 values that represent the schedule values at each\nhour of the day. This can also be a single constant value for the\nwhole day.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the Schedule and to be incorporated\ninto a unique Schedule identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_type_limit_", 
+      "description": "A text string from the identifier of the ScheduleTypeLimit to\nbe looked up in the schedule type limit library. This can also be a\ncustom ScheduleTypeLimit object from the \"HB Type Limit\" component.\nThe input here will be used to validate schedule values against\nupper/lower limits and assign units to the schedule values. Default:\n\"Fractional\" for values that range continuously between 0 and 1.\nChoose from the following built-in options:\n* Fractional\n* On-Off\n* Temperature\n* Activity Level\n* Power\n* Humidity\n* Angle\n* Delta Temperature", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Schedules", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.schedule.ruleset import ScheduleRuleset\n    from honeybee_energy.lib.scheduletypelimits import schedule_type_limit_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # get the ScheduleTypeLimit object\n    if _type_limit_ is None:\n        _type_limit_ = schedule_type_limit_by_identifier('Fractional')\n    elif isinstance(_type_limit_, str):\n        _type_limit_ = schedule_type_limit_by_identifier(_type_limit_)\n\n    # create the schedule object\n    if len(_values) == 1:\n        schedule = ScheduleRuleset.from_constant_value(\n            clean_and_id_ep_string(_name), _values[0], _type_limit_)\n        idf_text, constant_none = schedule.to_idf()\n    else:\n        schedule = ScheduleRuleset.from_daily_values(\n            clean_and_id_ep_string(_name), _values, timestep=1,\n            schedule_type_limit=_type_limit_)\n        idf_year, idf_week = schedule.to_idf()\n        idf_days = [day_sch.to_idf(_type_limit_) for day_sch in schedule.day_schedules]\n        idf_text = [idf_year] + idf_week + idf_days\n    schedule.display_name = _name\n", 
+  "category": "HB-Energy", 
+  "name": "HB Constant Schedule", 
+  "description": "Create a schedule from a single constant value or a list of 24 hourly values\nrepeating continuously over every day of the year.\n-"
+}

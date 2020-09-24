@@ -1,0 +1,57 @@
+{
+  "version": "0.1.1", 
+  "nickname": "DecnstrSetpoint", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "name", 
+        "description": "Text string for the setpoint display name.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "heating_sch", 
+        "description": "A temperature schedule for the heating setpoint.\nThe type limit of this schedule should be temperature and the\nvalues should be the temperature setpoint in degrees Celcius.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "cooling_sch", 
+        "description": "A temperature schedule for the cooling setpoint.\nThe type limit of this schedule should be temperature and the\nvalues should be the temperature setpoint in degrees Celcius.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "humid_setpt", 
+        "description": "A numerical value between 0 and 100 for the relative humidity\nhumidifying setpoint [%]. This value will be constant throughout the\nyear. If None, no humidification will occur.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "dehumid_setpt", 
+        "description": "A numerical value between 0 and 100 for the relative humidity\ndehumidifying setpoint [%]. This value will be constant throughout the\nyear. If None, no dehumidification will occur beyond that which is needed\nto create air at the cooling supply temperature.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_setpoint", 
+      "description": "A Setpoint object to be deconstructed.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.load.setpoint import Setpoint\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_setpoint, Setpoint), \\\n        'Expected Setpoint object. Got {}.'.format(type(_setpoint))\n\n    # get the properties of the object\n    name = _setpoint.display_name\n    heating_sch = _setpoint.heating_schedule\n    cooling_sch = _setpoint.cooling_schedule\n    humid_setpt = _setpoint.humidifying_setpoint\n    dehumid_setpt = _setpoint.dehumidifying_setpoint\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct Setpoint", 
+  "description": "Deconstruct a Setpoint object into its constituient properties.\n-"
+}

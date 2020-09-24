@@ -1,0 +1,64 @@
+{
+  "version": "0.1.2", 
+  "nickname": "DecnstrConstrSetInt", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "interior_wall", 
+        "description": "A construction object for the set's interior walls.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "ceiling", 
+        "description": "A construction object for the set's interior roofs.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_floor", 
+        "description": "A construction object for the set's interior floors.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_window", 
+        "description": "A construction object for all apertures with a Surface\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_door", 
+        "description": "A construction object for all opaque doors with a Surface\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "int_glass_door", 
+        "description": "A construction object for all glass doors with a Surface\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_constr_set", 
+      "description": "A construction set to be deconstructed. This can also be\ntext for a construction set to be looked up in the construction\nset library.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.constructionset import ConstructionSet\n    from honeybee_energy.lib.constructionsets import construction_set_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    if isinstance(_constr_set, str):\n        _constr_set = construction_set_by_identifier(_constr_set)\n    else:\n        assert isinstance(_constr_set, ConstructionSet), \\\n            'Expected ConstructionSet. Got {}.'.format(type(_constr_set))\n    \n    interior_wall = _constr_set.wall_set.interior_construction\n    ceiling = _constr_set.roof_ceiling_set.interior_construction\n    interior_floor = _constr_set.floor_set.interior_construction\n    interior_window = _constr_set.aperture_set.interior_construction\n    interior_door = _constr_set.door_set.interior_construction\n    int_glass_door = _constr_set.door_set.interior_glass_construction\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct ConstructionSet Interior", 
+  "description": "Deconstruct a construction set into its constituient interior constructions.\n-"
+}

@@ -1,0 +1,50 @@
+{
+  "version": "0.2.0", 
+  "nickname": "SizingPar", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "sizing", 
+        "description": "Parameters with criteria for sizing the heating and cooling system.\nThese can be connected to the \"HB Simulation Parameter\" component in\norder to specify settings for the EnergyPlus simulation.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "ddy_file_", 
+      "description": "An optional path to a .ddy file on your system, which contains\ninformation about the design days used to size the hvac system. If None,\nhoneybee will look for a .ddy file next to the .epw and extract all\n99.6% and 0.4% design days.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "filter_ddays_", 
+      "description": "Boolean to note whether the design days in the ddy_file_\nshould be filtered to only include 99.6% and 0.4% design days. If None\nor False, all design days in the ddy_file_ will be incorporated into\nthe sizing parameters. This can also be the integer 2 to filter for\n99.0% and 1.0% design days.", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_heating_fac_", 
+      "description": "A number that will get multiplied by the peak heating load\nfor each zone in the model in order to size the heating system for\nthe model. Must be greater than 0. Default: 1.25.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_cooling_fac_", 
+      "description": "A number that will get multiplied by the peak cooling load\nfor each zone in the model in order to size the cooling system for\nthe model. Must be greater than 0. Default: 1.15.", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "5 :: Simulate", 
+  "code": "\ntry:\n    from honeybee_energy.simulation.sizing import SizingParameter\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\n# set default sizing factors\nheating_fac = 1.25 if _heating_fac_ is None else _heating_fac_\ncooling_fac = 1.15 if _cooling_fac_ is None else _cooling_fac_\n\n# create the object\nsizing = SizingParameter(None, heating_fac, cooling_fac)\n\n# apply design days from ddy\nif ddy_file_ is not None:\n    if filter_ddays_ == 1:\n        sizing.add_from_ddy_996_004(ddy_file_)\n    elif filter_ddays_ == 2:\n        sizing.add_from_ddy_990_010(ddy_file_)\n    else:\n        sizing.add_from_ddy(ddy_file_)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Sizing Parameter", 
+  "description": "Create parameters with criteria for sizing the heating and cooling system.\n-"
+}

@@ -1,0 +1,50 @@
+{
+  "version": "0.1.1", 
+  "nickname": "DeconstrSch", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "day_names", 
+        "description": "A list of display names for each unique ScheduleDay that\ndefines the input ScheduleRuleset.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "day_data", 
+        "description": "A list of day-long ladybug DataCollections representing each\nunique ScheduleDay that defines the ScheduleRuleset. These can be\nused to make visualizations of timeseries schedule values over each\nday of the schedule using a component like the \"LB Line Chart\".", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "type_limit", 
+        "description": "The ScheduleTypeLimit object assigned to the ScheduleRuleset.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_schedule", 
+      "description": "A ScheduleRuleSet to be deconstructed into DataCollections\nof timeseries schedule values for each unique day. This can also\nbe the identifier of a Schedule to be looked up in the schedule library.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_timestep_", 
+      "description": "An integer for the number of steps per hour at which to make\nthe resulting daily DataCollections.", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Schedules", 
+  "code": "\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.schedule.ruleset import ScheduleRuleset\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\ntry:  # import the ladybug dependencies\n    from ladybug.dt import Date\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # get the schedue from the library if it's a string\n    if isinstance(_schedule, str):\n        _schedule = schedule_by_identifier(_schedule)\n    \n    # process the timestep\n    _timestep_ = 1 if _timestep_ is None else _timestep_\n    st_date = Date(1, 1)\n    type_limit = _schedule.schedule_type_limit\n    \n    # process the default ScheduleDay\n    default = _schedule.default_day_schedule.data_collection(\n        st_date, type_limit, _timestep_)\n    default.header.metadata['applied'] = 'default'\n    \n    # create the ScheduleDay DataCollections\n    day_names = [_schedule.default_day_schedule.display_name]\n    day_data = [default]\n    for rule in _schedule.schedule_rules:\n        data_col = rule.schedule_day.data_collection(\n            st_date, type_limit, _timestep_)\n        meta_str = ', '.join(rule.days_applied) + \\\n            ' | {} to {}'.format(rule.start_date, rule.end_date)\n        data_col.header.metadata['applied'] = meta_str\n        day_names.append(rule.schedule_day.display_name)\n        day_data.append(data_col)\n    \n    # process the design day schedules\n    if _schedule.summer_designday_schedule is not None:\n        summer = _schedule.summer_designday_schedule.data_collection(\n            st_date, type_limit, _timestep_)\n        summer.header.metadata['applied'] = 'summer design'\n        day_names.append(_schedule.summer_designday_schedule.display_name)\n        day_data.append(summer)\n    if _schedule.winter_designday_schedule is not None:\n        winter = _schedule.winter_designday_schedule.data_collection(\n            st_date, type_limit, _timestep_)\n        winter.header.metadata['applied'] = 'winter design'\n        day_names.append(_schedule.winter_designday_schedule.display_name)\n        day_data.append(winter)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct Schedule", 
+  "description": "Deconstruct a ScheduleRuleset into an array of day-long ladybug DataCollections\nrepresenting each unique ScheduleDay that defines the ScheduleRuleset.\n_\nThese DataCollections can be used to make visualizations of timeseries schedule\nvalues over each unique day of the schedule using a component like the\n\"LB Line Chart\".\n-"
+}

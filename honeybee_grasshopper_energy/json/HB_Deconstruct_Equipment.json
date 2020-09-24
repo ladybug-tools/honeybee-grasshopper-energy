@@ -1,0 +1,71 @@
+{
+  "version": "0.1.1", 
+  "nickname": "DecnstrEquipment", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "name", 
+        "description": "An Equipment object that can be used to create a ProgramType or\nbe assigned directly to a Room.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "watts_per_area", 
+        "description": "A numerical value for the equipment power density in\nWatts per square meter of floor area.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "schedule", 
+        "description": "A fractional for the use of equipment over the course of the year.\nThe fractional values will get multiplied by the watts_per_area to\nyield a complete equipment profile.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "radiant_fract", 
+        "description": "A number between 0 and 1 for the fraction of the total\nequipment load given off as long wave radiant heat.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "latent_fract", 
+        "description": "A number between 0 and 1 for the fraction of the total\nequipment load that is latent (as opposed to sensible).", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "lost_fract", 
+        "description": "A number between 0 and 1 for the fraction of the total\nequipment load that is lost outside of the zone and the HVAC system.\nTypically, this is used to represent heat that is exhausted directly\nout of a zone (as you would for a stove).", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "is_gas", 
+        "description": "Will be True if the input Equipment object is for GasEquipment;\nFalse if it is for ElectricEquipment.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_equip", 
+      "description": "An ElectricEquipment or a GasEquipment object to be deconstructed.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.load.equipment import ElectricEquipment, GasEquipment\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_equip, (ElectricEquipment, GasEquipment)), \\\n        'Expected Equipment object. Got {}.'.format(type(_equip))\n\n    # get the properties of the object\n    name = _equip.display_name\n    watts_per_area = _equip.watts_per_area\n    schedule = _equip.schedule\n    radiant_fract = _equip.radiant_fraction\n    latent_fract = _equip.latent_fraction\n    lost_fract = _equip.lost_fraction\n    is_gas = isinstance(_equip, GasEquipment)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct Equipment", 
+  "description": "Deconstruct an Equipment object into its constituient properties.\n-"
+}

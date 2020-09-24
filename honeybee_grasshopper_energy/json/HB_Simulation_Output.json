@@ -1,0 +1,78 @@
+{
+  "version": "0.1.5", 
+  "nickname": "SimOutput", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "sim_output", 
+        "description": "A SimulationOutput object that can be connected to the\n\"HB Simulation Parameter\" component in order to specify which\ntypes of outputs should be written from EnergyPlus.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "zone_energy_use_", 
+      "description": "Set to True to add outputs for zone energy use when ideal\nair systems are assigned. This includes, ideal air heating + cooling,\nlighting, electric + gas equipment, and fan electric energy.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "hvac_energy_use_", 
+      "description": "Set to True to add outputs for HVAC energy use from detailed\nsystems. This includes outputs for different pieces of equipment,\nwhich together catch all energy-consuming parts of a system.\n(eg. chillers, boilers, coils, humidifiers, fans, pumps).", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "gains_and_losses_", 
+      "description": "Set to True to Add outputs for zone gains and losses.\nThis includes such as people gains, solar gains, infiltration losses/gains,\nand ventilation losses/gains.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "comfort_metrics_", 
+      "description": "Set to True to add outputs for zone thermal comfort analysis.\nThis includes air temperature, mean radiant temperature, relative\nhumidity.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "surface_temperature_", 
+      "description": "Set to True to add outputs for indoor and outdoor\nsurface temperature.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "surface_energy_flow_", 
+      "description": "Set to True to add outputs for energy flow across\nall surfaces.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "load_type_", 
+      "description": "An optional text value to set the type of load outputs requested.\nDefault - 'All'. Choose from the following:\n* All - all energy use including heat lost from the zone\n* Total - the total load added to the zone (both sensible and latent)\n* Sensible - the sensible load added to the zone\n* Latent - the latent load added to the zone", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_report_frequency_", 
+      "description": "Text for the frequency at which the outputs\nare reported. Default: 'Hourly'.\nChoose from the following:\n* Annual\n* Monthly\n* Daily\n* Hourly\n* Timestep", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "5 :: Simulate", 
+  "code": "\ntry:\n    from honeybee_energy.simulation.output import SimulationOutput\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\n# set default reporting frequency.\n_report_frequency_ = _report_frequency_.title() \\\n    if _report_frequency_ is not None else 'Hourly'\n\n# set the default load_type\nload_type_ = load_type_.title() if load_type_ is not None else 'All'\n\n# create the starting simulation output object.\nsim_output = SimulationOutput(reporting_frequency=_report_frequency_)\n\n# set each of the requested outputs\nif zone_energy_use_:\n    sim_output.add_zone_energy_use(load_type_)\nif hvac_energy_use_:\n    sim_output.add_hvac_energy_use()\nif gains_and_losses_:\n    load_type = load_type_ if load_type_ != 'All' else 'Total'\n    sim_output.add_gains_and_losses(load_type)\nif comfort_metrics_:\n    sim_output.add_comfort_metrics()\nif surface_temperature_:\n    sim_output.add_surface_temperature()\nif surface_energy_flow_:\n    sim_output.add_surface_energy_flow()\n", 
+  "category": "HB-Energy", 
+  "name": "HB Simulation Output", 
+  "description": "Create a simulation output object by selecting sets of commonly-requested output variables.\nThe resulting object can be used to request output variables from EnergyPlus.\n-"
+}

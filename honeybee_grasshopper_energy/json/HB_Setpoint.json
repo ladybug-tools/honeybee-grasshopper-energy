@@ -1,0 +1,57 @@
+{
+  "version": "0.1.1", 
+  "nickname": "Setpoint", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "setpoint", 
+        "description": "A Setpoint object that can be used to create a ProgramType or\nbe assigned directly to a Room.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "Text to set the name for the Setpoint and to be incorporated\ninto a unique Setpoint identifier. If None, a unique name will\nbe generated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_heating_sch", 
+      "description": "A temperature schedule for the heating setpoint.\nThe type limit of this schedule should be temperature and the\nvalues should be the temperature setpoint in degrees Celcius.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_cooling_sch", 
+      "description": "A temperature schedule for the cooling setpoint.\nThe type limit of this schedule should be temperature and the\nvalues should be the temperature setpoint in degrees Celcius.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "humid_setpt_", 
+      "description": "A numerical value between 0 and 100 for the relative humidity\nhumidifying setpoint [%]. This value will be constant throughout the\nyear. If None, no humidification will occur.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "dehumid_setpt_", 
+      "description": "A numerical value between 0 and 100 for the relative humidity\ndehumidifying setpoint [%]. This value will be constant throughout the\nyear. If None, no dehumidification will occur beyond that which is needed\nto create air at the cooling supply temperature.", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.setpoint import Setpoint\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # make a default Setpoint name if none is provided\n    if _name_ is None:\n        name = \"Setpoint_{}\".format(uuid.uuid4())\n    else:\n        name = clean_and_id_ep_string(_name_)\n\n    # get the schedules\n    if isinstance(_heating_sch, str):\n        _heating_sch = schedule_by_identifier(_heating_sch)\n    if isinstance(_cooling_sch, str):\n        _cooling_sch = schedule_by_identifier(_cooling_sch)\n\n    # create the Setpoint object\n    setpoint = Setpoint(name, _heating_sch, _cooling_sch)\n    if _name_ is not None:\n        setpoint.display_name = _name_\n\n    # assign the humidification and dehumidification setpoints if requested\n    if humid_setpt_ is not None:\n        setpoint.humidifying_setpoint = humid_setpt_\n    if dehumid_setpt_ is not None:\n        setpoint.dehumidifying_setpoint = dehumid_setpt_\n", 
+  "category": "HB-Energy", 
+  "name": "HB Setpoint", 
+  "description": "Create a Setpoint object that can be used to create a ProgramType or be assigned\ndirectly to a Room.\n-"
+}

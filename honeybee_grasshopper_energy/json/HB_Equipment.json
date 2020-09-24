@@ -1,0 +1,71 @@
+{
+  "version": "0.1.1", 
+  "nickname": "Equipment", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "equip", 
+        "description": "An Equipment object that can be used to create a ProgramType or\nbe assigned directly to a Room.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "Text to set the name for the Equipment and to be incorporated\ninto a unique Equipment identifier. If None, a unique name will\nbe generated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_watts_per_area", 
+      "description": "A numerical value for the equipment power density in\nWatts per square meter of floor area.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_schedule", 
+      "description": "A fractional for the use of equipment over the course of the year.\nThe fractional values will get multiplied by the _watts_per_area to\nyield a complete equipment profile.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "radiant_fract_", 
+      "description": "A number between 0 and 1 for the fraction of the total\nequipment load given off as long wave radiant heat. Default: 0.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "latent_fract_", 
+      "description": "A number between 0 and 1 for the fraction of the total\nequipment load that is latent (as opposed to sensible). Default: 0.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "lost_fract_", 
+      "description": "A number between 0 and 1 for the fraction of the total\nequipment load that is lost outside of the zone and the HVAC system.\nTypically, this is used to represent heat that is exhausted directly\nout of a zone (as you would for a stove). Default: 0.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "gas_", 
+      "description": "Set to \"True\" to have the output Equipment object be for GasEquipment\n(as opposed to ElectricEquipment).", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.equipment import ElectricEquipment, GasEquipment\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # make a default Equipment name if none is provided\n    if _name_ is None:\n        name = \"Equipment_{}\".format(uuid.uuid4())\n    else:\n        name = clean_and_id_ep_string(_name_)\n\n    # get the schedule\n    if isinstance(_schedule, str):\n        _schedule = schedule_by_identifier(_schedule)\n\n    # get default radiant, latent, and lost fractions\n    radiant_fract_ = radiant_fract_ if radiant_fract_ is not None else 0.0\n    latent_fract_ = latent_fract_ if latent_fract_ is not None else 0.0\n    lost_fract_ = lost_fract_ if lost_fract_ is not None else 0.0\n\n    # create the Equipment object\n    if gas_:\n        equip = GasEquipment(name, _watts_per_area, _schedule,\n                             radiant_fract_, latent_fract_, lost_fract_)\n    else:\n        equip = ElectricEquipment(name, _watts_per_area, _schedule,\n                                  radiant_fract_, latent_fract_, lost_fract_)\n    if _name_ is not None:\n        equip.display_name = _name_", 
+  "category": "HB-Energy", 
+  "name": "HB Equipment", 
+  "description": "Create an Equipment object that can be used to create a ProgramType or be assigned\ndirectly to a Room.\n-"
+}

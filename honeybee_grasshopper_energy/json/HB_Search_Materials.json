@@ -1,0 +1,43 @@
+{
+  "version": "0.1.1", 
+  "nickname": "SearchMats", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "opaque_mats", 
+        "description": "A list of opaque materials within the honeybee energy\nstandards library (filtered by keywords_ if they are input).", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "window_mats", 
+        "description": "A list of window materials within the honeybee energy\nstandards library (filtered by keywords_ if they are input).", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "keywords_", 
+      "description": "Optional keywords to be used to narrow down the output list of\nmaterials. If nothing is input here, all available materials\nwill be output.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "join_words_", 
+      "description": "If False or None, this component will automatically split\nany strings of multiple keywords (spearated by spaces) into separate\nkeywords for searching. This results in a greater liklihood of\nfinding an item in the search but it may not be appropropriate for\nall cases. You may want to set it to True when you are searching for\na specific phrase that includes spaces. Default: False.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\ntry:  # import the honeybee-core dependencies\n    from honeybee.search import filter_array_by_keywords\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.lib.materials import OPAQUE_MATERIALS\n    from honeybee_energy.lib.materials import WINDOW_MATERIALS\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\nif len(keywords_) == 0:\n    opaque_mats = sorted(OPAQUE_MATERIALS)\n    window_mats = sorted(WINDOW_MATERIALS)\nelse:\n    split_words = True if join_words_ is None else not join_words_\n    opaque_mats = sorted(filter_array_by_keywords(OPAQUE_MATERIALS, keywords_, split_words))\n    window_mats = sorted(filter_array_by_keywords(WINDOW_MATERIALS, keywords_, split_words))\n", 
+  "category": "HB-Energy", 
+  "name": "HB Search Materials", 
+  "description": "Search for available Materials within the honeybee energy standards library.\n-"
+}

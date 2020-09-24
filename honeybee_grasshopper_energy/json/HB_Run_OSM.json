@@ -1,0 +1,92 @@
+{
+  "version": "0.1.1", 
+  "nickname": "RunOSM", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "idf", 
+        "description": "The file path of the IDF file that has been generated on this computer.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "sql", 
+        "description": "The file path of the SQL result file that has been generated on your\nmachine. This will be None unless run_ is set to True.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "zsz", 
+        "description": "Path to a .csv file containing detailed zone load information recorded\nover the course of the design days. This will be None unless run_ is\nset to True.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "rdd", 
+        "description": "The file path of the Result Data Dictionary (.rdd) file that is\ngenerated after running the file through EnergyPlus.  This file\ncontains all possible outputs that can be requested from the EnergyPlus\nmodel.  Use the Read Result Dictionary component to see what outputs\ncan be requested.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "html", 
+        "description": "The HTML file path of the Summary Reports. Note that this will be None\nunless the input _sim_par_ denotes that an HTML report is requested and\nrun_ is set to True.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_osm", 
+      "description": "Path to an OpenStudio Model (OSM) file as a text string. This can\nalso be a list of OSM files.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_epw_file", 
+      "description": "A full file path to an epw weather file.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "add_str_", 
+      "description": "THIS OPTION IS JUST FOR ADVANCED USERS OF ENERGYPLUS.\nYou can input additional text strings here that you would like\nwritten into the IDF.  The strings input here should be complete\nEnergyPlus objects that are correctly formatted. This input can be used to\nwrite objects into the IDF that are not currently supported by Honeybee.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "parallel_", 
+      "description": "Set to \"True\" to run execute simulations of multiple IDF files\nin parallel, which can greatly increase the speed of calculation but\nmay not be desired when other processes are running. If False, all\nEnergyPlus simulations will be be run on a single core. Default: False.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_translate", 
+      "description": "Set to \"True\" to translate the OSM files to IDFs using the\nOpenStudio command line interface (CLI).", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_", 
+      "description": "Set to \"True\" to run the resulting IDF through EnergyPlus.", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "5 :: Simulate", 
+  "code": "\nimport json\nimport os\nimport System.Threading.Tasks as tasks\n\ntry:\n    from honeybee_energy.run import run_osw, run_idf\n    from honeybee_energy.result.err import Err\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\ndef run_osm_and_report_errors(i):\n    \"\"\"Run an OSW through OpenStudio CLI.\"\"\"\n    # create a blank osw for the translation\n    osw_dict = {'seed_file': _osm[i]}\n    osw_directory = os.path.dirname(_osm[i])\n    osw = os.path.join(osw_directory, 'workflow.osw')\n    with open(osw, 'w') as fp:\n        json.dump(osw_dict, fp, indent=4)\n\n    osm_i, idf_i = run_osw(osw)\n    # process the additional strings\n    if add_str_ != [] and add_str_[0] is not None and idf is not None:\n        add_str = '/n'.join(add_str_)\n        with open(idf, \"a\") as idf_file:\n            idf_file.write(add_str)\n    osm.append(osm_i)\n    idf.append(idf_i)\n\n    # run the IDF through EnergyPlus\n    if run_:\n        sql_i, zsz_i, rdd_i, html_i, err_i = run_idf(idf_i, _epw_file)\n\n        # report any errors on this component\n        if err_i is not None:\n            err_obj = Err(err_i)\n            err_objs.append(err_obj)\n            for warn in err_obj.severe_errors:\n                give_warning(ghenv.Component, warn)\n            for error in err_obj.fatal_errors:\n                print err_obj.file_contents  # print before raising the error\n                raise Exception(error)\n\n        # append everything to the global lists\n        sql.append(sql_i)\n        zsz.append(zsz_i)\n        rdd.append(rdd_i)\n        html.append(html_i)\n        err.append(err_i)\n\n\nif all_required_inputs(ghenv.Component) and _translate:\n    # global lists of outputs to be filled\n    osm, idf, sql, zsz, rdd, html, err, err_objs = [], [], [], [], [], [], [], []\n\n    # run the OSW files through OpenStudio CLI\n    if parallel_:\n        tasks.Parallel.ForEach(range(len(_osm)), run_osm_and_report_errors)\n    else:\n        for i in range(len(_osm)):\n            run_osm_and_report_errors(i)\n\n    # print out error report if it's only one file\n    # otherwise it's too much data to be read-able\n    if len(err_objs) == 1:\n        print(err_objs[0].file_contents)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Run OSM", 
+  "description": "Translate a fully-simualte-able OpenStudio model (.osm) to an IDF and run the it\nthrough EnergyPlus.\n-"
+}

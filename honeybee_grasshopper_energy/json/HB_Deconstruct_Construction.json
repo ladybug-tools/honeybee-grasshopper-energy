@@ -1,0 +1,78 @@
+{
+  "version": "0.1.4", 
+  "nickname": "DecnstrConstr", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "materials", 
+        "description": "List of material objects that make up the construction\n(ordered from outside to inside).", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "layers", 
+        "description": "List of material identifiers that make up the construction\n(ordered from outside to inside).", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "r_val_si", 
+        "description": "R-value of the construction in m2-K/W. Note that R-values do NOT\ninclude the resistance of air films on either side of the construction.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "r_val_ip", 
+        "description": "R-value of the construction in h-ft2-F/Btu. Note that R-values do NOT\ninclude the resistance of air films on either side of the construction.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "u_fac_si", 
+        "description": "U-factor of the construction in W/m2-K.  Note that U-factors\ninclude the resistance of air films on either side of the construction.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "u_fac_ip", 
+        "description": "U-factor of the construction in Btu/h-ft2-F.  Note that U-factors\ninclude the resistance of air films on either side of the construction.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "t_sol", 
+        "description": "The unshaded shortwave solar transmittance of the construction at normal\nincidence. Note that 'unshaded' in this case means that all blind +\nshade materials in the construction are ignored. Also note that the\nsolar transmittance ouput here is only for shortwave solar irradiation.\nSo it is NOT the same as SHGC or G-Value, which also includes the solar\nheat that is absorbed by the construction and then conducts to the indoors.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "t_vis", 
+        "description": "The unshaded visible transmittance of the window at normal incidence.\nNote that 'unshaded' in this case means that all blind + shade\nmaterials in the construction are ignored.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_constr", 
+      "description": "An opaque or window construction to be deconstructed. This can\nalso be text for an opaque or window construction to be looked\nup in the construction library.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.construction.opaque import OpaqueConstruction\n    from honeybee_energy.construction.window import WindowConstruction\n    from honeybee_energy.construction.windowshade import WindowConstructionShade\n    from honeybee_energy.lib.constructions import opaque_construction_by_identifier\n    from honeybee_energy.lib.constructions import window_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\ntry:\n    from ladybug.datatype.rvalue import RValue\n    from ladybug.datatype.uvalue import UValue\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    if isinstance(_constr, str):\n        try:\n            _constr = opaque_construction_by_identifier(_constr)\n        except ValueError:\n            _constr = window_construction_by_identifier(_constr)\n    else:\n        con_cls  = (OpaqueConstruction, WindowConstruction, WindowConstructionShade)\n        assert isinstance(_constr, con_cls), \\\n            'Expected OpaqueConstruction, WindowConstruction, or WindowConstructionShade. ' \\\n            'Got {}.'.format(type(_constr))\n\n    # get the materials, r-value and u-factor\n    materials = _constr.materials\n    layers = _constr.layers\n    r_val_si = _constr.r_value\n    r_val_ip = RValue().to_ip([r_val_si], 'm2-K/W')[0][0]\n    u_fac_si = _constr.u_factor\n    u_fac_ip = UValue().to_ip([u_fac_si], 'W/m2-K')[0][0]\n\n    # get the transmittance\n    if isinstance(_constr, WindowConstruction):\n        t_sol = _constr.solar_transmittance\n        t_vis = _constr.visible_transmittance\n    elif isinstance(_constr, WindowConstructionShade):  # get unshaded transmittance\n        t_sol = _constr.window_construction.solar_transmittance\n        t_vis = _constr.window_construction.visible_transmittance\n    else:\n        t_sol = 0\n        t_vis = 0\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct Construction", 
+  "description": "Deconstruct an opaque or window construction into its constituient materials.\n-"
+}

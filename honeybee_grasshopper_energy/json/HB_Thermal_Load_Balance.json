@@ -1,0 +1,127 @@
+{
+  "version": "0.1.0", 
+  "nickname": "LoadBalance", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "balance", 
+        "description": "A list of data collections where each collection represents a\nload balance term. This can then be plugged into the \"LB Hourly Plot\"\nor \"LB Monthly Chart\" to give a visualization of the load balance\nover all connected Rooms.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "balance_storage", 
+        "description": "The balance output plus an additional term to represent\nthe remainder of the load balance. This term is labeled \"Storage\" since\nit typically represents the energy being stored in the building's mass.\nIf this term is particularly large, it can indicate that not all of\nthe load balance terms have been plugged into this component.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "norm_bal", 
+        "description": "A list of data collections where each collection represents a\nload balance term that has bee normalized by the Room floor area.\nThis can then be plugged into the \"LB Hourly Plot\" or \"LB Monthly Chart\"\nto give a visualization of the load balance over all connected Rooms.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "norm_bal_storage", 
+        "description": "The norm_bal output plus an additional term to represent\nthe remainder of the load balance. This term is labeled \"Storage\" since\nit typically represents the energy being stored in the building's mass.\nIf this term is particularly large, it can indicate that not all of\nthe load balance terms have been plugged into this component.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms_model", 
+      "description": "An array of honeybee Rooms or a honeybee Model for which\nthe thermal load balance will be computed. In most cases, these\nshould be the Rooms or Model that are fed directly into the\nsimulation. But this can also be a subset of such Rooms and the\nbalance will only be computed for those Rooms.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "cooling_", 
+      "description": "Array of data collections for 'Zone Ideal Loads Supply Air\nCooling Energy'.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "heating_", 
+      "description": "Array of data collections for 'Zone Ideal Loads Supply Air\nHeating Energy'.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "lighting_", 
+      "description": "Array of data collections for 'Zone Lights Heating Energy'.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "electric_equip_", 
+      "description": "Array of data collections for 'Zone Electric Equipment\nHeating Energy'.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "gas_equip_", 
+      "description": "Array of data collections for 'Zone Gas Equipment Heating Energy'.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "people_gain_", 
+      "description": "Array of data collections for 'Zone People Heating Energy'.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "solar_gain_", 
+      "description": "Array of data collections for 'Zone Windows Transmitted\nSolar Radiation Energy'.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "infiltration_load_", 
+      "description": "An array of data collections for the infiltration heat\nloss (negative) or heat gain (positive).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "mech_vent_load_", 
+      "description": "An array of data collections for the ventilation heat loss\n(negative) or heat gain (positive) as a result of meeting minimum\noutdoor air requirements with the mechanical system.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "nat_vent_load_", 
+      "description": "An array of data collections for the natural ventilation\nheat loss (negative) or heat gain (positive).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "face_energy_flow_", 
+      "description": "An array of data collections for the surface heat loss\n(negative) or heat gain (positive).", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "6 :: Result", 
+  "code": "\ntry:\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.loadbalance import LoadBalance\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.config import units_system\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef check_input(input_list):\n    \"\"\"Check that an input isn't a zero-length list or None.\"\"\"\n    return None if len(input_list) == 0 or input_list[0] is None else input_list\n\n\nif all_required_inputs(ghenv.Component):\n    # extract any rooms from input Models\n    rooms = []\n    for hb_obj in _rooms_model:\n        if isinstance(hb_obj, Model):\n            rooms.extend(hb_obj.rooms)\n        else:\n            rooms.append(hb_obj)\n\n    # process all of the inputs\n    cooling_ = check_input(cooling_)\n    heating_ = check_input(heating_)\n    lighting_ = check_input(lighting_)\n    electric_equip_ = check_input(electric_equip_)\n    gas_equip_ = check_input(gas_equip_)\n    people_gain_ = check_input(people_gain_)\n    solar_gain_ = check_input(solar_gain_)\n    infiltration_load_ = check_input(infiltration_load_)\n    mech_vent_load_ = check_input(mech_vent_load_)\n    nat_vent_load_ = check_input(nat_vent_load_)\n    face_energy_flow_ = check_input(face_energy_flow_)\n\n    # construct the load balance object and output the results\n    load_bal_obj = LoadBalance(\n        rooms, cooling_, heating_, lighting_, electric_equip_, gas_equip_,\n        people_gain_, solar_gain_, infiltration_load_, mech_vent_load_,\n        nat_vent_load_, face_energy_flow_, units_system())\n\n    balance = load_bal_obj.load_balance_terms(False, False)\n    if len(balance) != 0:\n        balance_storage = balance + [load_bal_obj.storage]\n        norm_bal = load_bal_obj.load_balance_terms(True, False)\n        norm_bal_storage = load_bal_obj.load_balance_terms(True, True)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Thermal Load Balance", 
+  "description": "Construct a complete thermal load balance from energy simulation results and\nhoneybee Rooms or a Model.\n-"
+}

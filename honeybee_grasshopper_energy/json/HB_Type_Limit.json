@@ -1,0 +1,57 @@
+{
+  "version": "0.1.1", 
+  "nickname": "TypeLimit", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "type_limit", 
+        "description": "A ScheduleTypeLimit object that can be assigned to any schedule object.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the ScheduleTypeLimit. This should be\nunique to avoif conflcit with other schedule types.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "low_limit_", 
+      "description": "An optional number for the lower limit for values in the\nschedule. If None, there will be no lower limit.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "up_limit_", 
+      "description": "An optional number for the upper limit for values in the\nschedule. If None, there will be no upper limit.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "discrete_", 
+      "description": "Boolean to not whether the values of the schedule are continuous\nor discrete. The latter means that only integers are accepted as\nschedule values. Default: False for 'Continuous'.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_unit_type_", 
+      "description": "Text for an EnergyPlus unit type, which will be used to assign\nunits to the values in the schedule.  Note that this field is not used\nin the actual calculations of EnergyPlus. Default: 'Dimensionless'.\nChoose from the following:\n* Dimensionless\n* Temperature\n* DeltaTemperature\n* PrecipitationRate\n* Angle\n* ConvectionCoefficient\n* ActivityLevel\n* Velocity\n* Capacity\n* Power\n* Availability\n* Percent\n* Control\n* Mode", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Schedules", 
+  "code": "\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.schedule.typelimit import ScheduleTypeLimit\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default values\n    numeric_type = 'Discrete' if discrete_ else 'Continuous'\n    _unit_type_ = 'Dimensionless' if _unit_type_ is None else _unit_type_\n\n    # create the ScheduleTypeLimit\n    type_limit =  ScheduleTypeLimit(\n        _name, low_limit_, up_limit_, numeric_type, _unit_type_)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Type Limit", 
+  "description": "Create a custom ScheduleTypeLimit object that can be assigned to any schedule object.\n_\nSchedule types exist for the sole purpose of validating schedule values against\nupper/lower limits and assigning a data type and units to the schedule values.\nAs such, they are not necessary to run energy simulations but their use is\ngenerally considered good practice.\n-"
+}
