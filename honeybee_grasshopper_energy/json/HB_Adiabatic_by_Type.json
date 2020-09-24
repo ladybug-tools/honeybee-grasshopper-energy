@@ -1,0 +1,64 @@
+{
+  "version": "0.1.1", 
+  "nickname": "AdiabaticByType", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "hb_objs", 
+        "description": "The input honeybee objects with their boundary conditions edited.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_hb_objs", 
+      "description": "Honeybee Faces or Rooms to which adiabatic boundary conditions\nwill be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "exterior_walls_", 
+      "description": "If True, all exterior walls of the input Rooms or Faces\nwill be set to adiabatic. This can also be a list of boolean values\nand different adiabatic values will be assigned based on the cardinal\ndirection, starting with north and moving clockwise.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "roofs_", 
+      "description": "If True, all exterior roofs of the input Rooms or Faces will be\nset to adiabatic.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "exposed_floors_", 
+      "description": "If True, all exposed floors of the input Rooms or Faces\nwill be set to adiabatic.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "interior_walls_", 
+      "description": "If True, all interior walls of the input Rooms or Faces\nwill be set to adiabatic.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "interior_floors_", 
+      "description": "If True, all interior floors and ceilings of the input\nRooms or Faces will be set to adiabatic.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\n\ntry:  # import the core honeybee dependencies\n    from honeybee.boundarycondition import Outdoors, Ground, Surface, boundary_conditions\n    from honeybee.facetype import Wall, RoofCeiling, Floor\n    from honeybee.room import Room\n    from honeybee.face import Face\n    from honeybee.orientation import angles_from_num_orient, face_orient_index\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef check_type(face, boundary_c, face_type):\n    \"\"\"Check whether a given Face is of a certain type.\"\"\"\n    return isinstance(face.boundary_condition, boundary_c) and \\\n        isinstance(face.type, face_type)\n\n\ndef check_and_assign_adiabatic_to_face(face):\n    \"\"\"Check if a face if of a relevant type and assign Adiabatic if so.\"\"\"\n    \n    # assign the adiabatic property to roofs\n    if roofs_ and check_type(face, (Outdoors, Ground), RoofCeiling):\n        face.boundary_condition = boundary_conditions.adiabatic\n    \n    # assign the adiabatic property to exposed floors\n    if exposed_floors_ and check_type(face, (Outdoors, Ground), Floor):\n        face.boundary_condition = boundary_conditions.adiabatic\n    \n    # assign the adiabatic property to exposed floors\n    if interior_walls_ and check_type(face, Surface, Wall):\n        face.boundary_condition = boundary_conditions.adiabatic\n    \n    # assign the adiabatic property to exposed floors\n    if interior_floors_ and check_type(face, Surface, (RoofCeiling, Floor)):\n        face.boundary_condition = boundary_conditions.adiabatic\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    hb_objs = [obj.duplicate() for obj in _hb_objs]\n    \n    # assign the adiabatic property to the walls\n    if len(exterior_walls_) > 0:\n        angles = angles_from_num_orient(len(exterior_walls_))\n        for obj in hb_objs:\n            if isinstance(obj, Room):\n                for face in obj.faces:\n                    if check_type(face, (Outdoors, Ground), Wall):\n                        orient_i = face_orient_index(face, angles)\n                        if orient_i is not None and exterior_walls_[orient_i]:\n                            face.boundary_condition = boundary_conditions.adiabatic\n            else:  # assume it is a Face\n                if check_type(obj, (Outdoors, Ground), Wall):\n                    orient_i = face_orient_index(obj, angles)\n                    if orient_i is not None and exterior_walls_[orient_i]:\n                        obj.boundary_condition = boundary_conditions.adiabatic\n    \n    # assign the adiabatic property to all of the other face types\n    for obj in hb_objs:\n        if isinstance(obj, Room):\n            for face in obj.faces:\n                check_and_assign_adiabatic_to_face(face)\n        else:  # assume it is a Face\n            check_and_assign_adiabatic_to_face(obj)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Adiabatic by Type", 
+  "description": "Make boundary conditions of Rooms or Faces adiabatic by face type.\n-"
+}

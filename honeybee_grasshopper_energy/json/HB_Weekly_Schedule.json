@@ -1,0 +1,127 @@
+{
+  "version": "0.1.1", 
+  "nickname": "WeeklySchedule", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "schedule", 
+        "description": "A ScheduleRuleset object that can be assigned to a Room, a Load\nobject, or a ProgramType object.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "idf_year", 
+        "description": "Text string for the EnergyPlus ScheduleYear that will ultimately\nbe written into the IDF for simulation. This can also be used to add\nthe schedule to the schedule library that is loaded up upon the start\nof Honeybee by copying this text into the honeybee/library/schedules/\nuser_library.idf file along with the other idf text outputs.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "idf_week", 
+        "description": "Text string for the EnergyPlus ScheduleWeek that will ultimately\nbe written into the IDF for simulation. This can also be used to add\nthe schedule to the schedule library that is loaded up upon the start\nof Honeybee by copying this text into the honeybee/library/schedules/\nuser_library.idf file along with the other idf text outputs.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "idf_days", 
+        "description": "Text strings for the EnergyPlus SchedulDays that will ultimately\nbe written into the IDF for simulation. This can also be used to add\nthe schedule to the schedule library that is loaded up upon the start\nof Honeybee by copying this text into the honeybee/library/schedules/\nuser_library.idf file along with the other idf text outputs.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_sun", 
+      "description": "A list of 24 values that represent the schedule values at each\nhour of Sunday. This can also be a single constant value for the\nwhole day.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_mon", 
+      "description": "A list of 24 values that represent the schedule values at each\nhour of Monday. This can also be a single constant value for the\nwhole day.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_tue", 
+      "description": "A list of 24 values that represent the schedule values at each\nhour of Tuesday. This can also be a single constant value for the\nwhole day.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_wed", 
+      "description": "A list of 24 values that represent the schedule values at each\nhour of Wednesday. This can also be a single constant value for the\nwhole day.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_thu", 
+      "description": "A list of 24 values that represent the schedule values at each\nhour of Thursday. This can also be a single constant value for the\nwhole day.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_fri", 
+      "description": "A list of 24 values that represent the schedule values at each\nhour of Friday. This can also be a single constant value for the\nwhole day.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_sat", 
+      "description": "A list of 24 values that represent the schedule values at each\nhour of Saturday. This can also be a single constant value for the\nwhole day.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_holiday_", 
+      "description": "An optional list of 24 values that represent the schedule\nvalues at each hour of holidays. This can also be a single constant\nvalue for the whole day. If no values are input here, the schedule\nfor Sunday will be used for all holidays.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_summer_des_", 
+      "description": "An optional list of 24 values that represent the schedule\nvalues at each hour of the summer design day. This can also be a\nsingle constant value for the whole day. If None, the daily\nschedule with the highest average value will be used.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_winter_des_", 
+      "description": "An optional list of 24 values that represent the schedule\nvalues at each hour of the summer design day. This can also be a\nsingle constant value for the whole day. If None, the daily\nschedule with the lowest average value will be used.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the Schedule and to be incorporated\ninto a unique Schedule identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_type_limit_", 
+      "description": "A text string from the identifier of the ScheduleTypeLimit to\nbe looked up in the schedule type limit library. This can also be a\ncustom ScheduleTypeLimit object from the \"HB Type Limit\" component.\nThe input here will be used to validate schedule values against\nupper/lower limits and assign units to the schedule values. Default:\n\"Fractional\" for values that range continuously between 0 and 1.\nChoose from the following built-in options:\n* Fractional\n* On-Off\n* Temperature\n* Activity Level\n* Power\n* Humidity\n* Angle\n* Delta Temperature", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Schedules", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.schedule.ruleset import ScheduleRuleset\n    from honeybee_energy.lib.scheduletypelimits import schedule_type_limit_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\ndef check_sched_values(values):\n    \"\"\"Check that input schedules are valid and format them to all be 24 values.\"\"\"\n    if len(values) == 24:\n        return values\n    elif len(values) == 1:\n        return values * 24\n    else:\n        raise ValueError(\n            'Schedule values must be either 24 or 1. Not {}.'.format(len(values)))\n\n\nif all_required_inputs(ghenv.Component):\n    # process any lists of single values such that they are all 24\n    _sun = check_sched_values(_sun)\n    _mon = check_sched_values(_mon)\n    _tue = check_sched_values(_tue)\n    _wed = check_sched_values(_wed)\n    _thu = check_sched_values(_thu)\n    _fri = check_sched_values(_fri)\n    _sat = check_sched_values(_sat)\n    _holiday_ = _sun if len(_holiday_) == 0 else check_sched_values(_holiday_)\n    _summer_des_ = None if len(_summer_des_) == 0 else check_sched_values(_summer_des_)\n    _winter_des_ = None if len(_winter_des_) == 0 else check_sched_values(_winter_des_)\n\n    # get the ScheduleTypeLimit object\n    if _type_limit_ is None:\n        _type_limit_ = schedule_type_limit_by_identifier('Fractional')\n    elif isinstance(_type_limit_, str):\n        _type_limit_ = schedule_type_limit_by_identifier(_type_limit_)\n\n    # create the schedule object\n    schedule = ScheduleRuleset.from_week_daily_values(\n        clean_and_id_ep_string(_name), _sun, _mon, _tue, _wed, _thu, _fri, _sat,\n        _holiday_, timestep=1, schedule_type_limit=_type_limit_,\n        summer_designday_values=_summer_des_, winter_designday_values=_winter_des_)\n    schedule.display_name = _name\n\n    # get the idf strings of the schedule\n    idf_year, idf_week = schedule.to_idf()\n    idf_days = [day_sch.to_idf(_type_limit_) for day_sch in schedule.day_schedules]\n", 
+  "category": "HB-Energy", 
+  "name": "HB Weekly Schedule", 
+  "description": "Create a schedule from lists of daily values for each day of the week.\n-"
+}

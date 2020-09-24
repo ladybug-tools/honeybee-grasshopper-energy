@@ -1,0 +1,43 @@
+{
+  "version": "0.1.0", 
+  "nickname": "ConstrSetClimate", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "constr_set", 
+        "description": "A ConstructionSet identifier that can be applied to Honeybee Rooms.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_climate_zone", 
+      "description": "An integer between 1 and 8 for the ASHRAE climate zone in\nwhich the building is located. ASHRAE climate zones exist for all\nlocations on Earth and can typically be looked up online or within\nthe .stat file that downloads next to the .epw file. The climate zone\nis used to determine the amount of code-recommended insulation and\nsolar heat gain protection for the construction set. The Honeybee\n\"Climate Zones\" component lists all of the climate zones supported\nby the library.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_vintage_", 
+      "description": "Text for the building vintage to search (eg. \"2013\", \"pre_1980\",\netc.). The Honeybee \"Building Vintages\" component lists all of the\nvintages available in the library. Default: \"2013\" (for ASHRAE 90.1 2013).\nNote that vintages are often called \"templates\" within the OpenStudio\nstandards gem and so this property effective maps to the standards\ngem \"template\".", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_constr_type_", 
+      "description": "Text for the construction type of the set. (eg. \"SteelFramed\",\n\"WoodFramed\", \"Mass\", \"Metal Building\"). The Honeybee \"Construction Types\"\ncomponent lists all of the construction types available in the library.", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:\n    from honeybee_energy.lib.programtypes import STANDARDS_REGISTRY\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\nCONSTRUCTION_TYPES = ('SteelFramed', 'WoodFramed', 'Mass', 'Metal Building')\n\n\nif all_required_inputs(ghenv.Component):\n    # check the climate zone\n    _climate_zone = _climate_zone[0]  # strip out any qualifiers like A, C, or C\n    assert 1 <= int(_climate_zone) <=8, 'Input _climate_zone \"{}\" is not valid. ' \\\n        'Climate zone must be between 1 and 8.'.format(_climate_zone)\n    \n    # check and set the default vintage\n    if _vintage_ is not None:\n        assert _vintage_ in STANDARDS_REGISTRY.keys(), \\\n            'Input _vintage_ \"{}\" is not valid. Choose from:\\n' \\\n            '{}'.format(_vintage_, '\\n'.join(STANDARDS_REGISTRY.keys()))\n    else:\n        _vintage_ = '2013'\n    \n    # check and set the default _constr_type_\n    if _constr_type_ is not None:\n        assert _constr_type_ in CONSTRUCTION_TYPES, \\\n            'Input _constr_type_ \"{}\" is not valid. Choose from:\\n' \\\n            '{}'.format(_vintage_, '\\n'.join(CONSTRUCTION_TYPES))\n    else:\n        _constr_type_ = 'SteelFramed'\n    \n    # join vintage, climate zone and construction type into a complete string\n    constr_set = '{}::{}{}::{}'.format(_vintage_, 'ClimateZone', _climate_zone, _constr_type_)", 
+  "category": "HB-Energy", 
+  "name": "HB Construction Set by Climate", 
+  "description": "Get a ConstructionSet from the standards library using a climate zone, building\nvintage and construction type.\n-"
+}

@@ -1,0 +1,92 @@
+{
+  "version": "0.1.2", 
+  "nickname": "CustomGapMat", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "mat", 
+        "description": "A custom gas gap material that describes a layer in a window construction\nand can be assigned to a Honeybee Window construction.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the material and to be incorporated into\na unique material identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_thickness", 
+      "description": "Number for the thickness of the gas gap layer [m].", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_conductivity_a", 
+      "description": "First conductivity coefficient.\nOr condictivity in [W/m-K] if b coefficient is 0.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_viscosity_a", 
+      "description": "First viscosity coefficient.\nOr viscosity in [kg/m-s] if b coefficient is 0.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_specific_heat_a", 
+      "description": "First specific heat coefficient.\nOr the specific heat in [J/kg-K] if b coefficient is 0.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_conductivity_b_", 
+      "description": "Second conductivity coefficient. Default = 0.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_viscosity_b_", 
+      "description": "Second viscosity coefficient. Default = 0.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_specific_heat_b_", 
+      "description": "Second specific heat coefficient. Default = 0.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_spec_heat_ratio_", 
+      "description": "A number for the the ratio of the specific heat at\ncontant pressure, to the specific heat at constant volume.\nDefault is 1.0 for Air.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_mol_weight_", 
+      "description": "Number between 20 and 200 for the mass of 1 mol of\nthe substance in grams. Default is 20.0.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.gas import EnergyWindowMaterialGasCustom\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _conductivity_b_ = 0 if _conductivity_b_ is None else _conductivity_b_\n    _viscosity_b_ = 0 if _viscosity_b_ is None else _viscosity_b_\n    _specific_heat_b_ = 0 if _specific_heat_b_ is None else _specific_heat_b_\n    _spec_heat_ratio_ = 1.0 if _spec_heat_ratio_ is None else _spec_heat_ratio_\n    _mol_weight_ = 20.0 if _mol_weight_ is None else _mol_weight_\n\n    # set the non-exposed inputs\n    _conductivity_c_, _viscosity_c_, _specific_heat_c_ = 0, 0, 0\n\n    # create the material\n    mat = EnergyWindowMaterialGasCustom(\n        clean_and_id_ep_string(_name), _thickness,\n        _conductivity_a, _viscosity_a, _specific_heat_a,\n        _conductivity_b_, _viscosity_b_, _specific_heat_b_,\n        _conductivity_c_, _viscosity_c_, _specific_heat_c_,\n        _spec_heat_ratio_, _mol_weight_)\n    mat.display_name = _name\n", 
+  "category": "HB-Energy", 
+  "name": "HB Custom Window Gap Material", 
+  "description": "Create a custom gas gap material that corresponds to a layer in a window construction.\nThis material can be plugged into the \"HB Window Construction\" component.\n_\nThis object allows you to specify specific values for conductivity,\nviscosity and specific heat through the following formula:\n    property = A + (B * T)\nwhere:\n    A, B = regression coefficients for the gas\n    T = temperature [K]\n-"
+}

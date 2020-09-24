@@ -1,0 +1,85 @@
+{
+  "version": "0.1.2", 
+  "nickname": "OpaqueMat", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "mat", 
+        "description": "A standard opaque material that can be assigned to a Honeybee\nOpaque construction.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the material and to be incorporated into\na unique material identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_thickness", 
+      "description": "Number for the thickness of the material layer [m].", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_conductivity", 
+      "description": "Number for the thermal conductivity of the material [W/m-K].", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_density", 
+      "description": "Number for the density of the material [kg/m3].", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_spec_heat", 
+      "description": "Number for the specific heat of the material [J/kg-K].", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_roughness_", 
+      "description": "Text describing the relative roughness of the material.\nMust be one of the following: 'VeryRough', 'Rough', 'MediumRough',\n'MediumSmooth', 'Smooth', 'VerySmooth'.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_therm_absp_", 
+      "description": "A number between 0 and 1 for the fraction of incident\nlong wavelength radiation that is absorbed by the material.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_sol_absp_", 
+      "description": "A number between 0 and 1 for the fraction of incident solar\nradiation absorbed by the material. Default: 0.7.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_vis_absp_", 
+      "description": "A number between 0 and 1 for the fraction of incident\nvisible wavelength radiation absorbed by the material.\nDefault value is the same as the _sol_absp_.", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.opaque import EnergyMaterial\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _roughness_ = 'MediumRough' if _roughness_ is None else _roughness_\n    _therm_absp_ = 0.9 if _therm_absp_ is None else _therm_absp_\n    _sol_absp_ = 0.7 if _sol_absp_ is None else _sol_absp_\n\n    # create the material\n    mat = EnergyMaterial(\n        clean_and_id_ep_string(_name), _thickness, _conductivity, _density,\n        _spec_heat, _roughness_, _therm_absp_, _sol_absp_, _vis_absp_)\n    mat.display_name = _name\n", 
+  "category": "HB-Energy", 
+  "name": "HB Opaque Material", 
+  "description": "Create a standard opaque material, which can be plugged into the \"HB Opaque\nConstruction\" component.\n-"
+}

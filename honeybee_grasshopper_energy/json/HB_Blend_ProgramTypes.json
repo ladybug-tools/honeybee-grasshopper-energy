@@ -1,0 +1,43 @@
+{
+  "version": "0.1.1", 
+  "nickname": "BlendPrograms", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "program", 
+        "description": "A ProgramType object that's a weighted average between the\ninput _programs.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the ProgramType and to be incorporated\ninto a unique ProgramType identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_programs", 
+      "description": "A list of ProgramType objects that will be averaged\ntogether to make a new ProgramType.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_ratios_", 
+      "description": "A list of fractional numbers with the same length as the input\nprograms that sum to 1. These will be used to weight each of the\nProgramType objects in the resulting average. If None, the input\nprogram objects will be weighted equally. Default: None.", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.programtype import ProgramType\n    from honeybee_energy.lib.programtypes import program_type_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default ratios to None\n    _ratios_ = _ratios_ if len(_ratios_) != 0 else None\n\n    # get programs from library if a name is input\n    for i, prog in enumerate(_programs):\n        if isinstance(prog, str):\n            _programs[i] = program_type_by_identifier(prog)\n\n    # create blended program\n    program = ProgramType.average(clean_and_id_ep_string(_name), _programs, _ratios_)\n    program.display_name = _name", 
+  "category": "HB-Energy", 
+  "name": "HB Blend ProgramTypes", 
+  "description": "Create a ProgramType object by blending other ProgramTypes together using a weighted\naverage based on program ratios.\n-"
+}

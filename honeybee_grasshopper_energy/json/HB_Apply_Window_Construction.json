@@ -1,0 +1,36 @@
+{
+  "version": "0.1.2", 
+  "nickname": "ApplyWindowConstr", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "hb_objs", 
+        "description": "The input honeybee objects with their constructions edited.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_hb_objs", 
+      "description": "Honeybee Apertures, Faces, Doors or Rooms to which the input\n_constr should be assigned. For the case of a Honeybee Room, the\nconstruction will only be applied to the apertures in the the\nRoom's outdoor walls. Note that, if you need to assign a construction\nto all the skylights, glass doors, etc. of a Room, the best practice\nis to create a ConstructionSet and assing that to the Room.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_constr", 
+      "description": "A Honeybee WindowConstruction or WindowConstructionShade to be\napplied to the input _hb_objs. This can also be text for a construction\nto be looked up in the window construction library. If an array of\ntext or construction objects are input here, different constructions\nwill be assigned based on cardinal direction, starting with north\nand moving clockwise.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\n\ntry:  # import the honeybee-energy extension\n    from honeybee_energy.lib.constructions import window_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import the core honeybee dependencies\n    from honeybee.boundarycondition import Outdoors\n    from honeybee.facetype import Wall\n    from honeybee.room import Room\n    from honeybee.face import Face\n    from honeybee.aperture import Aperture\n    from honeybee.door import Door\n    from honeybee.orientation import angles_from_num_orient, face_orient_index\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef is_exterior_wall(face):\n    \"\"\"Check whether a given Face is an exterior Wall.\"\"\"\n    return isinstance(face.boundary_condition, Outdoors) and \\\n        isinstance(face.type, Wall)\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    hb_objs = [obj.duplicate() for obj in _hb_objs]\n    \n    # process the input constructions\n    for i, constr in enumerate(_constr):\n        if isinstance(constr, str):\n            _constr[i] = window_construction_by_identifier(constr)\n    \n    # error message for unrecognized object\n    error_msg = 'Input _hb_objs must be a Room, Face, Aperture, or Door. Not {}.'\n    \n    # assign the constructions\n    if len(_constr) == 1:  # assign indiscriminately, even if it's a horizontal object\n        for obj in hb_objs:\n            if isinstance(obj, (Aperture, Door)):\n                obj.properties.energy.construction = _constr[0]\n            elif isinstance(obj, Face):\n                for ap in obj.apertures:\n                    ap.properties.energy.construction = _constr[0]\n            elif isinstance(obj, Room):\n                for face in obj.faces:\n                    if is_exterior_wall(face):\n                        for ap in face.apertures:\n                            ap.properties.energy.construction = _constr[0]\n            else:\n                raise TypeError(error_msg.format(type(obj)))\n    else:  # assign constructions only to non-horizontal objects based on cardinal direction\n        angles = angles_from_num_orient(len(_constr))\n        for obj in hb_objs:\n            if isinstance(obj, (Aperture, Door)):\n                orient_i = face_orient_index(obj, angles)\n                if orient_i is not None:\n                    obj.properties.energy.construction = _constr[orient_i]\n            elif isinstance(obj, Face):\n                orient_i = face_orient_index(obj, angles)\n                if orient_i is not None:\n                    for ap in obj.apertures:\n                        ap.properties.energy.construction = _constr[orient_i]\n            elif isinstance(obj, Room):\n                 for face in obj.faces:\n                     if is_exterior_wall(face):\n                         orient_i = face_orient_index(face, angles)\n                         if orient_i is not None:\n                            for ap in face.apertures:\n                                ap.properties.energy.construction = _constr[orient_i]\n            else:\n                raise TypeError(error_msg.format(type(obj)))\n\n", 
+  "category": "HB-Energy", 
+  "name": "HB Apply Window Construction", 
+  "description": "Apply WindowConstruction or WindowConstructionShade to Honeybee Apertures or\nglass Doors. Alternatively, it can assign WindowConstructions to the child\napertures of input Faces or the apertures within Room walls.\n_\nThis component supports the assigning of different constructions based on cardinal\norientation, provided that a list of WindowConstructions are input to the _constr. \n-"
+}

@@ -1,0 +1,92 @@
+{
+  "version": "0.1.4", 
+  "nickname": "ShadeMat", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "mat", 
+        "description": "A material for a shade layer in a window construction (like a roller\nshade) that can be assigned to a Honeybee Window construction.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the material and to be incorporated into\na unique material identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_thickness_", 
+      "description": "Number for the thickness of the shade layer [m].", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_transmittance_", 
+      "description": "Number between 0 and 1 for the transmittance of both solar\nradiation and visible light through the shade. Default: 0.4, which\nis typical of a white diffusing shade.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_reflectance_", 
+      "description": "Number between 0 and 1 for the reflectance of both solar\nradiation and visible light off of the shade.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_t_infrared_", 
+      "description": "Long-wave hemisperical transmittance of the shade.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_emissivity_", 
+      "description": "Number between 0 and 1 for the infrared hemispherical\nemissivity of the shade.  Default: 0.9, which is typical of most\ndiffusing shade materials.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_conductivity_", 
+      "description": "Number for the thermal conductivity of the shade [W/m-K].", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_dist_to_glass_", 
+      "description": "A number between 0.001 and 1.0 for the distance\nbetween the shade and neighboring glass layers [m].", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_open_mult_", 
+      "description": "Factor between 0 and 1 that is multiplied by the area at\nthe top, bottom and sides of the shade for air flow calculations.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_permeability_", 
+      "description": "The fraction of the shade surface that is open to\nair flow. Must be between 0 and 0.8. Default: 0 for no permeability.", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.shade import EnergyWindowMaterialShade\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _thickness_ = 0.005 if _thickness_ is None else _thickness_\n    _transmittance_ = 0.4 if _transmittance_ is None else _transmittance_\n    _reflectance_ = 0.5 if _reflectance_ is None else _reflectance_\n    _t_infrared_ = 0 if _t_infrared_ is None else _t_infrared_\n    _emissivity_ = 0.9 if _emissivity_ is None else _emissivity_\n    _conductivity_ = 0.9 if _conductivity_ is None else _conductivity_\n    _dist_to_glass_ = 0.05 if _dist_to_glass_ is None else _dist_to_glass_\n    _open_mult_ = 0.5 if _open_mult_ is None else _open_mult_\n    _permeability_ = 0.0 if _permeability_ is None else _permeability_\n    \n    # create the material\n    mat = EnergyWindowMaterialShade(\n        clean_and_id_ep_string(_name), _thickness_, _transmittance_, _reflectance_,\n        _transmittance_, _reflectance_, _t_infrared_, _emissivity_, _conductivity_,\n        _dist_to_glass_, _open_mult_, _permeability_)\n    mat.display_name = _name\n", 
+  "category": "HB-Energy", 
+  "name": "HB Shade Material", 
+  "description": "Create a material for a shade layer in a window construction (like a roller shade).\nThis material can be plugged into the \"HB Window Construction\" component.\n_\nReflectance and emissivity properties are assumed to be the same on both sides of\nthe shade. Shades are considered to be perfect diffusers.\n-"
+}

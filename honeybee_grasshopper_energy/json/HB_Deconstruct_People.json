@@ -1,0 +1,50 @@
+{
+  "version": "0.1.1", 
+  "nickname": "DecnstrPeople", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "name", 
+        "description": "Text string for the people object display name.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "ppl_per_area", 
+        "description": "A numerical value for the number of people per square\nmeter of floor area.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "occupancy_sch", 
+        "description": "A fractional schedule for the occupancy over the course\nof the year. The fractional values in this schedule get multiplied\nby the _people_per_area to yield a complete occupancy profile.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "activity_sch", 
+        "description": "A schedule for the activity of the occupants over the\ncourse of the year. The type limt of this schedule are \"Power\"\nand the values of the schedule equal to the number of Watts given off\nby an individual person in the room.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_people", 
+      "description": "A People object to deconstruct.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.load.people import People\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_people, People), \\\n        'Expected People object. Got {}.'.format(type(_people))\n\n    # get the properties of the object\n    name = _people.display_name\n    ppl_per_area = _people.people_per_area\n    occupancy_sch = _people.occupancy_schedule\n    activity_sch = _people.activity_schedule\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct People", 
+  "description": "Deconstruct a People object into its constituient properties.\n-"
+}

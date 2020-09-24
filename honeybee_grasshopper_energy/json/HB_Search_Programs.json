@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0", 
+  "nickname": "SearchProg", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "room_prog", 
+        "description": "A list of room program identifiers that meet the input criteria and\ncan be applied to Honeybee Rooms.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "bldg_prog_", 
+      "description": "Text for the building program to search (eg. \"LargeOffice\",\n\"MidriseApartment\", etc.). The Honeybee \"Building Programs\" component\nlists all of the building programs available in the library. If None,\nall ProgramTypes within the library will be output (filtered by\nkeywords_ below).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_vintage_", 
+      "description": "Text for the building vintage to search (eg. \"2013\", \"pre_1980\",\netc.). The Honeybee \"Building Vintages\" component lists all of the\nvintages available in the library. Default: \"2013\" (for ASHRAE 90.1\n2013 | IECC 2015). Note that vintages are often called \"templates\"\nwithin the OpenStudio standards gem and so this property effective\nmaps to the standards gem \"template\".", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "keywords_", 
+      "description": "Optional keywords to be used to narrow down the output list of\nroom programs. If nothing is input here, all available room programs\nwill be output.", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:\n    from honeybee.search import filter_array_by_keywords\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.lib.programtypes import STANDARDS_REGISTRY\n    from honeybee_energy.lib.programtypes import PROGRAM_TYPES\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\nif bldg_prog_ is not None:\n    # set the default vintage\n    _vintage_ = _vintage_ if _vintage_ is not None else '2013'\n    try:  # get the available programs for the vintage\n        vintage_subset = STANDARDS_REGISTRY[_vintage_]\n    except KeyError:\n        raise ValueError(\n            'Input _vintage_ \"{}\" is not valid. Choose from:\\n'\n            '{}'.format(_vintage_, '\\n'.join(STANDARDS_REGISTRY.keys())))\n    try:  # get the available programs for the building type\n        room_programs = vintage_subset[bldg_prog_]\n    except KeyError:\n        raise ValueError(\n            'Input bldg_prog_ \"{}\" is not avaible for vintage \"{}\". Choose from:\\n'\n             '{}'.format(bldg_prog_, _vintage_, '\\n'.join(vintage_subset.keys())))\n    # apply any keywords\n    if keywords_ != []:\n        room_programs = filter_array_by_keywords(room_programs, keywords_, False)\n    # join vintage, building program and room programs into a complete string\n    room_prog = ['{}::{}::{}'.format(_vintage_, bldg_prog_, rp) for rp in room_programs]\nelse:\n    # return all programs in the library filtered by keyword\n    room_prog = sorted(PROGRAM_TYPES)\n    if _vintage_ is not None:\n        room_prog = filter_array_by_keywords(room_prog, [_vintage_], False)\n    if keywords_ != []:\n        room_prog = filter_array_by_keywords(room_prog, keywords_, False)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Search Programs", 
+  "description": "Search for available ProgramTypes within the honeybee energy standards library.\n_\nNote that the Room ProgramTypes output from this component effectively map to\nspace types within OpenStudio.\n-"
+}

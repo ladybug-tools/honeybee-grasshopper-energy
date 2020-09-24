@@ -1,0 +1,113 @@
+{
+  "version": "0.1.2", 
+  "nickname": "ColorFaces", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "readMe!", 
+        "description": "...", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "mesh", 
+        "description": "A colored mesh of the face/sub-face geometry colored using the input\n_data. Multiple meshes will be output for several data collections\nare input.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "wire_frame", 
+        "description": "A list of polylines representing the outline of the faces.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "legend", 
+        "description": "Geometry representing the legend for the colored favess.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "title", 
+        "description": "A text object for the global title.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "faces", 
+        "description": "A list of honeybee Face, Aperture and Door objects that have been\nmatched to the input _data. This can be plugged into the \"HB Visualize\nQuick\" component to get face breps that are colored.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "colors", 
+        "description": "A list of color objects that align with the output faces. These\ncan be connected to a native Grasshopper \"Custom Preview\" component\nin order to color room volumes with results.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "values", 
+        "description": "A list of numbers for each of the faces, which are used to generate\nthe colors.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_data", 
+      "description": "A list of HourlyContinuousCollections of the same data type, which\nwill be used to color Faces with simulation results. Data collections\ncan be of any class (eg. MonthlyCollection, DailyCollection) but they\nshould all have headers with metadata dictionaries with 'Surface'\nkeys. These keys will be used to match the data in the collections\nto the input faces.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_hb_objs", 
+      "description": "An array of honeybee Rooms, Faces, Apertures or Doors to be\ncolored with simulation results in the Rhino scene. This can\nalso be an entire Model to be colored.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "normalize_", 
+      "description": "Boolean to note whether results should be normalized by the\nface/sub-face area if the data type of the data_colections supports it.\nIf False, values will be generated using sum total of the data collection\nvalues. Note that this input has no effect if the data type of the\ndata_collections is not normalizable since data collection values will\nalways be averaged for this case. Default: True.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "sim_step_", 
+      "description": "An optional integer (greater than or equal to 0) to select\na specific step of the data collections for which result values will be\ngenerated. If None, the geometry will be colored with the total of\nresutls in the data_collections if the data type is cumulative or with\nthe average of results if the data type is not cumulative. Default: None.", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "period_", 
+      "description": "A Ladybug analysis period to be applied to all of the input _data.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "legend_par_", 
+      "description": "An optional LegendParameter object to change the display\nof the ColorRooms.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "6 :: Result", 
+  "code": "\ntry:\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.colorobj import ColorFace\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.togeometry import to_point3d\n    from ladybug_{{cad}}.fromgeometry import from_face3ds_to_colored_mesh, \\\n        from_face3d_to_wireframe\n    from ladybug_{{cad}}.text import text_objects\n    from ladybug_{{cad}}.fromobjects import legend_objects\n    from ladybug_{{cad}}.color import color_to_color\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\n    from ladybug_{{cad}}.config import units_abbreviation\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # extract any faces from input Rooms or Models\n    faces = []\n    for hb_obj in _hb_objs:\n        if isinstance(hb_obj, Model):\n            for room in hb_obj.rooms:\n                faces.extend(room.faces)\n        elif isinstance(hb_obj, Room):\n            faces.extend(hb_obj.faces)\n        else:\n            faces.append(hb_obj)\n\n    # apply analysis period to the data if connected\n    if period_ is not None:\n        _data = [coll.filter_by_analysis_period(period_) for coll in _data]\n\n    # set default norm_by_floor value\n    normalize_ = True if normalize_ is None else normalize_\n\n    # create the ColorFace visualization object and output geometry\n    color_obj = ColorFace(_data, faces, legend_par_, sim_step_, normalize_,\n                          units_abbreviation())\n    graphic = color_obj.graphic_container\n    mesh = [from_face3ds_to_colored_mesh([fc], col) for fc, col in\n            zip(color_obj.matched_flat_geometry, graphic.value_colors)]\n    wire_frame = []\n    for face in color_obj.matched_flat_faces:\n        wire_frame.append(from_face3d_to_wireframe(face.geometry))\n    legend = legend_objects(graphic.legend)\n    title = text_objects(color_obj.title_text, graphic.lower_title_location,\n                         graphic.legend_parameters.text_height,\n                         graphic.legend_parameters.font)\n    faces = color_obj.matched_flat_faces\n    colors = [color_to_color(col, 125) for col in graphic.value_colors]\n    values = graphic.values\n", 
+  "category": "HB-Energy", 
+  "name": "HB Color Faces", 
+  "description": "Visualize face and sub-face level energy simulation results as colored geometry.\n-"
+}

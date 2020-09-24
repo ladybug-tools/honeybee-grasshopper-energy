@@ -1,0 +1,36 @@
+{
+  "version": "0.1.2", 
+  "nickname": "OpaqueConstr", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "constr", 
+        "description": "An opaque construction that can be assigned to Honeybee\nFaces or ConstructionSets.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the Construction and to be incorporated\ninto a unique Construction identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_materials", 
+      "description": "List of materials in the construction (from exterior to interior).\nThese materials can be either fully-detailed material objects built\nwith the material components or text for a material identifier to be\nlooked up in the opaque material library.  Note that a native Grasshopper\n\"Merge\" component can be used to help order the materials correctly\nfor the input here.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.construction.opaque import OpaqueConstruction\n    from honeybee_energy.lib.materials import opaque_material_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    material_objs = []\n    for material in _materials:\n        if isinstance(material, str):\n            material = opaque_material_by_identifier(material)\n        material_objs.append(material)\n\n    constr = OpaqueConstruction(clean_and_id_ep_string(_name), material_objs)\n    constr.display_name = _name\n", 
+  "category": "HB-Energy", 
+  "name": "HB Opaque Construction", 
+  "description": "Create an EnergyPlus opaque construction. Material inputs can be either the\nidentifiers of materials within the library or a custom material made with any\nof the EnergyPlus Material components.\n_\nNote that the _materials should be ordered from outermost (exterior) layer to the\ninnermost (interior) layer.\n-"
+}

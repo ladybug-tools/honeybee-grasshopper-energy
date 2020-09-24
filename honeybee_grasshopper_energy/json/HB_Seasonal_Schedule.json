@@ -1,0 +1,71 @@
+{
+  "version": "0.1.2", 
+  "nickname": "SeasonalSchedule", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "schedule", 
+        "description": "A ScheduleRuleset object that can be assigned to a Room, a Load\nobject, or a ProgramType object.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "idf_year", 
+        "description": "Text string for the EnergyPlus ScheduleYear that will ultimately\nbe written into the IDF for simulation. This can also be used to add\nthe schedule to the schedule library that is loaded up upon the start\nof Honeybee by copying this text into the honeybee/library/schedules/\nuser_library.idf file along with the other idf text outputs.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "idf_week", 
+        "description": "Text string for the EnergyPlus ScheduleWeek that will ultimately\nbe written into the IDF for simulation. This can also be used to add\nthe schedule to the schedule library that is loaded up upon the start\nof Honeybee by copying this text into the honeybee/library/schedules/\nuser_library.idf file along with the other idf text outputs.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "idf_days", 
+        "description": "Text strings for the EnergyPlus SchedulDays that will ultimately\nbe written into the IDF for simulation. This can also be used to add\nthe schedule to the schedule library that is loaded up upon the start\nof Honeybee by copying this text into the honeybee/library/schedules/\nuser_library.idf file along with the other idf text outputs.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_base_schedule", 
+      "description": "A ScheduleRuleset that represents the base schedule on\ntop of which the other _season_scheds will be applied. This can also\nbe text to look up a ScheduleRuleset in the schedule library. Any time\nperiod that is not covered by the input _analysis_periods will default\nto this schedule. Furthermore, the summer and winter design day schedules\nwill be taken from this schedule as well as the ScheduleTypeLimits.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_season_scheds", 
+      "description": "A list of ScheduleRulesets that align with the _analysis_periods\nbelow and represent the schedules that will be applied over the\n_base_schedule for the duration of the respective AnalysisPeriod.\nThis can also be text to look up ScheduleRulesets in the schedule\nlibrary.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_analysis_periods", 
+      "description": "A list of AnalysusPeriod objects that align with the\n_season_scheds and represent the time periods over which each season\nschedule should be applied. Note that, if these AnalysisPeriods\noverlap with one another, then the schedules that come later in\nthis list will overwrite those that come earlier in the list for\nthe duration of the overlapping time period.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the Schedule and to be incorporated\ninto a unique Schedule identifier.", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Schedules", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.schedule.ruleset import ScheduleRuleset\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check that the input _season_scheds align with the _analysis_periods\n    assert len(_season_scheds) == len(_analysis_periods), \\\n        'Length of the _season_scheds list must match that of the _analysis_periods.' \\\n        '\\n{} does not equal {}'.format(len(_season_scheds), len(_analysis_periods))\n\n    # start by duplicating the base schedule\n    if isinstance(_base_schedule, str):\n        _base_schedule = schedule_by_identifier(_base_schedule)\n    schedule = _base_schedule.duplicate()\n    schedule.identifier = clean_and_id_ep_string(_name)\n    schedule.display_name = _name\n\n    # translate the _season_scheds to individual Rules and apply them to the base\n    for season_sch, a_period in zip(_season_scheds, _analysis_periods):\n        if isinstance(season_sch, str):\n            season_sch = schedule_by_identifier(season_sch)\n        season_rules = season_sch.to_rules(\n            a_period.st_time.date, a_period.end_time.date)\n        for rule in reversed(season_rules):  # preserve priority order of rules\n            schedule.add_rule(rule)\n\n    # get the idf strings of the schedule\n    idf_year, idf_week = schedule.to_idf()\n    idf_days = [day_sch.to_idf(schedule.schedule_type_limit)\n                for day_sch in schedule.day_schedules]\n", 
+  "category": "HB-Energy", 
+  "name": "HB Seasonal Schedule", 
+  "description": "Create a schedule using from other ScheduleRulesets and AnalysisPeriods over which\neach schedule should be applied.\n-"
+}

@@ -1,0 +1,36 @@
+{
+  "version": "0.2.1", 
+  "nickname": "ApplyShadeConstr", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "hb_objs", 
+        "description": "The input honeybee objects with their constructions edited.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_hb_objs", 
+      "description": "Honeybee Shades, Apertures, Doors, Faces, or Rooms to which the\ninput _constr should be assigned. For the case of a Honeybee Aperture,\nDoor, Face or Room, the ShadeConstruction will be assigned to only the\nchild shades directly assigned to that object. So passing in a Room\nwill not change the construction of shades assigned to Apertures\nof the Room's Faces. If this is the desired outcome, then the Room\nshould be deconstructed into its child objects before using\nthis component.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_constr", 
+      "description": "A Honeybee ShadeConstruction to be applied to the input _hb_objs.\nThis can also be text for a construction to be looked up in the shade\nconstruction library. If an array of text or construction objects\nare input here, different constructions will be assigned based on\ncardinal direction, starting with north and moving clockwise.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\n\ntry:  # import the honeybee-energy extension\n    from honeybee_energy.lib.constructions import shade_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import the core honeybee dependencies\n    from honeybee.shade import Shade\n    from honeybee.room import Room\n    from honeybee.face import Face\n    from honeybee.aperture import Aperture\n    from honeybee.door import Door\n    from honeybee.orientation import angles_from_num_orient, face_orient_index\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    hb_objs = [obj.duplicate() for obj in _hb_objs]\n    \n    # process the input constructions\n    for i, constr in enumerate(_constr):\n        if isinstance(constr, str):\n            _constr[i] = shade_construction_by_identifier(constr)\n    \n    # error message for unrecognized object\n    error_msg = 'Input _hb_objs must be a Room, Face, Aperture, Door, or Shade. Not {}.'\n    \n    # assign the constructions\n    if len(_constr) == 1:\n        for obj in hb_objs:\n            if isinstance(obj, Shade):\n                obj.properties.energy.construction = _constr[0]\n            elif isinstance(obj, (Aperture, Face, Room, Door)):\n                for shd in obj.shades:\n                    shd.properties.energy.construction = _constr[0]\n            else:\n                raise TypeError(error_msg.format(type(obj)))\n    else:  # assign constructions based on cardinal direction\n        angles = angles_from_num_orient(len(_constr))\n        for obj in hb_objs:\n            if isinstance(obj, (Aperture, Face, Door)):\n                orient_i = face_orient_index(obj, angles)\n                if orient_i is not None:\n                    for shd in obj.shades:\n                        shd.properties.energy.construction = _constr[orient_i]\n            elif isinstance(obj, Shade):\n                obj.properties.energy.construction = _constr[0]\n            elif isinstance(obj, Room):\n                 for shd in obj.shades:\n                    shd.properties.energy.construction = _constr[0]\n            else:\n                raise TypeError(error_msg.format(type(obj)))\n\n", 
+  "category": "HB-Energy", 
+  "name": "HB Apply Shade Construction", 
+  "description": "Apply a ShadeConstruction to Honeybee Shade objects. Alternatively, it can\nassign a ShadeConstruction to all of the child shades of an Aperture, Door,\nFace, or a Room.\n_\nThis component supports the assigning of different constructions based on cardinal\norientation, provided that a list of ShadeConstructions are input to the _constr. \n-"
+}

@@ -1,0 +1,78 @@
+{
+  "version": "0.1.3", 
+  "nickname": "GlassMat", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "mat", 
+        "description": "A window material that describes a single glass pane and can be\nassigned to a Honeybee Window construction.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the material and to be incorporated into\na unique material identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_thickness_", 
+      "description": "Number for the thickness of the glass layer [m].", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_transmittance_", 
+      "description": "Number between 0 and 1 for the transmittance of both solar\nradiation and visible light through the glass at normal incidence.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_reflectance_", 
+      "description": "Number between 0 and 1 for the reflectance of both solar\nradiation and visible light off of the front side of the glass at\nnormal incidence. Default: 0.075.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_t_infrared_", 
+      "description": "Long-wave transmittance of the glass at normal\nincidence. Default: 0.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_emiss_front_", 
+      "description": "Number between 0 and 1 for the infrared hemispherical\nemissivity of the front side of the glass.  Defaul: 0.84, which\nis typical of clear glass.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_emiss_back_", 
+      "description": "Number between 0 and 1 for the infrared hemispherical\nemissivity of the back side of the glass.  Default: 0.84, which\nis typical of clear glass.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_conductivity_", 
+      "description": "Number for the thermal conductivity of the glass [W/m-K].", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _thickness_ = 0.003 if _thickness_ is None else _thickness_\n    _transmittance_ = 0.85 if _transmittance_ is None else _transmittance_\n    _reflectance_ = 0.075 if _reflectance_ is None else _reflectance_\n    _t_infrared_ = 0 if _t_infrared_ is None else _t_infrared_\n    _emiss_front_ = 0.84 if _emiss_front_ is None else _emiss_front_\n    _emiss_back_ = 0.84 if _emiss_back_ is None else _emiss_back_\n    _conductivity_ = 0.9 if _conductivity_ is None else _conductivity_\n\n    # create the material\n    mat = EnergyWindowMaterialGlazing(\n        clean_and_id_ep_string(_name), _thickness_, _transmittance_, _reflectance_,\n        _transmittance_, _reflectance_, _t_infrared_, _emiss_front_, _emiss_back_,\n        _conductivity_)\n    mat.display_name = _name\n", 
+  "category": "HB-Energy", 
+  "name": "HB Glass Material", 
+  "description": "Create a window material to describe a single glass pane corresponding to a\nlayer in a window construction. This material can be plugged into the \"HB Window\nConstruction\" component.\n-"
+}

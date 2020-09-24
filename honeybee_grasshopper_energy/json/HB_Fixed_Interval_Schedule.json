@@ -1,0 +1,57 @@
+{
+  "version": "0.1.2", 
+  "nickname": "FixedIntervalSchedule", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "schedule", 
+        "description": "A ScheduleRuleset object that can be assigned to a Room, a Load\nobject, or a ProgramType object.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_values", 
+      "description": "A list of timeseries values occuring at a fixed timestep over\nthe entire simulation. Typically, this should be a list of 8760\nvalues for each hour of the year but it can be a shorter list if\nyou don't plan on using the schedule in an annual simulation. In\nthis case, the analysis_period_ should probably be different than\nthe default. This list can also have a length much greater than\n8760 if a timestep greater than 1 is used.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_timestep_", 
+      "description": "An integer for the number of steps per hour that the input\nvalues correspond to.  For example, if each value represents 30\nminutes, the timestep is 2. For 15 minutes, it is 4. Default is 1,\nmeaning each value represents a single hour. Must be one of the", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "analysis_period_", 
+      "description": "A ladybug AnalysisPeriod object to note when the input\nvalues take effect. Default is for the whole year. Note that this\ndefault usually should not be changed unless you plan to run a\nsimulation that is much shorter than a year.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_name", 
+      "description": "Text to set the name for the Schedule and to be incorporated\ninto a unique Schedule identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_type_limit_", 
+      "description": "A text string from the name of the ScheduleTypeLimit to\nbe looked up in the schedule type limit library. This can also be a\ncustom ScheduleTypeLimit object from the \"HB Type Limit\" component.\nThe input here will be used to validate schedule values against\nupper/lower limits and assign units to the schedule values. Default:\n\"Fractional\" for values that range continuously between 0 and 1.\nChoose from the following built-in options:\n* Fractional\n* On-Off\n* Temperature\n* Activity Level\n* Power\n* Humidity\n* Angle\n* Delta Temperature", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "2 :: Schedules", 
+  "code": "\ntry:  # import the ladybug dependencies\n    from ladybug.dt import Date\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval\n    from honeybee_energy.lib.scheduletypelimits import schedule_type_limit_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the defaults\n    _timestep_ = 1 if _timestep_ is None else _timestep_\n    start_date = Date(1, 1) if analysis_period_ is None else \\\n        analysis_period_.st_time.date\n\n    # get the ScheduleTypeLimit object\n    if _type_limit_ is None:\n        _type_limit_ = schedule_type_limit_by_identifier('Fractional')\n    elif isinstance(_type_limit_, str):\n        _type_limit_ = schedule_type_limit_by_identifier(_type_limit_)\n\n    # create the schedule object\n    schedule = ScheduleFixedInterval(\n        clean_and_id_ep_string(_name), _values, _type_limit_, _timestep_, start_date,\n        placeholder_value=0, interpolate=False)\n    schedule.display_name = _name\n", 
+  "category": "HB-Energy", 
+  "name": "HB Fixed Interval Schedule", 
+  "description": "Create a schedule defined by a list of values at a fixed interval or timestep\nrunning over the entirety of the simulation period.\n-"
+}

@@ -1,0 +1,64 @@
+{
+  "version": "0.1.1", 
+  "nickname": "DecnstrVentilation", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "name", 
+        "description": "Text string for the ventilation display name.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "flow_per_person", 
+        "description": "A numerical value for the intensity of ventilation\nin m3/s per person. Note that setting this value here does not mean\nthat ventilation is varied based on real-time occupancy but rather\nthat the design level of ventilation is determined using this value\nand the People object of the zone. To vary ventilation in real time,\nthe ventilation schedule should be used. Most ventilation standards\nsupport that a value of 0.01 m3/s (10 L/s or ~20 cfm) per person is\nsufficient to remove odors.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "flow_per_area", 
+        "description": "A numerical value for the intensity of ventilation in m3/s\nper square meter of floor area.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "flow_per_zone", 
+        "description": "A numerical value for the design level of ventilation\nin m3/s for the entire zone.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "ach", 
+        "description": "A numberical value for the design level of ventilation in air changes\nper hour (ACH) for the entire zone. This is particularly helpful\nfor hospitals, where ventilation standards are often given in ACH.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "schedule", 
+        "description": "An optional fractional schedule for the ventilation over the\ncourse of the year. The fractional values will get multiplied by\nthe total design flow rate (determined from the fields above and the\ncalculation_method) to yield a complete ventilation profile. If None,\nthe design level of ventilation is used throughout all timesteps of\nthe simulation.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_vent", 
+      "description": "An Ventilation object to be deconstructed.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.load.ventilation import Ventilation\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_vent, Ventilation), \\\n        'Expected Ventilation object. Got {}.'.format(type(_vent))\n\n    # get the properties of the object\n    name = _vent.display_name\n    flow_per_person = _vent.flow_per_person\n    flow_per_area = _vent.flow_per_area\n    flow_per_zone = _vent.flow_per_zone\n    ach = _vent.air_changes_per_hour\n    schedule = _vent.schedule\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct Ventilation", 
+  "description": "Deconstruct a Ventilation object into its constituient properties.\n_\nNote the the 4 ventilation types (_flow_per_person_, _flow_per_area_, _flow_per_zone_,\n_ach_) are ultimately summed together to yeild the ventilation design flow rate used\nin the simulation.\n-"
+}

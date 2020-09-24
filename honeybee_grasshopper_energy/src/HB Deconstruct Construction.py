@@ -24,11 +24,11 @@ Deconstruct an opaque or window construction into its constituient materials.
             (ordered from outside to inside).
         r_val_si: R-value of the construction in m2-K/W. Note that R-values do NOT
             include the resistance of air films on either side of the construction.
-        r_val_ip: R-value of the construction in h·ft2·°F/Btu. Note that R-values do NOT
+        r_val_ip: R-value of the construction in h-ft2-F/Btu. Note that R-values do NOT
             include the resistance of air films on either side of the construction.
         u_fac_si: U-factor of the construction in W/m2-K.  Note that U-factors
             include the resistance of air films on either side of the construction.
-        u_fac_ip: U-factor of the construction in Btu/h·ft2·°F.  Note that U-factors
+        u_fac_ip: U-factor of the construction in Btu/h-ft2-F.  Note that U-factors
             include the resistance of air films on either side of the construction.
         t_sol: The unshaded shortwave solar transmittance of the construction at normal
             incidence. Note that 'unshaded' in this case means that all blind +
@@ -43,7 +43,7 @@ Deconstruct an opaque or window construction into its constituient materials.
 
 ghenv.Component.Name = 'HB Deconstruct Construction'
 ghenv.Component.NickName = 'DecnstrConstr'
-ghenv.Component.Message = '0.1.3'
+ghenv.Component.Message = '0.1.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

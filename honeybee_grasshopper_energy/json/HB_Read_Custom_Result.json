@@ -1,0 +1,36 @@
+{
+  "version": "0.2.2", 
+  "nickname": "CustomResult", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "results", 
+        "description": "DataCollections for the output_names.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_sql", 
+      "description": "The file path of the SQL result file that has been generated from\nan energy simulation.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_output_names", 
+      "description": "A list of EnergyPlus output names as strings (eg.\n'Surface Window System Solar Transmittance'. These data corresponding\nto these outputs will be returned from this component.", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "6 :: Result", 
+  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.datacollection import HourlyContinuousCollection\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.sql import SQLiteResult\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    if os.name == 'nt':  # we are on windows; use IronPython like usual\n        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object\n        results = sql_obj.data_collections_by_output_name(_output_names)\n\n    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'data-by-outputs', _sql, _output_names]\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)\n        stdout = process.communicate()\n        data_dicts = json.loads(stdout[0])\n        results = [HourlyContinuousCollection.from_dict(data) for data in data_dicts[0]]\n", 
+  "category": "HB-Energy", 
+  "name": "HB Read Custom Result", 
+  "description": "Parse any time series data from an energy simulation SQL result file.\n-"
+}

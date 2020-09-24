@@ -1,0 +1,36 @@
+{
+  "version": "0.1.1", 
+  "nickname": "ApplyConstrSet", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "rooms", 
+        "description": "The input Rooms with their construction sets edited.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms", 
+      "description": "Honeybee Rooms to which the input _constr_set should be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_constr_set", 
+      "description": "A Honeybee ConstructionSet to be applied to the input _room.\nThis can also be text for a construction set to be looked up in the\nconstruction set library.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\n\ntry:  # import the honeybee-energy extension\n    from honeybee_energy.lib.constructionsets import construction_set_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    rooms = [obj.duplicate() for obj in _rooms]\n    \n    # process the input construction set if it's a string\n    if isinstance(_constr_set, str):\n        _constr_set = construction_set_by_identifier(_constr_set)\n    \n    # assign the construction set\n    for rm in rooms:\n        rm.properties.energy.construction_set = _constr_set\n", 
+  "category": "HB-Energy", 
+  "name": "HB Apply ConstructionSet", 
+  "description": "Apply ConstructionSet to Honeybee Rooms.\n-"
+}

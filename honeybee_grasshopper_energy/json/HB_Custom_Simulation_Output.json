@@ -1,0 +1,50 @@
+{
+  "version": "0.1.2", 
+  "nickname": "CustomOutput", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "sim_output", 
+        "description": "A SimulationOutput object that can be connected to the\n\"HB Simulation Parameter\" component in order to specify which\ntypes of outputs should be written from EnergyPlus.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "base_sim_output_", 
+      "description": "An optional simulation output object to serve as the\nstarting point for the sim_output object returned by this component.\nAll of the output names will simply be appended to this initial\nstarting object.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "output_names_", 
+      "description": "A list of EnergyPlus output names as strings (eg.\n'Surface Window System Solar Transmittance'. These outputs will be\nrequested from the simulation.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_report_frequency_", 
+      "description": "Text for the frequency at which the outputs\nare reported. Default: 'Hourly'.\nChoose from the following:\n* Annual\n* Monthly\n* Daily\n* Hourly\n* Timestep", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "summary_reports_", 
+      "description": "An optional list of EnergyPlus summary report names as strings.\nIf None, only the 'AllSummary' report will be requested from the\nsimulation and will appear in the HTML report output by EnergyPlus.\nSee the Input Output Reference SummaryReports section for a full\nlist of all reports that can be requested. https://bigladdersoftware.com/\nepx/docs/9-1/input-output-reference/output-table-summaryreports.html", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "5 :: Simulate", 
+  "code": "\ntry:\n    from honeybee_energy.simulation.output import SimulationOutput\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\n# set the starting sim_output\nsim_output = base_sim_output_.duplicate() if base_sim_output_ is not None \\\n    else SimulationOutput()\n\n# set reporting frequency\nif _report_frequency_ is not None:\n    sim_output.reporting_frequency = _report_frequency_.title()\n\n# add the _output names\nfor output_name in output_names_:\n    sim_output.add_output(output_name)\n\n# add the summary_reports_\nfor rep in summary_reports_:\n    sim_output.add_summary_report(rep)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Custom Simulation Output", 
+  "description": "Create a custom simulation output object by plugging in one or more names of\nEnergyPlus simulation ouputs.\nThe resulting object can be used to request output variables from EnergyPlus.\n-"
+}

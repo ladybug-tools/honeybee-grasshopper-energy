@@ -1,0 +1,50 @@
+{
+  "version": "0.1.1", 
+  "nickname": "People", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "people", 
+        "description": "A People object that can be used to create a ProgramType or\nbe assigned directly to a Room.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "Text to set the name for the People and to be incorporated\ninto a unique People identifier. If None, a unique name will\nbe generated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_ppl_per_area", 
+      "description": "A numerical value for the number of people per square\nmeter of floor area.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_occupancy_sch", 
+      "description": "A fractional schedule for the occupancy over the course\nof the year. The fractional values in this schedule will get multiplied\nby the _people_per_area to yield a complete occupancy profile.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_activity_sch_", 
+      "description": "A schedule for the activity of the occupants over the\ncourse of the year. The type limt of this schedule should be \"Power\"\nand the values of the schedule equal to the number of Watts given off\nby an individual person in the room. If None, it will a default constant\nschedule with 120 Watts per person will be used, which is typical of\nawake, adult humans who are seated.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.people import People\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # make a default People name if none is provided\n    if _name_ is None:\n        name = \"People_{}\".format(uuid.uuid4())\n    else:\n        name = clean_and_id_ep_string(_name_)\n\n    # get the schedules\n    if isinstance(_occupancy_sch, str):\n        _occupancy_sch = schedule_by_identifier(_occupancy_sch)\n    if isinstance(_activity_sch_, str):\n        _activity_sch_ = schedule_by_identifier(_activity_sch_)\n\n    # create the People object\n    people = People(name, _ppl_per_area, _occupancy_sch, _activity_sch_)\n    if _name_ is not None:\n        people.display_name = _name_\n", 
+  "category": "HB-Energy", 
+  "name": "HB People", 
+  "description": "Create a People object that can be used to create a ProgramType or be assigned\ndirectly to a Room.\n-"
+}

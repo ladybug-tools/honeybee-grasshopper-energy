@@ -1,0 +1,127 @@
+{
+  "version": "0.5.5", 
+  "nickname": "ModelToOSM", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "jsons", 
+        "description": "The file paths to the honeybee JSON files that describe the Model and\nSimulationParameter. These will be translated to an OpenStudio model.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "osw", 
+        "description": "File path to the OpenStudio Workflow JSON on this machine. This workflow\nis executed using the OpenStudio command line interface (CLI) and\nit includes measures to translate the Honeybee model JSON as well\nas any other connected measures_.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "osm", 
+        "description": "The file path to the OpenStudio Model (OSM) that has been generated\non this computer.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "idf", 
+        "description": "The file path of the EnergyPlus Input Data File (IDF) that has been\ngenerated on this computer.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "sql", 
+        "description": "The file path of the SQL result file that has been generated on this\ncomputer. This will be None unless run_ is set to True.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "zsz", 
+        "description": "Path to a .csv file containing detailed zone load information recorded\nover the course of the design days. This will be None unless run_ is\nset to True.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "rdd", 
+        "description": "The file path of the Result Data Dictionary (.rdd) file that is\ngenerated after running the file through EnergyPlus.  This file\ncontains all possible outputs that can be requested from the EnergyPlus\nmodel. Use the \"HB Read Result Dictionary\" component to see what outputs\ncan be requested.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "html", 
+        "description": "The HTML file path containing all requested Summary Reports.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A honeybee model object possessing all geometry and corresponding\nenergy simulation properties.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_epw_file", 
+      "description": "Path to an .epw file on this computer as a text string.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_sim_par_", 
+      "description": "A honeybee Energy SimulationParameter object that describes all\nof the setting for the simulation. If None, some default simulation\nparameters will automatically be used.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "measures_", 
+      "description": "An optional list of measures to apply to the OpenStudio model\nupon export. Use the \"HB Load Measure\" component to load a measure\ninto Grasshopper and assign input arguments. Measures can be\ndownloaded from the NREL Building Components Library (BCL) at", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "add_str_", 
+      "description": "THIS OPTION IS JUST FOR ADVANCED USERS OF ENERGYPLUS.\nYou can input additional text strings here that you would like\nwritten into the IDF.  The input here should be complete EnergyPlus\nobjects as a single string following the IDF format. This input ca\nbe used to write objects into the IDF that are not currently supported\nby Honeybee.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_folder_", 
+      "description": "An optional folder on this computer, into which the IDF and result\nfiles will be written.  NOTE THAT DIRECTORIES INPUT HERE SHOULD NOT HAVE\nANY SPACES OR UNDERSCORES IN THE FILE PATH.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_write", 
+      "description": "Set to \"True\" to write out the jsons and the osw for simulation.", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_", 
+      "description": "Set to \"True\" to translate the jsons to an osm and idf file and then\nrun the idf through EnergyPlus. This will ensure that all result\nfiles appear in their respective outputs from this component. This\ninput can also be the integer \"2\", which will only translate the\njsons to an osm and idf format without running the model through\nEnergyPlus.", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "5 :: Simulate", 
+  "code": "\nimport os\nimport json\n\ntry:\n    from ladybug.futil import preparedir, nukedir\n    from ladybug.epw import EPW\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    import honeybee.config as hb_config\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.simulation.parameter import SimulationParameter\n    from honeybee_energy.run import to_openstudio_osw, run_osw, run_idf, \\\n        output_energyplus_files\n    from honeybee_energy.result.err import Err\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef orphaned_warning(object_type):\n    \"\"\"Generate an error message for orphaned Faces, Apertures, or Doors.\"\"\"\n    return 'Input _model contains orphaned {}s. These are not permitted in ' \\\n        'Models for energy simulation.\\nIf you have geometry that is not a ' \\\n        'part of a Room boundary that you want included in the energy simulation, ' \\\n        'it should be added as shades.'.format(object_type)\n\n\nif all_required_inputs(ghenv.Component) and _write:\n    # process the simulation parameters\n    if _sim_par_ is None:\n        _sim_par_ = SimulationParameter()\n        _sim_par_.output.add_zone_energy_use()\n        _sim_par_.output.add_hvac_energy_use()\n    else:\n        _sim_par_ = _sim_par_.duplicate()  # ensure input is not edited\n\n    # assign design days from the DDY next to the EPW if there are None\n    if len(_sim_par_.sizing_parameter.design_days) == 0:\n        msg = None\n        folder, epw_file_name = os.path.split(_epw_file)\n        ddy_file = os.path.join(folder, epw_file_name.replace('.epw', '.ddy'))\n        if os.path.isfile(ddy_file):\n            try:\n                _sim_par_.sizing_parameter.add_from_ddy_996_004(ddy_file)\n            except AssertionError:\n                msg = 'No ddy_file_ was input into the _sim_par_ sizing ' \\\n                    'parameters\\n and no design days were found in the .ddy file '\\\n                    'next to the _epw_file.'\n        else:\n             msg = 'No ddy_file_ was input into the _sim_par_ sizing parameters\\n' \\\n                'and no .ddy file was found next to the _epw_file.'\n        if msg is not None:\n            epw_obj = EPW(_epw_file)\n            des_days = [epw_obj.approximate_design_day('WinterDesignDay'),\n                        epw_obj.approximate_design_day('SummerDesignDay')]\n            _sim_par_.sizing_parameter.design_days = des_days\n            msg = msg + '\\nDesign days were generated from the input _epw_file but this ' \\\n                '\\nis not as accurate as design days from DDYs distributed with the EPW.'\n            give_warning(ghenv.Component, msg)\n            print msg\n\n    # process the simulation folder name and the directory\n    _folder_ = hb_config.folders.default_simulation_folder if _folder_ is None else _folder_\n    directory = os.path.join(_folder_, _model.identifier, 'OpenStudio')\n\n    # check the model to be sure there are no orphaned faces, apertures, or doors\n    assert len(_model.orphaned_faces) == 0, orphaned_warning('Face')\n    assert len(_model.orphaned_apertures) == 0, orphaned_warning('Aperture')\n    assert len(_model.orphaned_doors) == 0, orphaned_warning('Door')\n\n    # duplicate model to avoid mutating it as we edit it for energy simulation\n    _model = _model.duplicate()\n    # remove colinear vertices using the Model tolerance to avoid E+ tolerance issues\n    for room in _model.rooms:\n        room.remove_colinear_vertices_envelope(_model.tolerance)\n    # auto-assign stories if there are none since most OpenStudio measures need these\n    if len(_model.stories) == 0:\n        _model.assign_stories_by_floor_height()\n    # scale the model if the units are not meters\n    if _model.units != 'Meters':\n        _model.convert_to_units('Meters')\n\n    # delete any existing files in the directory and prepare it for simulation\n    nukedir(directory, True)\n    preparedir(directory)\n\n    # write the model parameter JSONs\n    model_dict = _model.to_dict(triangulate_sub_faces=True)\n    model_json = os.path.join(directory, '{}.json'.format(_model.identifier))\n    with open(model_json, 'w') as fp:\n        json.dump(model_dict, fp)\n\n    # write the simulation parameter JSONs\n    sim_par_dict = _sim_par_.to_dict()\n    sim_par_json = os.path.join(directory, 'simulation_parameter.json')\n    with open(sim_par_json, 'w') as fp:\n        json.dump(sim_par_dict, fp)\n\n    # process any measures input to the component\n    measures = None if len(measures_) == 0 or measures_[0] is None else measures_\n    no_report_meas = True if measures is None else \\\n        all(meas.type != 'ReportingMeasure' for meas in measures)\n\n    # collect the two jsons for output and write out the osw file\n    jsons = [model_json, sim_par_json]\n    osw = to_openstudio_osw(directory, model_json, sim_par_json,\n                            additional_measures=measures, epw_file=_epw_file)\n\n    # run the measure to translate the model JSON to an openstudio measure\n    if run_ > 0 and not no_report_meas:  # everything must run with OS CLI\n        osm, idf = run_osw(osw, measures_only=False)\n        sql, zsz, rdd, html, err = output_energyplus_files(os.path.dirname(idf))\n    elif run_ > 0:  # no reporting measure; simulate separately from measure application\n        osm, idf = run_osw(osw)\n        # process the additional strings\n        if add_str_ != [] and add_str_[0] is not None and idf is not None:\n            add_str = '/n'.join(add_str_)\n            with open(idf, \"a\") as idf_file:\n                idf_file.write(add_str)\n        if idf is None:  # measures failed to run correctly\n            raise Exception('Applying measures failed. Check run.log in:'\n                            '\\n{}'.format(os.path.join(directory, 'run')))\n        if run_ == 1:  # run the resulting idf throught EnergyPlus\n            sql, zsz, rdd, html, err = run_idf(idf, _epw_file)\n\n    # parse the error log and report any warnings\n    if run_ == 1 and err is not None:\n        err_obj = Err(err)\n        print(err_obj.file_contents)\n        for warn in err_obj.severe_errors:\n            give_warning(ghenv.Component, warn)\n        for error in err_obj.fatal_errors:\n            raise Exception(error)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Model to OSM", 
+  "description": "Write a honeybee Model to an OSM file (OpenStudio Model), which can then be translated\nto an IDF file and then run through EnergyPlus.\n-"
+}
