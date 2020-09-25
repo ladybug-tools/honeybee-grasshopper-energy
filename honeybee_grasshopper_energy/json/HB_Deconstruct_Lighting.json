@@ -1,5 +1,5 @@
 {
-  "version": "0.1.1", 
+  "version": "0.2.0", 
   "nickname": "DecnstrLighting", 
   "outputs": [
     [
@@ -44,6 +44,13 @@
         "description": "A number between 0 and 1 for the fraction of the total\nlighting load that goes into the zone return air.", 
         "type": null, 
         "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "baseline", 
+        "description": "The baseline lighting power density in W/m2 of floor area. This\nbaseline is useful to track how much better the installed lights\nare in comparison to a standard like ASHRAE 90.1.", 
+        "type": null, 
+        "default": null
       }
     ]
   ], 
@@ -57,7 +64,7 @@
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\ntry:\n    from honeybee_energy.load.lighting import Lighting\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_lighting, Lighting), \\\n        'Expected Lighting object. Got {}.'.format(type(_lighting))\n\n    # get the properties of the object\n    name = _lighting.display_name\n    watts_per_area = _lighting.watts_per_area\n    schedule = _lighting.schedule\n    radiant_fract = _lighting.radiant_fraction\n    visible_fract = _lighting.visible_fraction\n    return_fract = _lighting.return_air_fraction\n", 
+  "code": "\ntry:\n    from honeybee_energy.load.lighting import Lighting\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_lighting, Lighting), \\\n        'Expected Lighting object. Got {}.'.format(type(_lighting))\n\n    # get the properties of the object\n    name = _lighting.display_name\n    watts_per_area = _lighting.watts_per_area\n    schedule = _lighting.schedule\n    radiant_fract = _lighting.radiant_fraction\n    visible_fract = _lighting.visible_fraction\n    return_fract = _lighting.return_air_fraction\n    baseline = _lighting.baseline_watts_per_area\n", 
   "category": "HB-Energy", 
   "name": "HB Deconstruct Lighting", 
   "description": "Deconstruct a Lighting object into its constituient properties.\n-"

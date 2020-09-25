@@ -27,11 +27,14 @@ Deconstruct a Lighting object into its constituient properties.
             lighting load given off as short wave visible light.
         return_fract: A number between 0 and 1 for the fraction of the total
             lighting load that goes into the zone return air.
+        baseline: The baseline lighting power density in W/m2 of floor area. This
+            baseline is useful to track how much better the installed lights
+            are in comparison to a standard like ASHRAE 90.1.
 """
 
 ghenv.Component.Name = "HB Deconstruct Lighting"
 ghenv.Component.NickName = 'DecnstrLighting'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -59,3 +62,4 @@ if all_required_inputs(ghenv.Component):
     radiant_fract = _lighting.radiant_fraction
     visible_fract = _lighting.visible_fraction
     return_fract = _lighting.return_air_fraction
+    baseline = _lighting.baseline_watts_per_area

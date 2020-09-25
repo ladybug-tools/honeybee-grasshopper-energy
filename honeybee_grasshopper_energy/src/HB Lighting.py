@@ -30,7 +30,12 @@ directly to a Room.
         return_fract_: A number between 0 and 1 for the fraction of the total
             lighting load that goes into the zone return air (into the zone outlet
             node). Default: 0.0 (representative of pendant lighting).
-    
+        baseline_: An optional number for the baseline lighting power density in
+            W/m2 of floor area. This baseline is useful to track how much
+            better the installed lights are in comparison to a standard like
+            ASHRAE 90.1. If set to None, it will default to 11.84029 W/m2,
+            which is that ASHRAE 90.1-2004 baseline for an office.
+
     Returns:
         lighting: A Lighting object that can be used to create a ProgramType or
             be assigned directly to a Room.
@@ -38,7 +43,7 @@ directly to a Room.
 
 ghenv.Component.Name = "HB Lighting"
 ghenv.Component.NickName = 'Lighting'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -83,3 +88,5 @@ if all_required_inputs(ghenv.Component):
                         return_fract_, _radiant_fract_, _visible_fract_)
     if _name_ is not None:
         lighting.display_name = _name_
+    if baseline_ is not None:
+        lighting.baseline_watts_per_area = baseline_

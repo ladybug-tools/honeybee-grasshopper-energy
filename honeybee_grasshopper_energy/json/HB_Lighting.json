@@ -1,5 +1,5 @@
 {
-  "version": "0.1.1", 
+  "version": "0.2.0", 
   "nickname": "Lighting", 
   "outputs": [
     [
@@ -54,10 +54,17 @@
       "description": "A number between 0 and 1 for the fraction of the total\nlighting load that goes into the zone return air (into the zone outlet\nnode). Default: 0.0 (representative of pendant lighting).", 
       "type": "System.Object", 
       "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "baseline_", 
+      "description": "An optional number for the baseline lighting power density in\nW/m2 of floor area. This baseline is useful to track how much\nbetter the installed lights are in comparison to a standard like\nASHRAE 90.1. If set to None, it will default to 11.84029 W/m2,\nwhich is that ASHRAE 90.1-2004 baseline for an office.", 
+      "type": "double", 
+      "default": null
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.lighting import Lighting\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # make a default Lighting name if none is provided\n    if _name_ is None:\n        name = \"Lighting_{}\".format(uuid.uuid4())\n    else:\n        name = clean_and_id_ep_string(_name_)\n\n    # get the schedule\n    if isinstance(_schedule, str):\n        _schedule = schedule_by_identifier(_schedule)\n\n    # get default radiant, visible, and return fractions\n    return_fract_ = return_fract_ if return_fract_ is not None else 0.0\n    _radiant_fract_ = _radiant_fract_ if _radiant_fract_ is not None else 0.32\n    _visible_fract_ = _visible_fract_ if _visible_fract_ is not None else 0.25\n\n    # create the Lighting object\n    lighting = Lighting(name, _watts_per_area, _schedule,\n                        return_fract_, _radiant_fract_, _visible_fract_)\n    if _name_ is not None:\n        lighting.display_name = _name_", 
+  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.lighting import Lighting\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # make a default Lighting name if none is provided\n    if _name_ is None:\n        name = \"Lighting_{}\".format(uuid.uuid4())\n    else:\n        name = clean_and_id_ep_string(_name_)\n\n    # get the schedule\n    if isinstance(_schedule, str):\n        _schedule = schedule_by_identifier(_schedule)\n\n    # get default radiant, visible, and return fractions\n    return_fract_ = return_fract_ if return_fract_ is not None else 0.0\n    _radiant_fract_ = _radiant_fract_ if _radiant_fract_ is not None else 0.32\n    _visible_fract_ = _visible_fract_ if _visible_fract_ is not None else 0.25\n\n    # create the Lighting object\n    lighting = Lighting(name, _watts_per_area, _schedule,\n                        return_fract_, _radiant_fract_, _visible_fract_)\n    if _name_ is not None:\n        lighting.display_name = _name_\n    if baseline_ is not None:\n        lighting.baseline_watts_per_area = baseline_", 
   "category": "HB-Energy", 
   "name": "HB Lighting", 
   "description": "Create a Lighting object that can be used to create a ProgramType or be assigned\ndirectly to a Room.\n-"
