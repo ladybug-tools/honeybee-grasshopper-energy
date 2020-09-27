@@ -53,7 +53,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.5.10'
+ghenv.Component.Message = '0.5.11'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -83,6 +83,18 @@ try:
     from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+
+# check the presence of openstudio and check that the version is compatible
+compatibe_ep_version = (9, 3, 0)
+hb_url = 'https://github.com/ladybug-tools/lbt-grasshopper/wiki/1.4-Compatibility-Matrix'
+in_msg = 'Get a compatible version of EnergyPlus by downloading and installing\nthe ' \
+    'version of OpenStudio listed in the Ladybug Tools compatibility matrix\n{}.'.format(hb_url)
+assert energy_folders.energyplus_path is not None, \
+    'No EnergyPlus installation was found on this machine.\n{}'.format(in_msg)
+ep_version = energy_folders.energyplus_version
+assert ep_version is not None and ep_version >= compatibe_ep_version, \
+    'The installed EnergyPlus is not version {} or greater.' \
+    '\n{}'.format('.'.join(str(v) for v in compatibe_ep_version), in_msg)
 
 
 def orphaned_warning(object_type):
