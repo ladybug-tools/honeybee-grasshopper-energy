@@ -26,13 +26,14 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
         _folder_: An optional folder on your system, into which your IDF and result
             files will be written.  NOTE THAT DIRECTORIES INPUT HERE SHOULD NOT HAVE
             ANY SPACES OR UNDERSCORES IN THE FILE PATH.
-        _write: Set to "True" to translate the model to an IDF file.
-            The file path of the resulting file will appear in the idf output of
-            this component.  Note that only setting this to "True" and not setting
-            run_ to "True" will not automatically run the IDF through EnergyPlus.
+        _write: Set to "True" to translate the model to an IDF file. The file path of
+            the resulting file will appear in the "idf" output of this component.
         run_: Set to "True" to run your IDF through EnergyPlus once it is written.
             This will ensure that result files appear in their respective outputs.
-    
+            _
+            This input can also be the integer "2", which will run the whole
+            simulation silently (without any batch windows).
+
     Returns:
         report: Check here to see a report of the EnergyPlus run.
         idf: The file path of the IDF file that has been generated on your machine.
@@ -53,7 +54,7 @@ Write a honeybee Model to an IDF file and then run it through EnergyPlus.
 
 ghenv.Component.Name = "HB Model to IDF"
 ghenv.Component.NickName = 'ModelToIDF'
-ghenv.Component.Message = '0.5.11'
+ghenv.Component.Message = '0.6.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -165,8 +166,9 @@ if all_required_inputs(ghenv.Component) and _write:
     idf = os.path.join(directory, 'in.idf')
     write_to_file_by_name(directory, 'in.idf', idf_str, True)
 
-    if run_:
-        sql, zsz, rdd, html, err = run_idf(idf, _epw_file)
+    if run_ > 0:
+        silent = True if run_ == 2 else False
+        sql, zsz, rdd, html, err = run_idf(idf, _epw_file, silent=silent)
         if err is not None:
             err_obj = Err(err)
             print(err_obj.file_contents)

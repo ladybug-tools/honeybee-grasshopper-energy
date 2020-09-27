@@ -28,7 +28,10 @@ through EnergyPlus.
         _translate: Set to "True" to translate the OSM files to IDFs using the
             OpenStudio command line interface (CLI).
         run_: Set to "True" to run the resulting IDF through EnergyPlus.
-    
+            _
+            This input can also be the integer "2", which will run the whole
+            translation and simulation silently (without any batch windows).
+
     Returns:
         report: Check here to see a report of the EnergyPlus run.
         idf: The file path of the IDF file that has been generated on this computer.
@@ -49,7 +52,7 @@ through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run OSM'
 ghenv.Component.NickName = 'RunOSM'
-ghenv.Component.Message = '0.1.1'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -78,7 +81,7 @@ def run_osm_and_report_errors(i):
     with open(osw, 'w') as fp:
         json.dump(osw_dict, fp, indent=4)
 
-    osm_i, idf_i = run_osw(osw)
+    osm_i, idf_i = run_osw(osw, silent=silent)
     # process the additional strings
     if add_str_ != [] and add_str_[0] is not None and idf is not None:
         add_str = '/n'.join(add_str_)
@@ -89,7 +92,7 @@ def run_osm_and_report_errors(i):
 
     # run the IDF through EnergyPlus
     if run_:
-        sql_i, zsz_i, rdd_i, html_i, err_i = run_idf(idf_i, _epw_file)
+        sql_i, zsz_i, rdd_i, html_i, err_i = run_idf(idf_i, _epw_file, silent=silent)
 
         # report any errors on this component
         if err_i is not None:
@@ -114,6 +117,7 @@ if all_required_inputs(ghenv.Component) and _translate:
     osm, idf, sql, zsz, rdd, html, err, err_objs = [], [], [], [], [], [], [], []
 
     # run the OSW files through OpenStudio CLI
+    silent = True if run_ == 2 else False
     if parallel_:
         tasks.Parallel.ForEach(range(len(_osm)), run_osm_and_report_errors)
     else:

@@ -19,8 +19,11 @@ Run an IDF file through EnergyPlus.
             in parallel, which can greatly increase the speed of calculation but
             may not be desired when other processes are running. If False, all
             EnergyPlus simulations will be be run on a single core. Default: False.
-        run_: Set to "True" to run the IDF through EnergyPlus.
-    
+        _run: Set to "True" to run the IDF through EnergyPlus.
+            _
+            This input can also be the integer "2", which will run the whole
+            simulation silently (without any batch windows).
+
     Returns:
         report: Check here to see a report of the EnergyPlus run.
         sql: The file path of the SQL result file that has been generated on your
@@ -34,12 +37,12 @@ Run an IDF file through EnergyPlus.
             can be requested.
         html: The HTML file path of the Summary Reports. Note that this will be None
             unless the input _sim_par_ denotes that an HTML report is requested and
-            run_ is set to True.
+            _run is set to True.
 """
 
 ghenv.Component.Name = 'HB Run IDF'
 ghenv.Component.NickName = 'RunIDF'
-ghenv.Component.Message = '0.1.3'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -68,7 +71,7 @@ except ImportError as e:
 def run_idf_and_report_errors(i):
     """Run an IDF file through EnergyPlus and report errors/warnings on this component."""
     idf = idfs[i]
-    sql_i, zsz_i, rdd_i, html_i, err_i = run_idf(idf, _epw_file)
+    sql_i, zsz_i, rdd_i, html_i, err_i = run_idf(idf, _epw_file, silent=silent)
 
     # report any errors on this component
     if err_i is not None:
@@ -106,6 +109,7 @@ if all_required_inputs(ghenv.Component) and _run:
             idfs.append(idf_file_path)
 
     # run the IDF files through E+
+    silent = True if _run == 2 else False
     if parallel_:
         tasks.Parallel.ForEach(range(len(idfs)), run_idf_and_report_errors)
     else:

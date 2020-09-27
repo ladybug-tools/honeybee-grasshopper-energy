@@ -33,14 +33,21 @@ to an IDF file and then run through EnergyPlus.
         _folder_: An optional folder on this computer, into which the IDF and result
             files will be written.  NOTE THAT DIRECTORIES INPUT HERE SHOULD NOT HAVE
             ANY SPACES OR UNDERSCORES IN THE FILE PATH.
-        _write: Set to "True" to write out the jsons and the osw for simulation.
-        run_: Set to "True" to translate the jsons to an osm and idf file and then
-            run the idf through EnergyPlus. This will ensure that all result
-            files appear in their respective outputs from this component. This
-            input can also be the integer "2", which will only translate the
-            jsons to an osm and idf format without running the model through
-            EnergyPlus.
-    
+        _write: Set to "True" to write out the honeybee jsons (containing the Honeybee
+            Model and Simulation Parameters) and write the OpenStudio Workflow
+            (.osw) file with instructions for executing the simulation.
+        run_: Set to "True" to translate the Honeybee jsons to an OpenStudio Model
+            (.osm) and EnergyPlus Input Data File (.idf) and then simulate the
+            .idf in EnergyPlus. This will ensure that all result files appear
+            in their respective outputs from this component.
+            _
+            This input can also be the integer "2", which will only translate the
+            honeybee jsons to an osm and idf format without running the model
+            through EnergyPlus.
+            _
+            It can also be the integer "3", which will run the whole translation
+            and simulation silently (without any batch windows).
+
     Returns:
         report: Check here to see a report of the EnergyPlus run.
         jsons: The file paths to the honeybee JSON files that describe the Model and
@@ -68,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '0.5.6'
+ghenv.Component.Message = '0.6.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -183,7 +190,7 @@ if all_required_inputs(ghenv.Component) and _write:
 
     # write the model parameter JSONs
     model_dict = _model.to_dict(triangulate_sub_faces=True)
-    model_json = os.path.join(directory, '{}.json'.format(_model.identifier))
+    model_json = os.path.join(directory, '{}.hbjson'.format(_model.identifier))
     with open(model_json, 'w') as fp:
         json.dump(model_dict, fp)
 
@@ -204,11 +211,12 @@ if all_required_inputs(ghenv.Component) and _write:
                             additional_measures=measures, epw_file=_epw_file)
 
     # run the measure to translate the model JSON to an openstudio measure
+    silent = True if run_ == 3 else False
     if run_ > 0 and not no_report_meas:  # everything must run with OS CLI
-        osm, idf = run_osw(osw, measures_only=False)
+        osm, idf = run_osw(osw, measures_only=False, silent=silent)
         sql, zsz, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
     elif run_ > 0:  # no reporting measure; simulate separately from measure application
-        osm, idf = run_osw(osw)
+        osm, idf = run_osw(osw, silent=silent)
         # process the additional strings
         if add_str_ != [] and add_str_[0] is not None and idf is not None:
             add_str = '/n'.join(add_str_)
@@ -217,11 +225,11 @@ if all_required_inputs(ghenv.Component) and _write:
         if idf is None:  # measures failed to run correctly
             raise Exception('Applying measures failed. Check run.log in:'
                             '\n{}'.format(os.path.join(directory, 'run')))
-        if run_ == 1:  # run the resulting idf throught EnergyPlus
-            sql, zsz, rdd, html, err = run_idf(idf, _epw_file)
+        if run_ in (1, 3):  # run the resulting idf throught EnergyPlus
+            sql, zsz, rdd, html, err = run_idf(idf, _epw_file, silent=silent)
 
     # parse the error log and report any warnings
-    if run_ == 1 and err is not None:
+    if run_ in (1, 3) and err is not None:
         err_obj = Err(err)
         print(err_obj.file_contents)
         for warn in err_obj.severe_errors:
