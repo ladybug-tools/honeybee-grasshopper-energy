@@ -11,7 +11,7 @@
 Run Honeybee Rooms through a quick energy simulation to obtain an estimate of
 annual heating, cooling, lighting and equipment loads.
 _
-Note that the settings used by this component are only suitable for evaluating
+Note that the default settings used by this component are only suitable for evaluating
 annual loads in the case where an error of up to 5% is acceptable. Also
 note that annual loads are not the same as annual energy use or utility costs
 and, while the "cop" inputs can be used to approximate some effects of real
@@ -25,6 +25,15 @@ Model to OSM" component.
         shades_: An optional list of Honeybee Shades that can block the sun to
             the input _rooms.
         _epw_file: Path to an .epw file on your system as a text string.
+        _timestep_: An integer for the number of timesteps per hour at which the
+            energy balance calculation will be run. This has a dramatic
+            impact on the speed of the simulation and the accuracy of
+            results. Higher timesteps lead to longer simulations and
+            more accurate results. At the lowest aceptable timestep of 1,
+            the results can have an error up to 5% but increasing the
+            timestep to 4 should drop errors to below 1%. (Default: 1).
+            The following values are acceptable:
+            (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60)
         _cool_cop_: An optional number which the cooling load will be divided by to
             account for the relative importance of cooling loads compared
             to heating loads (aka. the Coefficient of Performance or COP).
@@ -69,7 +78,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '0.2.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -78,6 +87,7 @@ import os
 
 try:
     from ladybug.futil import write_to_file_by_name, nukedir
+    from ladybug.epw import EPW
     from ladybug.datacollection import MonthlyCollection
     from ladybug.header import Header
     from ladybug.analysisperiod import AnalysisPeriod
@@ -158,7 +168,7 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # create simulation parameters for the coarsest/fastest E+ sim possible
     _sim_par_ = SimulationParameter()
-    _sim_par_.timestep = 1
+    _sim_par_.timestep = _timestep_ if _timestep_ is not None else 1
     _sim_par_.shadow_calculation.solar_distribution = 'FullExterior'
     _sim_par_.output.add_zone_energy_use()
     _sim_par_.output.reporting_frequency = 'Monthly'
