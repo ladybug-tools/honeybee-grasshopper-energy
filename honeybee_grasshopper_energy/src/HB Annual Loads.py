@@ -130,6 +130,17 @@ assert ep_version is not None and ep_version >= compatibe_ep_version, \
     '\n{}'.format('.'.join(str(v) for v in compatibe_ep_version), in_msg)
 
 
+def check_window_vent(rooms):
+    """Check a rooms to make sure there's no opening of windows as coars timestep."""
+    for room in rooms:
+        if room.properties.energy.window_vent_control is not None:
+            msg = 'Window ventilation was detected but your timestep is too low ' \
+                'to model window opening correctly.\nIt is recommended that you ' \
+                'increase your timestep to at least 4 to get loads for this case.'
+            print msg
+            give_warning(ghenv.Component, msg)
+
+
 def data_to_load_intensity(data_colls, floor_area, data_type, cop=1):
     """Convert data collections output by EnergyPlus to a single load intensity collection.
 
@@ -172,6 +183,10 @@ if all_required_inputs(ghenv.Component) and _run:
     _sim_par_.shadow_calculation.solar_distribution = 'FullExterior'
     _sim_par_.output.add_zone_energy_use()
     _sim_par_.output.reporting_frequency = 'Monthly'
+
+    # check the rooms for inaccurate cases
+    if _sim_par_.timestep < 4:
+        check_window_vent(_rooms)
 
     # assign design days from the EPW
     msg = None
