@@ -25,7 +25,7 @@ collections for the cooling/heating load over the peak design day.
 
 ghenv.Component.Name = 'HB Read Zone Sizing'
 ghenv.Component.NickName = 'ReadZSZ'
-ghenv.Component.Message = '0.1.0'
+ghenv.Component.Message = '1.0.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

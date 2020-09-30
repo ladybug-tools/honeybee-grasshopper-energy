@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2019, Ladybug Tools.
+# Copyright (c) 2020, Ladybug Tools.
 # You should have received a copy of the GNU General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -51,7 +51,7 @@ Apply a customized IdealAirSystem to Honeybee Rooms.
 
 ghenv.Component.Name = "HB IdealAir"
 ghenv.Component.NickName = 'IdealAir'
-ghenv.Component.Message = '0.1.2'
+ghenv.Component.Message = '1.0.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
