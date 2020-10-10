@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0", 
+  "nickname": "BalTemp", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "energyUsedOnBalDay", 
+        "description": "The average thermal load on the balance day. This number should\nbe close to 0 if the balance temperature is accurate and this output\nis meant to give a sense of the accuracy of the balance temperature value.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "balanceTemperature", 
+        "description": "The outdoor balance temperature.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_cooling", 
+      "description": "Data collection for the annual hourly or daily ideal air cooling\nload output from the \"HB Read Room Energy Result\" component.  This\ncan be for a single room or the entire model.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "x", 
+      "description": "Data collection for the annual hourly or daily ideal air heating\nload output from the \"HB Read Room Energy Result\" component.  This\ncan be for a single room or the entire model.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_temperature", 
+      "description": "Data collection for the annual hourly or daily outdoor temperature.\nMost of the time, this should be the dry bulb temperature from the\n\"LB Import EPW\" component. However other types of temperature like\nsky temperature may improve accuracy since they include the effects\nof solar gain. Note that, whatever type of temperature is plugged\nin here determines the type of balance temperature that is output.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_day_count_", 
+      "description": "An integer for the number of days with a low thermal energy\nload that will be averaged together to yield the balance point.\nThe use of multiple days is done to help avoid anomalies introduced\nby things like variations between weekday and weekend shcedules.\nIt is recommended that this be increased for models with particularly\nhigh variation in schedules. (Default: 10).", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "6 :: Result", 
+  "code": "\ntry:\n    from ladybug.datacollection import HourlyContinuousCollection, DailyCollection\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef sum_collection(data):\n    \"\"\"Sum a list of data collections into a single daily collection.\"\"\"\n    total_data = data[0]\n    for data_i in data[1:]:\n        total_data = total_data + data_i\n    if isinstance(total_data, HourlyContinuousCollection):\n        total_data = total_data.average_daily()\n    elif not isinstance(total_data, DailyCollection):\n        raise TypeError('Expected Hourly or Daily data collection. '\n                        'Got {}'.format(type(_temperature)))\n    return total_data\n\n\nif all_required_inputs(ghenv.Component):\n    # set the defaut day count and ensure temperature is daily\n    _day_count_ = 10 if _day_count_ is None else _day_count_\n    if isinstance(_temperature, HourlyContinuousCollection):\n        _temperature = _temperature.average_daily()\n    elif not isinstance(_temperature, DailyCollection):\n        raise TypeError('Expected Hourly or Daily data collection for '\n                        '_temperature. Got {}'.format(type(_temperature)))\n\n    # convert the heating and cooling collections to a single daily balance\n    total_cool = sum_collection(_cooling)\n    total_heat = sum_collection(_heating)\n    total_load = total_cool + total_heat\n\n    # check that all data collections are annual\n    assert len(total_load) >= 365, 'Cooling and heating loads are not annual.'\n    assert len(_temperature) >= 365, 'Temperature is not annual.'\n\n    # sort the load to find the days with the lowest load\n    temp_sort = []\n    load_sort = []\n    for i, (load, temp) in enumerate(sorted(zip(total_load, _temperature))):\n        if i == _day_count_:\n            break\n        temp_sort.append(temp)\n        load_sort.append(load)\n\n    # return the average temperature and balance day load\n    print len(temp_sort)\n    bal_day_load = sum(load_sort) / _day_count_\n    bal_temp = sum(temp_sort) / _day_count_\n", 
+  "category": "HB-Energy", 
+  "name": "HB Balance Temperature", 
+  "description": "Calculate a building (or zone) balance temperature from a ideal air load simulation\nresults. The balance point is the outdoor temperature at which a building switches\nbetween heating and cooling.\n_\nIf the outdoor temperture drops below the balance temperature, the building will\nusually be in heating mode and, if the outdoor temperture is above the balance\ntemperature, the building will usually be in cooling mode.\n_\nThe balance temperture concept is useful for setting things such as automated\nblinds and airflow schedules since having these things directly controlled by\nhourly cooling or heating demand isn't always straightforward.\n_\nThis component works by taking the average combined heating/cooling values for\neach day and the average outdoor air temperature for each day. The days with\nthe smallest combined heating + cooling will have their daily mean outdoor air\ntempertures averaged to produce the output balance temperture.\n-"
+}
