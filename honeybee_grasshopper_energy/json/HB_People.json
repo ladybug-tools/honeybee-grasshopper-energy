@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0", 
+  "version": "1.0.1", 
   "nickname": "People", 
   "outputs": [
     [
@@ -37,7 +37,7 @@
     {
       "access": "item", 
       "name": "_activity_sch_", 
-      "description": "A schedule for the activity of the occupants over the\ncourse of the year. The type limt of this schedule should be \"Power\"\nand the values of the schedule equal to the number of Watts given off\nby an individual person in the room. If None, it will a default constant\nschedule with 120 Watts per person will be used, which is typical of\nawake, adult humans who are seated.", 
+      "description": "A schedule for the activity of the occupants over the course\nof the year. The type limt of this schedule should be \"Activity Level\"\nand the values of the schedule equal to the number of Watts given off\nby an individual person in the room. If None, it will a default constant\nschedule with 120 Watts per person will be used, which is typical of\nawake, adult humans who are seated.", 
       "type": "System.Object", 
       "default": null
     }

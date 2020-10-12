@@ -21,13 +21,13 @@ directly to a Room.
         _occupancy_sch: A fractional schedule for the occupancy over the course
             of the year. The fractional values in this schedule will get multiplied
             by the _people_per_area to yield a complete occupancy profile.
-        _activity_sch_: A schedule for the activity of the occupants over the
-            course of the year. The type limt of this schedule should be "Power"
+        _activity_sch_: A schedule for the activity of the occupants over the course
+            of the year. The type limt of this schedule should be "Activity Level"
             and the values of the schedule equal to the number of Watts given off
             by an individual person in the room. If None, it will a default constant
             schedule with 120 Watts per person will be used, which is typical of
             awake, adult humans who are seated.
-    
+
     Returns:
         people: A People object that can be used to create a ProgramType or
             be assigned directly to a Room.
@@ -35,7 +35,7 @@ directly to a Room.
 
 ghenv.Component.Name = "HB People"
 ghenv.Component.NickName = 'People'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
