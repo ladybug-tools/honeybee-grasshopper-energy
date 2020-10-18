@@ -75,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -99,12 +99,14 @@ try:
     from honeybee_energy.run import to_openstudio_osw, run_osw, run_idf, \
         output_energyplus_files
     from honeybee_energy.result.err import Err
+    from honeybee_energy.result.osw import OSW
     from honeybee_energy.config import folders as energy_folders
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
     from ladybug_rhino.grasshopper import all_required_inputs, give_warning
+    from ladybug_rhino.config import units_system
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -222,9 +224,13 @@ if all_required_inputs(ghenv.Component) and _write:
             add_str = '/n'.join(add_str_)
             with open(idf, "a") as idf_file:
                 idf_file.write(add_str)
-        if idf is None:  # measures failed to run correctly
-            raise Exception('Applying measures failed. Check run.log in:'
-                            '\n{}'.format(os.path.join(directory, 'run')))
+        if idf is None:  # measures failed to run correctly; parse out.osw
+            log_osw = OSW(os.path.join(directory, 'out.osw'))
+            for error in log_osw.stdout:
+                if 'Cannot create a surface' in error:
+                    error = 'Your Rhino Model units system is: {}\n{}'.format(
+                        units_system(), error)
+                raise Exception(error)
         if run_ in (1, 3):  # run the resulting idf throught EnergyPlus
             sql, zsz, rdd, html, err = run_idf(idf, _epw_file, silent=silent)
 

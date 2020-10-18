@@ -78,7 +78,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -167,7 +167,7 @@ if all_required_inputs(ghenv.Component) and _run:
     _cool_cop_ = 1 if _cool_cop_ is None else _cool_cop_
 
     # create the Model from the _rooms and shades_
-    _model = Model('Quick_Annual_Energy', _rooms, orphaned_shades=shades_)
+    _model = Model('Annual_Loads', _rooms, orphaned_shades=shades_)
     floor_area = _model.floor_area
     assert floor_area != 0, 'Connected _rooms have no floors with which to compute EUI.'
     floor_area = floor_area * conversion_to_meters() ** 2
