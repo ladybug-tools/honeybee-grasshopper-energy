@@ -1,0 +1,106 @@
+{
+  "version": "1.0.0", 
+  "nickname": "FaceResultByType", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "walls", 
+        "description": "Data collections with results for Walls with an Outdoors or Ground\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_walls", 
+        "description": "Data collections with results for Walls with a Surface or\nAdiabatic boundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "roofs", 
+        "description": "Data collections with results for RoofCeilings with an Outdoors or\nGround boundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "ceilings", 
+        "description": "Data collections with results for RoofCeilings with a Surface\nor Adiabatic boundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "exterior_floors", 
+        "description": "Data collections with results for Floors with an Outdoors\nor Ground boundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_floors", 
+        "description": "Data collections with results for Floors with a Surface\nor Adiabatic boundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "apertures", 
+        "description": "Data collections with results for Apertures with an Outdoors\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_apertures", 
+        "description": "Data collections with results for Apertures with a\nSurface boundary condition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "doors", 
+        "description": "Data collections with results for Doors with an Outdoors boundary\ncondition.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "interior_doors", 
+        "description": "Data collections with results for Doors with a Surface\nboundary condition.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_data", 
+      "description": "A list of data collections output from an energy simulation, which\nwill be separated by object and face type. Data collections can be\nof any class (eg. MonthlyCollection, DailyCollection) but they\nshould all have headers with metadata dictionaries with 'Surface'\nkeys. These keys will be used to match the data in the collections\nto the input faces.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_hb_objs", 
+      "description": "An array of honeybee Rooms, Faces, Apertures or Doors, which will\nbe matched with the _data. This can also be an entire Model.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "norm_", 
+      "description": "Boolean to note whether results should be normalized by the face/sub-face\narea if the data type of the data_colections supports it. (Default: False)", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "6 :: Result", 
+  "code": "\ntry:\n    from honeybee.model import Model\n    from honeybee.room import Room\n    from honeybee.face import Face\n    from honeybee.aperture import Aperture\n    from honeybee.door import Door\n    from honeybee.boundarycondition import Surface, Adiabatic\n    from honeybee.facetype import Wall, RoofCeiling, Floor, AirBoundary\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.match import match_faces_to_data\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\n    from ladybug_{{cad}}.config import conversion_to_meters\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef matched_areas(matched_objects):\n    \"\"\"Get an iterator of the areas from a list of matched objects.\"\"\"\n    flat_faces = (obj[0] for obj in matched_objects)\n    flat_geo = (face.geometry if not isinstance(face, Face)\n                else face.punched_geometry for face in flat_faces)\n    return (face.area for face in flat_geo)\n\n\nif all_required_inputs(ghenv.Component):\n    # extract any faces from input Rooms or Models and convert geo to meters\n    faces = []\n    for hb_obj in _hb_objs:\n        if isinstance(hb_obj, Model):\n            for room in hb_obj.rooms:\n                faces.extend(room.faces)\n        elif isinstance(hb_obj, Room):\n            faces.extend(hb_obj.faces)\n        else:\n            faces.append(hb_obj)\n    m_convert = conversion_to_meters()\n    if m_convert != 1:  # duplicate and scale all objects to meters\n        faces = [face.duplicate() for face in faces]\n        [face.scale(m_convert) for face in faces]\n\n    # match the data with the faces\n    matched_tups = match_faces_to_data(_data, faces)\n\n    # normalize the data if requested\n    if norm_:\n        norm_types = [tup[1].header.data_type.normalized_type for tup in matched_tups]\n        new_tups = []\n        for area, nt, tup in zip(matched_areas(matched_tups), norm_types, matched_tups):\n            if nt is None:  # data is not normalizable\n                new_tups.append(tup)\n            else:\n                new_tups.append((tup[0], tup[1].normalize_by_area(area, 'm2')))\n        matched_tups = new_tups\n\n    # lists to be filled with data collections\n    walls = []\n    interior_walls = []\n    roofs = []\n    ceilings = []\n    exterior_floors = []\n    interior_floors = []\n    apertures = []\n    interior_apertures = []\n    doors = []\n    interior_doors = []\n\n    # loop through the tuples and sort them by object and face type\n    for tup in matched_tups:\n        obj, data = tup\n        bc = obj.boundary_condition\n        if isinstance(obj, Face):\n            if isinstance(obj.type, Wall):\n                if isinstance(bc, (Surface, Adiabatic)):\n                    interior_walls.append(data)\n                else:\n                    walls.append(data)\n            elif isinstance(obj.type, RoofCeiling):\n                if isinstance(bc, (Surface, Adiabatic)):\n                    ceilings.append(data)\n                else:\n                    roofs.append(data)\n            elif isinstance(obj.type, Floor):\n                if isinstance(bc, (Surface, Adiabatic)):\n                    interior_floors.append(data)\n                else:\n                    exterior_floors.append(data)\n        elif isinstance(obj, Aperture):\n            if isinstance(bc, Surface):\n                interior_apertures.append(data)\n            else:\n                apertures.append(data)\n        elif isinstance(obj, Door):\n            if isinstance(bc, Surface):\n                interior_doors.append(data)\n            else:\n                doors.append(data)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Face Result by Type", 
+  "description": "Separate data collections of energy simulation results by object and face type.\nInput data must be for Faces, Apertures, Doors, or any combination of these objects.\n_\nThis component can also be used to normalize such data by area.\n-"
+}

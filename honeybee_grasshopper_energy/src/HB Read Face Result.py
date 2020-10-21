@@ -15,7 +15,7 @@ file that has been generated from an energy simulation.
     Args:
         _sql: The file path of the SQL result file that has been generated from
             an energy simulation.
-    
+
     Returns:
         face_indoor_temp: DataCollections for the indoor surface temperature of
             each surface (C).
@@ -23,17 +23,11 @@ file that has been generated from an energy simulation.
             of each surface (C).
         face_energy_flow: DataCollections for the heat loss (negative) or heat
             gain (positive) through each building surfaces (kWh).
-        opaque_energy_flow: DataCollections for the heat loss (negative) or
-            heat gain (positive) through each building opaque surface (kWh).
-        window_energy_flow: DataCollections for the heat loss (negative) or
-            heat gain (positive) through each building glazing surface (kWh).
-            Note that the value here includes both solar gains and conduction
-            losses/gains.
 """
 
 ghenv.Component.Name = 'HB Read Face Result'
 ghenv.Component.NickName = 'FaceResult'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

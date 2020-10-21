@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0", 
+  "version": "1.0.1", 
   "nickname": "ColorFaces", 
   "outputs": [
     [
@@ -65,7 +65,7 @@
     {
       "access": "list", 
       "name": "_data", 
-      "description": "A list of HourlyContinuousCollections of the same data type, which\nwill be used to color Faces with simulation results. Data collections\ncan be of any class (eg. MonthlyCollection, DailyCollection) but they\nshould all have headers with metadata dictionaries with 'Surface'\nkeys. These keys will be used to match the data in the collections\nto the input faces.", 
+      "description": "A list of data collections of the same data type, which will be used\nto color Faces with simulation results. Data collections can be of\nany class (eg. MonthlyCollection, DailyCollection) but they should\nall have headers with metadata dictionaries with 'Surface' keys.\nThese keys will be used to match the data in the collections\nto the input faces.", 
       "type": "System.Object", 
       "default": null
     }, 
@@ -79,14 +79,14 @@
     {
       "access": "item", 
       "name": "normalize_", 
-      "description": "Boolean to note whether results should be normalized by the\nface/sub-face area if the data type of the data_colections supports it.\nIf False, values will be generated using sum total of the data collection\nvalues. Note that this input has no effect if the data type of the\ndata_collections is not normalizable since data collection values will\nalways be averaged for this case. Default: True.", 
+      "description": "Boolean to note whether results should be normalized by the\nface/sub-face area if the data type of the data_colections supports it.\nIf False, values will be generated using sum total of the data collection\nvalues. Note that this input has no effect if the data type of the\ndata_collections is not normalizable since data collection values will\nalways be averaged for this case. (Default: True).", 
       "type": "bool", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "sim_step_", 
-      "description": "An optional integer (greater than or equal to 0) to select\na specific step of the data collections for which result values will be\ngenerated. If None, the geometry will be colored with the total of\nresutls in the data_collections if the data type is cumulative or with\nthe average of results if the data type is not cumulative. Default: None.", 
+      "description": "An optional integer (greater than or equal to 0) to select\na specific step of the data collections for which result values will be\ngenerated. If None, the geometry will be colored with the total of\nresutls in the data_collections if the data type is cumulative or with\nthe average of results if the data type is not cumulative. (Default: None).", 
       "type": "int", 
       "default": null
     }, 

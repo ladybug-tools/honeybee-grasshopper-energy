@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0", 
+  "version": "1.1.0", 
   "nickname": "FaceResult", 
   "outputs": [
     [
@@ -21,20 +21,6 @@
         "access": "None", 
         "name": "face_energy_flow", 
         "description": "DataCollections for the heat loss (negative) or heat\ngain (positive) through each building surfaces (kWh).", 
-        "type": null, 
-        "default": null
-      }, 
-      {
-        "access": "None", 
-        "name": "opaque_energy_flow", 
-        "description": "DataCollections for the heat loss (negative) or\nheat gain (positive) through each building opaque surface (kWh).", 
-        "type": null, 
-        "default": null
-      }, 
-      {
-        "access": "None", 
-        "name": "window_energy_flow", 
-        "description": "DataCollections for the heat loss (negative) or\nheat gain (positive) through each building glazing surface (kWh).\nNote that the value here includes both solar gains and conduction\nlosses/gains.", 
         "type": null, 
         "default": null
       }

@@ -12,11 +12,11 @@ Visualize face and sub-face level energy simulation results as colored geometry.
 
 -
     Args:
-        _data: A list of HourlyContinuousCollections of the same data type, which
-            will be used to color Faces with simulation results. Data collections
-            can be of any class (eg. MonthlyCollection, DailyCollection) but they
-            should all have headers with metadata dictionaries with 'Surface'
-            keys. These keys will be used to match the data in the collections
+        _data: A list of data collections of the same data type, which will be used
+            to color Faces with simulation results. Data collections can be of
+            any class (eg. MonthlyCollection, DailyCollection) but they should
+            all have headers with metadata dictionaries with 'Surface' keys.
+            These keys will be used to match the data in the collections
             to the input faces.
         _hb_objs: An array of honeybee Rooms, Faces, Apertures or Doors to be
             colored with simulation results in the Rhino scene. This can
@@ -26,16 +26,16 @@ Visualize face and sub-face level energy simulation results as colored geometry.
             If False, values will be generated using sum total of the data collection
             values. Note that this input has no effect if the data type of the
             data_collections is not normalizable since data collection values will
-            always be averaged for this case. Default: True.
+            always be averaged for this case. (Default: True).
         sim_step_: An optional integer (greater than or equal to 0) to select
             a specific step of the data collections for which result values will be
             generated. If None, the geometry will be colored with the total of
             resutls in the data_collections if the data type is cumulative or with
-            the average of results if the data type is not cumulative. Default: None.
+            the average of results if the data type is not cumulative. (Default: None).
         period_: A Ladybug analysis period to be applied to all of the input _data.
         legend_par_: An optional LegendParameter object to change the display
             of the ColorRooms.
-    
+
     Returns:
         report: ...
         mesh: A colored mesh of the face/sub-face geometry colored using the input
@@ -56,7 +56,7 @@ Visualize face and sub-face level energy simulation results as colored geometry.
 
 ghenv.Component.Name = "HB Color Faces"
 ghenv.Component.NickName = 'ColorFaces'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
