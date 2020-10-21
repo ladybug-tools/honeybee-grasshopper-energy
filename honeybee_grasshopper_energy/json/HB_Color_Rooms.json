@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0", 
+  "version": "1.0.1", 
   "nickname": "ColorRooms", 
   "outputs": [
     [
@@ -65,7 +65,7 @@
     {
       "access": "list", 
       "name": "_data", 
-      "description": "A list of HourlyContinuousCollections of the same data type, which\nwill be used to color Rooms. Data collections can be of any class\n(eg. MonthlyCollection, DailyCollection) but they should originate\nfrom an energy simulation sql (with header metadata that has 'Zone' or\n'System' keys). These keys will be used to match the data in the collections\nto the input rooms.", 
+      "description": "A list of data collections of the same data type, which will be\nused to color Rooms. Data collections can be of any class\n(eg. MonthlyCollection, DailyCollection) but they should originate\nfrom an energy simulation sql (with header metadata that has 'Zone'\nor, in some cases, 'System' keys). These keys will be used to\nmatch the data in the collections to the input rooms.", 
       "type": "System.Object", 
       "default": null
     }, 

@@ -12,12 +12,12 @@ Visualize Room-level energy simulation results as colored Room geometry.
 
 -
     Args:
-        _data: A list of HourlyContinuousCollections of the same data type, which
-            will be used to color Rooms. Data collections can be of any class
+        _data: A list of data collections of the same data type, which will be
+            used to color Rooms. Data collections can be of any class
             (eg. MonthlyCollection, DailyCollection) but they should originate
-            from an energy simulation sql (with header metadata that has 'Zone' or
-            'System' keys). These keys will be used to match the data in the collections
-            to the input rooms.
+            from an energy simulation sql (with header metadata that has 'Zone'
+            or, in some cases, 'System' keys). These keys will be used to
+            match the data in the collections to the input rooms.
         _rooms_model: An array of honeybee Rooms or honeybee Models, which will
             be matched to the data_collections. The length of these Rooms does
             not have to match the data_collections and this object will only
@@ -36,7 +36,7 @@ Visualize Room-level energy simulation results as colored Room geometry.
         period_: A Ladybug analysis period to be applied to all of the input _data.
         legend_par_: An optional LegendParameter object to change the display
             of the ColorRooms.
-    
+
     Returns:
         report: ...
         mesh: A colored mesh of the Room floor geometry colored using the input
@@ -58,7 +58,7 @@ Visualize Room-level energy simulation results as colored Room geometry.
 
 ghenv.Component.Name = "HB Color Rooms"
 ghenv.Component.NickName = 'ColorRooms'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
