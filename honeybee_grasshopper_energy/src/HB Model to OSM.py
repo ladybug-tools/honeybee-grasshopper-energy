@@ -75,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.0.1'
+ghenv.Component.Message = '1.0.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -226,10 +226,11 @@ if all_required_inputs(ghenv.Component) and _write:
                 idf_file.write(add_str)
         if idf is None:  # measures failed to run correctly; parse out.osw
             log_osw = OSW(os.path.join(directory, 'out.osw'))
-            for error in log_osw.stdout:
+            for error, tb in zip(log_osw.errors, log_osw.error_tracebacks):
                 if 'Cannot create a surface' in error:
                     error = 'Your Rhino Model units system is: {}\n{}'.format(
                         units_system(), error)
+                print(tb)
                 raise Exception(error)
         if run_ in (1, 3):  # run the resulting idf throught EnergyPlus
             sql, zsz, rdd, html, err = run_idf(idf, _epw_file, silent=silent)

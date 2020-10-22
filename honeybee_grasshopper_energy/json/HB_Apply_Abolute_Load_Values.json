@@ -1,0 +1,64 @@
+{
+  "version": "1.0.0", 
+  "nickname": "AbsoluteLoadVals", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "rooms", 
+        "description": "The input Rooms with their load values modified.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms", 
+      "description": "Honeybee Rooms to which the input load values should be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "person_count_", 
+      "description": "A number for the quantity of people in the room.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "lighting_watts_", 
+      "description": "A number for the installed wattage of lighting in the room.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "electric_watts_", 
+      "description": "A number for the installed wattage of electric equipment\nin the room.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "gas_watts_", 
+      "description": "A number for the installed wattage of gas equipment in the room.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "infiltration_ach_", 
+      "description": "A number for the infiltration flow rate in air changes\nper hour (ACH).", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, longest_list\n    from ladybug_{{cad}}.config import conversion_to_meters\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    conversion = conversion_to_meters()\n    rooms = [room.duplicate() for room in _rooms]  # duplicate the initial objects\n\n    # assign the person_count_\n    if len(person_count_) != 0:\n        for i, room in enumerate(rooms):\n            room.properties.energy.abolute_people(\n                longest_list(person_count_, i), conversion)\n\n    # assign the lighting_watts_\n    if len(lighting_watts_) != 0:\n        for i, room in enumerate(rooms):\n            room.properties.energy.abolute_lighting(\n                longest_list(lighting_watts_, i), conversion)\n\n    # assign the electric_watts_\n    if len(electric_watts_) != 0:\n        for i, room in enumerate(rooms):\n            room.properties.energy.abolute_electric_equipment(\n                longest_list(electric_watts_, i), conversion)\n\n    # assign the gas_watts_\n    if len(gas_watts_) != 0:\n        for i, room in enumerate(rooms):\n            room.properties.energy.abolute_gas_equipment(\n                longest_list(gas_watts_, i), conversion)\n    \n    # assign the infiltration_ach_\n    if len(infiltration_ach_) != 0:\n        for i, room in enumerate(rooms):\n            room.properties.energy.abolute_infiltration_ach(\n                longest_list(infiltration_ach_, i), conversion)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Apply Abolute Load Values", 
+  "description": "Apply abolute load values to Rooms.\n_\nNote that, while the assigned load values are abolute, this component will convert\nthem to the \"normalized\" value for each room (eg. lighting per floor area) in\norder to apply them to the rooms. So, if a room has no floors or exterior walls,\nload values will be equal to 0 regardless of the input here.\n_\nThis component will not edit any of the schedules or other properties associated\nwith each load value. If no schedule currently exists to describe how the load\nvaries over the simulation, the \"Always On\" schedule will be used as a default.\n-"
+}
