@@ -15,7 +15,7 @@ through EnergyPlus.
     Args:
         _osm: Path to an OpenStudio Model (OSM) file as a text string. This can
             also be a list of OSM files.
-        _epw_ile: Path to an .epw file as a text string.
+        _epw_file: Path to an .epw file as a text string.
         add_str_: THIS OPTION IS JUST FOR ADVANCED USERS OF ENERGYPLUS.
             You can input additional text strings here that you would like
             written into the IDF.  The strings input here should be complete
@@ -52,7 +52,7 @@ through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run OSM'
 ghenv.Component.NickName = 'RunOSM'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -75,7 +75,10 @@ except ImportError as e:
 def run_osm_and_report_errors(i):
     """Run an OSW through OpenStudio CLI."""
     # create a blank osw for the translation
-    osw_dict = {'seed_file': _osm[i]}
+    osw_dict = {
+        'seed_file': _osm[i],
+        'weather_file': _epw_file
+        }
     osw_directory = os.path.dirname(_osm[i])
     osw = os.path.join(osw_directory, 'workflow.osw')
     with open(osw, 'w') as fp:
