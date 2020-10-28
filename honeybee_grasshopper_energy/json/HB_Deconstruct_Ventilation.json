@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0", 
+  "version": "1.0.1", 
   "nickname": "DecnstrVentilation", 
   "outputs": [
     [
@@ -57,7 +57,7 @@
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\ntry:\n    from honeybee_energy.load.ventilation import Ventilation\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_vent, Ventilation), \\\n        'Expected Ventilation object. Got {}.'.format(type(_vent))\n\n    # get the properties of the object\n    name = _vent.display_name\n    flow_per_person = _vent.flow_per_person\n    flow_per_area = _vent.flow_per_area\n    flow_per_zone = _vent.flow_per_zone\n    ach = _vent.air_changes_per_hour\n    schedule = _vent.schedule\n", 
+  "code": "\ntry:\n    from honeybee_energy.load.ventilation import Ventilation\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _vent is not None:\n    # check the input\n    assert isinstance(_vent, Ventilation), \\\n        'Expected Ventilation object. Got {}.'.format(type(_vent))\n\n    # get the properties of the object\n    name = _vent.display_name\n    flow_per_person = _vent.flow_per_person\n    flow_per_area = _vent.flow_per_area\n    flow_per_zone = _vent.flow_per_zone\n    ach = _vent.air_changes_per_hour\n    schedule = _vent.schedule\n", 
   "category": "HB-Energy", 
   "name": "HB Deconstruct Ventilation", 
   "description": "Deconstruct a Ventilation object into its constituient properties.\n_\nNote the the 4 ventilation types (_flow_per_person_, _flow_per_area_, _flow_per_zone_,\n_ach_) are ultimately summed together to yeild the ventilation design flow rate used\nin the simulation.\n-"

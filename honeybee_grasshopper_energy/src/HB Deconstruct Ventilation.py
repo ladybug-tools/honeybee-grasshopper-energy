@@ -45,7 +45,7 @@ in the simulation.
 
 ghenv.Component.Name = "HB Deconstruct Ventilation"
 ghenv.Component.NickName = 'DecnstrVentilation'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -61,7 +61,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
-if all_required_inputs(ghenv.Component):
+if all_required_inputs(ghenv.Component) and _vent is not None:
     # check the input
     assert isinstance(_vent, Ventilation), \
         'Expected Ventilation object. Got {}.'.format(type(_vent))

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0", 
+  "version": "1.0.1", 
   "nickname": "DecnstrInfiltration", 
   "outputs": [
     [
@@ -36,7 +36,7 @@
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\ntry:\n    from honeybee_energy.load.infiltration import Infiltration\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_infil, Infiltration), \\\n        'Expected Infiltration object. Got {}.'.format(type(_infil))\n    \n    # get the properties of the object\n    name = _infil.display_name\n    flow_per_ext_area = _infil.flow_per_exterior_area\n    schedule = _infil.schedule\n", 
+  "code": "\ntry:\n    from honeybee_energy.load.infiltration import Infiltration\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _infil is not None:\n    # check the input\n    assert isinstance(_infil, Infiltration), \\\n        'Expected Infiltration object. Got {}.'.format(type(_infil))\n    \n    # get the properties of the object\n    name = _infil.display_name\n    flow_per_ext_area = _infil.flow_per_exterior_area\n    schedule = _infil.schedule\n", 
   "category": "HB-Energy", 
   "name": "HB Deconstruct Infiltration", 
   "description": "Deconstruct an Infiltration object into its constituient properties.\n-"

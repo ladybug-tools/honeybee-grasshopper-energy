@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0", 
+  "version": "1.0.1", 
   "nickname": "DecnstrPeople", 
   "outputs": [
     [
@@ -43,7 +43,7 @@
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\ntry:\n    from honeybee_energy.load.people import People\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_people, People), \\\n        'Expected People object. Got {}.'.format(type(_people))\n\n    # get the properties of the object\n    name = _people.display_name\n    ppl_per_area = _people.people_per_area\n    occupancy_sch = _people.occupancy_schedule\n    activity_sch = _people.activity_schedule\n", 
+  "code": "\ntry:\n    from honeybee_energy.load.people import People\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _people is not None:\n    # check the input\n    assert isinstance(_people, People), \\\n        'Expected People object. Got {}.'.format(type(_people))\n\n    # get the properties of the object\n    name = _people.display_name\n    ppl_per_area = _people.people_per_area\n    occupancy_sch = _people.occupancy_schedule\n    activity_sch = _people.activity_schedule\n", 
   "category": "HB-Energy", 
   "name": "HB Deconstruct People", 
   "description": "Deconstruct a People object into its constituient properties.\n-"

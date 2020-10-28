@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0", 
+  "version": "1.0.1", 
   "nickname": "DecnstrSetpoint", 
   "outputs": [
     [
@@ -50,7 +50,7 @@
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\ntry:\n    from honeybee_energy.load.setpoint import Setpoint\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_setpoint, Setpoint), \\\n        'Expected Setpoint object. Got {}.'.format(type(_setpoint))\n\n    # get the properties of the object\n    name = _setpoint.display_name\n    heating_sch = _setpoint.heating_schedule\n    cooling_sch = _setpoint.cooling_schedule\n    humid_setpt = _setpoint.humidifying_setpoint\n    dehumid_setpt = _setpoint.dehumidifying_setpoint\n", 
+  "code": "\ntry:\n    from honeybee_energy.load.setpoint import Setpoint\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _setpoint is not None:\n    # check the input\n    assert isinstance(_setpoint, Setpoint), \\\n        'Expected Setpoint object. Got {}.'.format(type(_setpoint))\n\n    # get the properties of the object\n    name = _setpoint.display_name\n    heating_sch = _setpoint.heating_schedule\n    cooling_sch = _setpoint.cooling_schedule\n    humid_setpt = _setpoint.humidifying_setpoint\n    dehumid_setpt = _setpoint.dehumidifying_setpoint\n", 
   "category": "HB-Energy", 
   "name": "HB Deconstruct Setpoint", 
   "description": "Deconstruct a Setpoint object into its constituient properties.\n-"

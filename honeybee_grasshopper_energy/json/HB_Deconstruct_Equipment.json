@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0", 
+  "version": "1.0.1", 
   "nickname": "DecnstrEquipment", 
   "outputs": [
     [
@@ -64,7 +64,7 @@
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\ntry:\n    from honeybee_energy.load.equipment import ElectricEquipment, GasEquipment\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # check the input\n    assert isinstance(_equip, (ElectricEquipment, GasEquipment)), \\\n        'Expected Equipment object. Got {}.'.format(type(_equip))\n\n    # get the properties of the object\n    name = _equip.display_name\n    watts_per_area = _equip.watts_per_area\n    schedule = _equip.schedule\n    radiant_fract = _equip.radiant_fraction\n    latent_fract = _equip.latent_fraction\n    lost_fract = _equip.lost_fraction\n    is_gas = isinstance(_equip, GasEquipment)\n", 
+  "code": "\ntry:\n    from honeybee_energy.load.equipment import ElectricEquipment, GasEquipment\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _equip is not None:\n    # check the input\n    assert isinstance(_equip, (ElectricEquipment, GasEquipment)), \\\n        'Expected Equipment object. Got {}.'.format(type(_equip))\n\n    # get the properties of the object\n    name = _equip.display_name\n    watts_per_area = _equip.watts_per_area\n    schedule = _equip.schedule\n    radiant_fract = _equip.radiant_fraction\n    latent_fract = _equip.latent_fraction\n    lost_fract = _equip.lost_fraction\n    is_gas = isinstance(_equip, GasEquipment)\n", 
   "category": "HB-Energy", 
   "name": "HB Deconstruct Equipment", 
   "description": "Deconstruct an Equipment object into its constituient properties.\n-"

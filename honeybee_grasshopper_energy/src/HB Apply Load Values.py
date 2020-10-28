@@ -46,7 +46,7 @@ simulation, the "Always On" schedule will be used as a default.
             sufficient to remove odors. Accordingly, setting this value to 0.01
             and using 0 for the following ventilation terms will often be suitable
             for many applications.
-    
+
     Returns:
         report: Reports, errors, warnings, etc.
         mod_obj: The input Rooms or ProgramTypes with their load values modified.
@@ -54,10 +54,12 @@ simulation, the "Always On" schedule will be used as a default.
 
 ghenv.Component.Name = "HB Apply Load Values"
 ghenv.Component.NickName = 'ApplyLoadVals'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
+
+import uuid
 
 try:
     from honeybee.room import Room
@@ -115,15 +117,24 @@ def assign_load(hb_obj, load_obj, object_name):
         setattr(hb_obj, object_name, load_obj)
 
 
+def duplicate_and_id_program(program):
+    """Duplicate a program and give it a new unique ID."""
+    new_prog = program.duplicate()
+    new_prog.identifier = '{}_{}'.format(program.identifier, str(uuid.uuid4())[:8])
+    return new_prog
+
+
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
     mod_obj = []
     for obj in _room_or_program:
-        if isinstance(obj, (Room, ProgramType)):
+        if isinstance(obj, Room):
             mod_obj.append(obj.duplicate())
+        elif isinstance(obj, ProgramType):
+            mod_obj.append(duplicate_and_id_program(obj))
         elif isinstance(obj, str):
             program = program_type_by_identifier(obj)
-            mod_obj.append(program.duplicate())
+            mod_obj.append(duplicate_and_id_program(program))
         else:
             raise TypeError('Expected Honeybee Room or ProgramType. '
                             'Got {}.'.format(type(obj)))
