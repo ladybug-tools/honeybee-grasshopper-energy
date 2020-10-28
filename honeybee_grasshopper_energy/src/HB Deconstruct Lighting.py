@@ -34,7 +34,7 @@ Deconstruct a Lighting object into its constituient properties.
 
 ghenv.Component.Name = "HB Deconstruct Lighting"
 ghenv.Component.NickName = 'DecnstrLighting'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -50,7 +50,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
-if all_required_inputs(ghenv.Component):
+if all_required_inputs(ghenv.Component) and _lighting is not None:
     # check the input
     assert isinstance(_lighting, Lighting), \
         'Expected Lighting object. Got {}.'.format(type(_lighting))

@@ -29,7 +29,7 @@ Deconstruct a People object into its constituient properties.
 
 ghenv.Component.Name = "HB Deconstruct People"
 ghenv.Component.NickName = 'DecnstrPeople'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"
@@ -45,7 +45,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
-if all_required_inputs(ghenv.Component):
+if all_required_inputs(ghenv.Component) and _people is not None:
     # check the input
     assert isinstance(_people, People), \
         'Expected People object. Got {}.'.format(type(_people))

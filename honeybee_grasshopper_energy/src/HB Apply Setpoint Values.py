@@ -23,7 +23,7 @@ Apply values for setpoints to a Room or ProgramType.
             humidifying setpoint [%].
         dehumid_setpt_: A numerical value for a single constant value for the
             dehumidifying setpoint [%].
-    
+
     Returns:
         report: Reports, errors, warnings, etc.
         mod_obj: The input Rooms or ProgramTypes with their setpoint values edited.
@@ -31,10 +31,12 @@ Apply values for setpoints to a Room or ProgramType.
 
 ghenv.Component.Name = "HB Apply Setpoint Values"
 ghenv.Component.NickName = 'ApplySetpointVals'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
+
+import uuid
 
 try:
     from honeybee.room import Room
@@ -84,15 +86,24 @@ def assign_setpoint(hb_obj, setpt_obj):
         hb_obj.setpoint = setpt_obj
 
 
+def duplicate_and_id_program(program):
+    """Duplicate a program and give it a new unique ID."""
+    new_prog = program.duplicate()
+    new_prog.identifier = '{}_{}'.format(program.identifier, str(uuid.uuid4())[:8])
+    return new_prog
+
+
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
     mod_obj = []
     for obj in _room_or_program:
-        if isinstance(obj, (Room, ProgramType)):
+        if isinstance(obj, Room):
             mod_obj.append(obj.duplicate())
+        elif isinstance(obj, ProgramType):
+            mod_obj.append(duplicate_and_id_program(obj))
         elif isinstance(obj, str):
             program = program_type_by_identifier(obj)
-            mod_obj.append(program.duplicate())
+            mod_obj.append(duplicate_and_id_program(program))
         else:
             raise TypeError('Expected Honeybee Room or ProgramType. '
                             'Got {}.'.format(type(obj)))
