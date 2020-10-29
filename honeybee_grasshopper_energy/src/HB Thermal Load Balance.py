@@ -63,7 +63,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -80,7 +80,7 @@ except ImportError as e:
 
 try:
     from ladybug_rhino.config import units_system
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -92,12 +92,24 @@ def check_input(input_list):
 
 if all_required_inputs(ghenv.Component):
     # extract any rooms from input Models
+    is_model = False
     rooms = []
     for hb_obj in _rooms_model:
         if isinstance(hb_obj, Model):
             rooms.extend(hb_obj.rooms)
+            is_model = True
         else:
             rooms.append(hb_obj)
+
+    # if the input is for individual rooms, check the solar to ensure no groued zones
+    if not is_model and len(solar_gain_) != 0:
+        msg = 'Air boundaries with grouped zones detected in solar data but individual ' \
+            'rooms were input.\nIt is recommended that the full model be input for ' \
+            '_rooms_model to ensure correct representaiton of solar.'
+        for coll in solar_gain_:
+            if 'Solar Enclosure' in coll.header.metadata['Zone']:
+                print msg
+                give_warning(ghenv.Component, msg)
 
     # process all of the inputs
     cooling_ = check_input(cooling_)
@@ -116,7 +128,7 @@ if all_required_inputs(ghenv.Component):
     load_bal_obj = LoadBalance(
         rooms, cooling_, heating_, lighting_, electric_equip_, gas_equip_,
         people_gain_, solar_gain_, infiltration_load_, mech_vent_load_,
-        nat_vent_load_, face_energy_flow_, units_system())
+        nat_vent_load_, face_energy_flow_, units_system(), use_all_solar=is_model)
 
     balance = load_bal_obj.load_balance_terms(False, False)
     if len(balance) != 0:
