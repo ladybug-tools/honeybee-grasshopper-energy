@@ -49,7 +49,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -152,11 +152,16 @@ solar_gain_outputs = 'Zone Windows Total Transmitted Solar Radiation Energy'
 infil_gain_outputs = (
     'Zone Infiltration Total Heat Gain Energy',
     'Zone Infiltration Sensible Heat Gain Energy',
-    'Zone Infiltration Latent Heat Gain Energy')
+    'Zone Infiltration Latent Heat Gain Energy',
+    'AFN Zone Infiltration Sensible Heat Gain Energy',
+    'AFN Zone Infiltration Latent Heat Gain Energy')
 infil_loss_outputs = (
     'Zone Infiltration Total Heat Loss Energy',
     'Zone Infiltration Sensible Heat Loss Energy',
-    'Zone Infiltration Latent Heat Loss Energy')
+    'Zone Infiltration Latent Heat Loss Energy',
+    'AFN Zone Infiltration Sensible Heat Loss Energy',
+    'AFN Zone Infiltration Latent Heat Loss Energy'
+    )
 vent_loss_outputs = (
     'Zone Ideal Loads Zone Total Heating Energy',
     'Zone Ideal Loads Zone Sensible Heating Energy',
