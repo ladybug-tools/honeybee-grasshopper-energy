@@ -78,7 +78,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.0.1'
+ghenv.Component.Message = '1.0.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -112,7 +112,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.config import conversion_to_meters
+    from ladybug_rhino.config import conversion_to_meters, tolerance, angle_tolerance
     from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
@@ -167,7 +167,8 @@ if all_required_inputs(ghenv.Component) and _run:
     _cool_cop_ = 1 if _cool_cop_ is None else _cool_cop_
 
     # create the Model from the _rooms and shades_
-    _model = Model('Annual_Loads', _rooms, orphaned_shades=shades_)
+    _model = Model('Annual_Loads', _rooms, orphaned_shades=shades_,
+                   tolerance=tolerance, angle_tolerance=angle_tolerance)
     floor_area = _model.floor_area
     assert floor_area != 0, 'Connected _rooms have no floors with which to compute EUI.'
     floor_area = floor_area * conversion_to_meters() ** 2
@@ -222,7 +223,7 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # run the IDF through EnergyPlus
     sql, zsz, rdd, html, err = run_idf(idf, _epw_file, silent=True)
-    if sql is None and err is not None:  # something went wrong; parse the errors
+    if html is None and err is not None:  # something went wrong; parse the errors
         err_obj = Err(err)
         print(err_obj.file_contents)
         for error in err_obj.fatal_errors:
