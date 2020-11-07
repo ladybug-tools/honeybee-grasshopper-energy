@@ -27,7 +27,7 @@ file that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Face Result'
 ghenv.Component.NickName = 'FaceResult'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -37,7 +37,8 @@ import subprocess
 import json
 
 try:
-    from ladybug.datacollection import HourlyContinuousCollection
+    from ladybug.datacollection import HourlyContinuousCollection, \
+        MonthlyCollection, DailyCollection
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
@@ -69,8 +70,15 @@ def subtract_loss_from_gain(gain_load, loss_load):
 
 
 def serialize_data(data_dicts):
-    """Reserialize a list of HourlyContinuousCollection dictionaries."""
-    return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]
+    """Reserialize a list of collection dictionaries."""
+    if len(data_dicts) == 0:
+        return []
+    elif data_dicts[0]['type'] == 'HourlyContinuousCollection':
+        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]
+    elif data_dicts[0]['type'] == 'MonthlyCollection':
+        return [MonthlyCollection.from_dict(data) for data in data_dicts]
+    elif data_dicts[0]['type'] == 'DailyCollection':
+        return [DailyCollection.from_dict(data) for data in data_dicts]
 
 
 # List of all the output strings that will be requested

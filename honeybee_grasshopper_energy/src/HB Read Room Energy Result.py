@@ -49,7 +49,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.0.1'
+ghenv.Component.Message = '1.0.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -59,7 +59,8 @@ import subprocess
 import json
 
 try:
-    from ladybug.datacollection import HourlyContinuousCollection
+    from ladybug.datacollection import HourlyContinuousCollection, \
+        MonthlyCollection, DailyCollection
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
@@ -70,6 +71,7 @@ except ImportError as e:
 
 try:
     from honeybee_energy.result.sql import SQLiteResult
+    from honeybee_energy.result.loadbalance import LoadBalance
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -91,15 +93,19 @@ def subtract_loss_from_gain(gain_load, loss_load):
 
 
 def serialize_data(data_dicts):
-    """Reserialize a list of HourlyContinuousCollection dictionaries."""
-    return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]
+    """Reserialize a list of collection dictionaries."""
+    if len(data_dicts) == 0:
+        return []
+    elif data_dicts[0]['type'] == 'HourlyContinuousCollection':
+        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]
+    elif data_dicts[0]['type'] == 'MonthlyCollection':
+        return [MonthlyCollection.from_dict(data) for data in data_dicts]
+    elif data_dicts[0]['type'] == 'DailyCollection':
+        return [DailyCollection.from_dict(data) for data in data_dicts]
 
 
 # List of all the output strings that will be requested
-cooling_outputs = (
-    'Zone Ideal Loads Supply Air Total Cooling Energy',
-    'Zone Ideal Loads Zone Sensible Cooling Energy',
-    'Zone Ideal Loads Zone Latent Cooling Energy',
+cooling_outputs = LoadBalance.COOLING + (
     'Cooling Coil Electric Energy',
     'Chiller Electric Energy',
     'Zone VRF Air Terminal Cooling Electric Energy',
@@ -107,10 +113,7 @@ cooling_outputs = (
     'Chiller Heater System Cooling Electric Energy',
     'District Cooling Chilled Water Energy',
     'Evaporative Cooler Electric Energy')
-heating_outputs = (
-    'Zone Ideal Loads Supply Air Total Heating Energy',
-    'Zone Ideal Loads Zone Sensible Heating Energy',
-    'Zone Ideal Loads Zone Latent Heating Energy',
+heating_outputs = LoadBalance.HEATING + (
     'Boiler Gas Energy',
     'Heating Coil Total Heating Energy',
     'Heating Coil Gas Energy',
@@ -124,60 +127,22 @@ heating_outputs = (
     'District Heating Hot Water Energy',
     'Baseboard Electric Energy',
     'Energy Management System Metered Output Variable 1')  # needed for ASHP electric
-lighting_outputs = (
-    'Zone Lights Electric Energy',
-    'Zone Lights Total Heating Energy')
-electric_equip_outputs =(
-    'Zone Electric Equipment Electric Energy',
-    'Zone Electric Equipment Total Heating Energy',
-    'Zone Electric Equipment Radiant Heating Energy',
-    'Zone Electric Equipment Convective Heating Energy',
-    'Zone Electric Equipment Latent Gain Energy')
-gas_equip_outputs = (
-    'Zone Gas Equipment Gas Energy',
-    'Zone Gas Equipment Total Heating Energy',
-    'Zone Gas Equipment Radiant Heating Energy',
-    'Zone Gas Equipment Convective Heating Energy',
-    'Zone Gas Equipment Latent Gain Energy')
+lighting_outputs = LoadBalance.LIGHTING
+electric_equip_outputs = LoadBalance.ELECTRIC_EQUIP
+gas_equip_outputs = LoadBalance.GAS_EQUIP
 fan_electric_outputs = (
     'Zone Ventilation Fan Electric Energy',
     'Fan Electric Energy',
     'Cooling Tower Fan Electric Energy')
 pump_electric_outputs = 'Pump Electric Energy'
-people_gain_outputs = (
-    'Zone People Total Heating Energy',
-    'Zone People Sensible Heating Energy',
-    'Zone People Sensible Latent Energy')
-solar_gain_outputs = 'Zone Windows Total Transmitted Solar Radiation Energy'
-infil_gain_outputs = (
-    'Zone Infiltration Total Heat Gain Energy',
-    'Zone Infiltration Sensible Heat Gain Energy',
-    'Zone Infiltration Latent Heat Gain Energy',
-    'AFN Zone Infiltration Sensible Heat Gain Energy',
-    'AFN Zone Infiltration Latent Heat Gain Energy')
-infil_loss_outputs = (
-    'Zone Infiltration Total Heat Loss Energy',
-    'Zone Infiltration Sensible Heat Loss Energy',
-    'Zone Infiltration Latent Heat Loss Energy',
-    'AFN Zone Infiltration Sensible Heat Loss Energy',
-    'AFN Zone Infiltration Latent Heat Loss Energy'
-    )
-vent_loss_outputs = (
-    'Zone Ideal Loads Zone Total Heating Energy',
-    'Zone Ideal Loads Zone Sensible Heating Energy',
-    'Zone Ideal Loads Zone Latent Heating Energy')
-vent_gain_outputs = (
-    'Zone Ideal Loads Zone Total Cooling Energy',
-    'Zone Ideal Loads Zone Sensible Cooling Energy',
-    'Zone Ideal Loads Zone Latent Cooling Energy')
-nat_vent_gain_outputs = (
-    'Zone Ventilation Total Heat Gain Energy',
-    'Zone Ventilation Sensible Heat Gain Energy',
-    'Zone Ventilation Latent Heat Gain Energy')
-nat_vent_loss_outputs = (
-    'Zone Ventilation Total Heat Loss Energy',
-    'Zone Ventilation Sensible Heat Loss Energy',
-    'Zone Ventilation Latent Heat Loss Energy')
+people_gain_outputs = LoadBalance.PEOPLE_GAIN
+solar_gain_outputs = LoadBalance.SOLAR_GAIN
+infil_gain_outputs = LoadBalance.INFIL_GAIN
+infil_loss_outputs = LoadBalance.INFIL_LOSS
+vent_loss_outputs = LoadBalance.VENT_LOSS
+vent_gain_outputs = LoadBalance.VENT_GAIN
+nat_vent_gain_outputs = LoadBalance.NAT_VENT_GAIN
+nat_vent_loss_outputs = LoadBalance.NAT_VENT_LOSS
 all_output = \
 [cooling_outputs, heating_outputs, lighting_outputs, electric_equip_outputs,
  gas_equip_outputs, fan_electric_outputs, pump_electric_outputs, people_gain_outputs,

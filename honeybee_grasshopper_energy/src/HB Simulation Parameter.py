@@ -44,6 +44,13 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
         _timestep_: An integer for the number of timesteps per hour at which the
             calculation will be run. Default: 6. The following values are acceptable:
             (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60)
+        _terrain_: Text for the terrain type in which the model sits, used to determine
+            the wind profile. Default: 'City'. Choose from: 
+                * Ocean
+                * Country
+                * Suburbs
+                * Urban
+                * City
         _sim_control_: A SimulationControl object that describes which types
             of calculations to run. This can be generated from the "HB
             Simulation Control" component. Default: perform a sizing calculation
@@ -55,7 +62,7 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
         _sizing_: A SizingParameter object with criteria for sizing the heating
             and cooling system.  This can be generated from the "HB Sizing
             Parameter" component.
-    
+
     Returns:
         sim_par: A SimulationParameter object that can be connected to the
             "HB Model To IDF" component in order to specify EnergyPlus
@@ -64,7 +71,7 @@ simulation settings and can be plugged into the "HB Model To IDF" component.
 
 ghenv.Component.Name = "HB Simulation Parameter"
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -118,13 +125,17 @@ if _start_dow_ is not None:
 # set the default timestep
 _timestep_ = _timestep_ if _timestep_ is not None else 6
 
+# set the default timestep
+_terrain_ = _terrain_.title() if _terrain_ is not None else 'City'
+
 # return final simulation parameters
 sim_par = SimulationParameter(output=_output_,
                               run_period=_run_period_,
                               timestep=_timestep_,
                               simulation_control=_sim_control_,
                               shadow_calculation=_shadow_calc_,
-                              sizing_parameter=_sizing_)
+                              sizing_parameter=_sizing_,
+                              terrain_type=_terrain_)
 
 # set the north if it is not defaulted
 if _north_ is not None:

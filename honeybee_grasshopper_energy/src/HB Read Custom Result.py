@@ -24,7 +24,7 @@ Parse any time series data from an energy simulation SQL result file.
 
 ghenv.Component.Name = 'HB Read Custom Result'
 ghenv.Component.NickName = 'CustomResult'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.0.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -34,7 +34,8 @@ import subprocess
 import json
 
 try:
-    from ladybug.datacollection import HourlyContinuousCollection
+    from ladybug.datacollection import HourlyContinuousCollection, \
+        MonthlyCollection, DailyCollection
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
@@ -53,6 +54,17 @@ try:
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
+def serialize_data(data_dicts):
+    """Reserialize a list of collection dictionaries."""
+    if len(data_dicts) == 0:
+        return []
+    elif data_dicts[0]['type'] == 'HourlyContinuousCollection':
+        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]
+    elif data_dicts[0]['type'] == 'MonthlyCollection':
+        return [MonthlyCollection.from_dict(data) for data in data_dicts]
+    elif data_dicts[0]['type'] == 'DailyCollection':
+        return [DailyCollection.from_dict(data) for data in data_dicts]
+
 
 if all_required_inputs(ghenv.Component):
     if os.name == 'nt':  # we are on windows; use IronPython like usual
@@ -66,4 +78,4 @@ if all_required_inputs(ghenv.Component):
         process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
         stdout = process.communicate()
         data_dicts = json.loads(stdout[0])
-        results = [HourlyContinuousCollection.from_dict(data) for data in data_dicts[0]]
+        results = serialize_data(data_dicts[0])

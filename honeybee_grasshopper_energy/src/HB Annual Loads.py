@@ -54,6 +54,11 @@ Model to OSM" component.
             into a room per unit of electricity consumed. If set to 1, the
             output will be the energy that must be added to the _rooms to meet
             the setpoint (aka. the heating demand). (Default: 1).
+        run_bal_: Set to True to have the full load balance computed after the
+            simulation is run. This ensures that data collections for various
+            terms of the load balance are output from the "balance".
+            This can help explain why the loads are what they are but can
+            also indrease the component run time slightly. (Default: False).
         _run: Set to "True" to run the simulation to obtain annual loads.
 
     Returns:
@@ -74,16 +79,21 @@ Model to OSM" component.
             Typically, this is only the load from electric equipment but, if
             the attached _rooms have gas equipment, this will be a list of two
             data collections for electric and gas equipment respectively.
+        balance: A list of monthly data collections for the various terms of the
+            floor-normalized load balance in kWh/m2. Will be None unless
+            run_bal_ is set to True.
 """
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.0.2'
+ghenv.Component.Message = '1.0.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 import os
+import subprocess
+import json
 
 try:
     from ladybug.futil import write_to_file_by_name, nukedir
@@ -102,6 +112,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
+    from honeybee_energy.result.loadbalance import LoadBalance
     from honeybee_energy.simulation.parameter import SimulationParameter
     from honeybee_energy.run import run_idf
     from honeybee_energy.result.err import Err
@@ -161,6 +172,22 @@ def data_to_load_intensity(data_colls, floor_area, data_type, cop=1):
     return MonthlyCollection(total_head, total_vals, range(12))
 
 
+def serialize_data(data_dicts):
+    """Reserialize a list of MonthlyCollection dictionaries."""
+    return [MonthlyCollection.from_dict(data) for data in data_dicts]
+
+
+# List of all the output strings that will be requested
+cool_out = 'Zone Ideal Loads Supply Air Total Cooling Energy'
+heat_out = 'Zone Ideal Loads Supply Air Total Heating Energy'
+light_out = 'Zone Lights Electric Energy'
+el_equip_out = 'Zone Electric Equipment Electric Energy'
+gas_equip_out = 'Zone Gas Equipment Gas Energy'
+gl_el_equip_out = 'Zone Electric Equipment Total Heating Energy'
+gl_gas_equip_out = 'Zone Gas Equipment Total Heating Energy'
+energy_output = (cool_out, heat_out, light_out, el_equip_out, gas_equip_out)
+
+
 if all_required_inputs(ghenv.Component) and _run:
     # set defaults for COP
     _heat_cop_ = 1 if _heat_cop_ is None else _heat_cop_
@@ -184,6 +211,11 @@ if all_required_inputs(ghenv.Component) and _run:
     _sim_par_.shadow_calculation.solar_distribution = 'FullExterior'
     _sim_par_.output.add_zone_energy_use()
     _sim_par_.output.reporting_frequency = 'Monthly'
+    if run_bal_:
+        _sim_par_.output.add_output(gl_el_equip_out)
+        _sim_par_.output.add_output(gl_gas_equip_out)
+        _sim_par_.output.add_gains_and_losses('Total')
+        _sim_par_.output.add_surface_energy_flow()
 
     # check the rooms for inaccurate cases
     if _sim_par_.timestep < 4:
@@ -230,17 +262,27 @@ if all_required_inputs(ghenv.Component) and _run:
             raise Exception(error)
 
     # parse the result sql and get the monthly data collections
-    sql_obj = SQLiteResult(sql)
-    cool_init = sql_obj.data_collections_by_output_name(
-        'Zone Ideal Loads Supply Air Total Cooling Energy')
-    heat_init = sql_obj.data_collections_by_output_name(
-        'Zone Ideal Loads Supply Air Total Heating Energy')
-    light_init = sql_obj.data_collections_by_output_name(
-        'Zone Lights Electric Energy')
-    elec_equip_init = sql_obj.data_collections_by_output_name(
-        'Zone Electric Equipment Electric Energy')
-    gas_equip_init = sql_obj.data_collections_by_output_name(
-        'Zone Gas Equipment Gas Energy')
+    if os.name == 'nt':  # we are on windows; use IronPython like usual
+        sql_obj = SQLiteResult(sql)
+        cool_init = sql_obj.data_collections_by_output_name(cool_out)
+        heat_init = sql_obj.data_collections_by_output_name(heat_out)
+        light_init = sql_obj.data_collections_by_output_name(light_out)
+        elec_equip_init = sql_obj.data_collections_by_output_name(el_equip_out)
+        gas_equip_init = sql_obj.data_collections_by_output_name(gas_equip_out)
+    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
+        # Execute the honybee CLI to obtain the results via CPython
+        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
+                'data-by-outputs', sql]
+        for outp in energy_output:
+            cmds.append('["{}"]'.format(outp))
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        stdout = process.communicate()
+        data_coll_dicts = json.loads(stdout[0])
+        cool_init = serialize_data(data_coll_dicts[0])
+        heat_init = serialize_data(data_coll_dicts[1])
+        light_init = serialize_data(data_coll_dicts[2])
+        elec_equip_init = serialize_data(data_coll_dicts[3])
+        gas_equip_init = serialize_data(data_coll_dicts[4])
 
     # convert the results to EUI and ouput them
     cooling = data_to_load_intensity(cool_init, floor_area, 'Cooling', _cool_cop_)
@@ -254,3 +296,19 @@ if all_required_inputs(ghenv.Component) and _run:
         gas_equip = data_to_load_intensity(gas_equip_init, floor_area, 'Gas Equipment')
         equip = [equip, gas_equip]
         total_load.append(gas_equip.total)
+
+    # construct the load balance if requested
+    if run_bal_:
+        if os.name == 'nt':  # we are on windows; use IronPython like usual
+            bal_obj = LoadBalance.from_sql_file(_model, sql)
+            balance = bal_obj.load_balance_terms(True, True)
+        else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
+            # Execute the honybee CLI to obtain the results via CPython
+            model_json = os.path.join(directory, 'in.hbjson')
+            with open(model_json, 'w') as fp:
+                json.dump(_model.to_dict(), fp)
+            cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
+                    'load-balance', model_json, sql]
+            process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+            stdout = process.communicate()
+            balance = serialize_data(json.loads(stdout[0]))
