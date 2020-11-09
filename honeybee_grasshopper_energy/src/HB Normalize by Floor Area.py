@@ -33,7 +33,7 @@ floor area of the corresponding honeybee Rooms.
 
 ghenv.Component.Name = "HB Normalize by Floor Area"
 ghenv.Component.NickName = 'NormByFlr'
-ghenv.Component.Message = '1.0.1'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

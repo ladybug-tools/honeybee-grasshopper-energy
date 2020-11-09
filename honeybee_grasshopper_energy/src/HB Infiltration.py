@@ -35,7 +35,7 @@ assigned directly to a Room.
 
 ghenv.Component.Name = "HB Infiltration"
 ghenv.Component.NickName = 'Infiltration'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"

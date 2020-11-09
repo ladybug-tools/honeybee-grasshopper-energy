@@ -87,7 +87,7 @@ Create a schedule from lists of daily values for each day of the week.
 
 ghenv.Component.Name = "HB Weekly Schedule"
 ghenv.Component.NickName = 'WeeklySchedule'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"

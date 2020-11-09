@@ -41,7 +41,7 @@ Deconstruct a construction set into its constituient exterior constructions.
 
 ghenv.Component.Name = "HB Deconstruct ConstructionSet"
 ghenv.Component.NickName = 'DecnstrConstrSet'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "2"

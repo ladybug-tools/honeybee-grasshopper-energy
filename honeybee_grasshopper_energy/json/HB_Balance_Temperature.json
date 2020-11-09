@@ -1,18 +1,18 @@
 {
-  "version": "1.0.0", 
+  "version": "1.1.0", 
   "nickname": "BalTemp", 
   "outputs": [
     [
       {
         "access": "None", 
-        "name": "energyUsedOnBalDay", 
+        "name": "bal_day_load", 
         "description": "The average thermal load on the balance day. This number should\nbe close to 0 if the balance temperature is accurate and this output\nis meant to give a sense of the accuracy of the balance temperature value.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
-        "name": "balanceTemperature", 
+        "name": "bal_temp", 
         "description": "The outdoor balance temperature.", 
         "type": null, 
         "default": null
@@ -29,7 +29,7 @@
     }, 
     {
       "access": "list", 
-      "name": "x", 
+      "name": "_heating", 
       "description": "Data collection for the annual hourly or daily ideal air heating\nload output from the \"HB Read Room Energy Result\" component.  This\ncan be for a single room or the entire model.", 
       "type": "System.Object", 
       "default": null

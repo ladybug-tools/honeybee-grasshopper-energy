@@ -36,7 +36,7 @@ values over each unique day of the schedule using a component like the
 
 ghenv.Component.Name = "HB Deconstruct Schedule"
 ghenv.Component.NickName = 'DeconstrSch'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"

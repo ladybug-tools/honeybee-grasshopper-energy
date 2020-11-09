@@ -33,7 +33,7 @@ innermost (interior) layer.
 
 ghenv.Component.Name = "HB Opaque Construction"
 ghenv.Component.NickName = 'OpaqueConstr'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
