@@ -36,7 +36,7 @@ orientation, provided that a list of WindowConstructions are input to the _const
 
 ghenv.Component.Name = "HB Apply Window Construction"
 ghenv.Component.NickName = 'ApplyWindowConstr'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

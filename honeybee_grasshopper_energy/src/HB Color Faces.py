@@ -56,7 +56,7 @@ Visualize face and sub-face level energy simulation results as colored geometry.
 
 ghenv.Component.Name = "HB Color Faces"
 ghenv.Component.NickName = 'ColorFaces'
-ghenv.Component.Message = '1.0.1'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

@@ -48,7 +48,7 @@ repeating continuously over every day of the year.
 
 ghenv.Component.Name = "HB Constant Schedule"
 ghenv.Component.NickName = 'ConstantSchedule'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"

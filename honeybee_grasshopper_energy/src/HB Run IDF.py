@@ -42,7 +42,7 @@ Run an IDF file through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run IDF'
 ghenv.Component.NickName = 'RunIDF'
-ghenv.Component.Message = '1.0.0'
+ghenv.Component.Message = '1.1.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
