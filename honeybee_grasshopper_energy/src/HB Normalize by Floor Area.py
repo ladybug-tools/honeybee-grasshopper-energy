@@ -33,7 +33,7 @@ floor area of the corresponding honeybee Rooms.
 
 ghenv.Component.Name = "HB Normalize by Floor Area"
 ghenv.Component.NickName = 'NormByFlr'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -94,10 +94,16 @@ if all_required_inputs(ghenv.Component):
         for data_i in match_tups[1:]:
             for i, val in enumerate(data_i[1]):
                 summed_vals[i] += val
-        try:
-            total_data = _data[0].duplicate()
-            total_data.values = summed_vals
-            total_data = total_data.normalize_by_area(total_area, 'm2')
-            total_data.header.metadata = {'type': room_data[0].header.metadata['type']}
-        except ZeroDivisionError:  # no floors in the model
-            give_warning(ghenv.Component, 'No floors were found in the input _model.')
+    else:  # just assume all of the data corresponds with all input rooms
+        summed_vals = [0 for val in _data[0]]
+        total_area = sum(room.floor_area for room in rooms)
+        for d in _data:
+            for i, val in enumerate(d):
+                summed_vals[i] += val
+    try:
+        total_data = _data[0].duplicate()
+        total_data.values = summed_vals
+        total_data = total_data.normalize_by_area(total_area, 'm2')
+        total_data.header.metadata = {'type': _data[0].header.metadata['type']}
+    except ZeroDivisionError:  # no floors in the model
+        give_warning(ghenv.Component, 'No floors were found in the input _model.')
