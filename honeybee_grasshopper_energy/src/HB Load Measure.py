@@ -35,7 +35,7 @@ https://bcl.nrel.gov/nrel/types/measure
 
 ghenv.Component.Name = 'HB Load Measure'
 ghenv.Component.NickName = 'LoadMeasure'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -165,7 +165,7 @@ def update_measure_arguments(measure):
                     pass  # choice argument with no valid choices
                 else:
                     argument.value = val if val != 'False' else False
-        except IndexError:  # there is no input for this value; just ignore it
+        except Exception:  # there is no input for this value; just ignore it
             pass
 
 
