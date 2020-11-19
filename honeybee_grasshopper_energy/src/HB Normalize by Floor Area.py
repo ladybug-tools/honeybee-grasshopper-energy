@@ -33,7 +33,7 @@ floor area of the corresponding honeybee Rooms.
 
 ghenv.Component.Name = "HB Normalize by Floor Area"
 ghenv.Component.NickName = 'NormByFlr'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -96,7 +96,7 @@ if all_required_inputs(ghenv.Component):
                 summed_vals[i] += val
     else:  # just assume all of the data corresponds with all input rooms
         summed_vals = [0 for val in _data[0]]
-        total_area = sum(room.floor_area for room in rooms)
+        total_area = sum(room.floor_area * room.multiplier for room in rooms)
         for d in _data:
             for i, val in enumerate(d):
                 summed_vals[i] += val
