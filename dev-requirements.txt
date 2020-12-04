@@ -1,11 +1,8 @@
 coverage==5.3
-coveralls==1.7.0;python_version<'3.0'
-coveralls==2.2.0;python_version>='3.6'
-pytest==4.6.9;python_version<'3.0'
-pytest==6.1.2;python_version>='3.6'
+coveralls==2.2.0
+pytest==6.1.2
 pytest-cov==2.10.1
-twine==1.13.0;python_version<'3.0'
-twine==3.2.0;python_version>='3.6'
-setuptools==44.1.0;python_version<'3.0'
-setuptools==50.3.2;python_version>='3.6'
+twine==3.2.0
+wheel==0.36.0
+setuptools==50.3.2
 importlib-metadata==3.1.1
