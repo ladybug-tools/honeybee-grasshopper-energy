@@ -86,7 +86,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -98,6 +98,7 @@ import json
 try:
     from ladybug.futil import write_to_file_by_name, nukedir
     from ladybug.epw import EPW
+    from ladybug.sql import SQLiteResult
     from ladybug.datacollection import MonthlyCollection
     from ladybug.header import Header
     from ladybug.analysisperiod import AnalysisPeriod
@@ -116,7 +117,6 @@ try:
     from honeybee_energy.simulation.parameter import SimulationParameter
     from honeybee_energy.run import run_idf
     from honeybee_energy.result.err import Err
-    from honeybee_energy.result.sql import SQLiteResult
     from honeybee_energy.writer import energyplus_idf_version
     from honeybee_energy.config import folders as energy_folders
 except ImportError as e:
@@ -129,7 +129,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 # check the presence of openstudio and check that the version is compatible
-compatibe_ep_version = (9, 3, 0)
+compatibe_ep_version = (9, 4, 0)
 hb_url = 'https://github.com/ladybug-tools/lbt-grasshopper/wiki/1.4-Compatibility-Matrix'
 in_msg = 'Get a compatible version of EnergyPlus by downloading and installing\nthe ' \
     'version of OpenStudio listed in the Ladybug Tools compatibility matrix\n{}.'.format(hb_url)
@@ -180,9 +180,9 @@ def serialize_data(data_dicts):
 # List of all the output strings that will be requested
 cool_out = 'Zone Ideal Loads Supply Air Total Cooling Energy'
 heat_out = 'Zone Ideal Loads Supply Air Total Heating Energy'
-light_out = 'Zone Lights Electric Energy'
-el_equip_out = 'Zone Electric Equipment Electric Energy'
-gas_equip_out = 'Zone Gas Equipment Gas Energy'
+light_out = 'Zone Lights Electricity Energy'
+el_equip_out = 'Zone Electric Equipment Electricity Energy'
+gas_equip_out = 'Zone Gas Equipment NaturalGas Energy'
 gl_el_equip_out = 'Zone Electric Equipment Total Heating Energy'
 gl_gas_equip_out = 'Zone Gas Equipment Total Heating Energy'
 energy_output = (cool_out, heat_out, light_out, el_equip_out, gas_equip_out)

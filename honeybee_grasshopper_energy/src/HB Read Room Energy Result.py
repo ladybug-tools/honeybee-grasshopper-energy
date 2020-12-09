@@ -15,7 +15,7 @@ that has been generated from an energy simulation.
     Args:
         _sql: The file path of the SQL result file that has been generated from
             an energy simulation.
-    
+
     Returns:
         cooling: DataCollections for the cooling energy in kWh. For Ideal Air
             loads, this output is the sum of sensible and latent heat that must
@@ -49,7 +49,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -59,6 +59,7 @@ import subprocess
 import json
 
 try:
+    from ladybug.sql import SQLiteResult
     from ladybug.datacollection import HourlyContinuousCollection, \
         MonthlyCollection, DailyCollection
 except ImportError as e:
@@ -70,7 +71,6 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
-    from honeybee_energy.result.sql import SQLiteResult
     from honeybee_energy.result.loadbalance import LoadBalance
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -106,35 +106,35 @@ def serialize_data(data_dicts):
 
 # List of all the output strings that will be requested
 cooling_outputs = LoadBalance.COOLING + (
-    'Cooling Coil Electric Energy',
-    'Chiller Electric Energy',
-    'Zone VRF Air Terminal Cooling Electric Energy',
-    'VRF Heat Pump Cooling Electric Energy',
-    'Chiller Heater System Cooling Electric Energy',
+    'Cooling Coil Electricity Energy',
+    'Chiller Electricity Energy',
+    'Zone VRF Air Terminal Cooling Electricity Energy',
+    'VRF Heat Pump Cooling Electricity Energy',
+    'Chiller Heater System Cooling Electricity Energy',
     'District Cooling Chilled Water Energy',
-    'Evaporative Cooler Electric Energy')
+    'Evaporative Cooler Electricity Energy')
 heating_outputs = LoadBalance.HEATING + (
-    'Boiler Gas Energy',
+    'Boiler NaturalGas Energy',
     'Heating Coil Total Heating Energy',
-    'Heating Coil Gas Energy',
-    'Heating Coil Electric Energy',
-    'Humidifier Electric Energy',
-    'Zone VRF Air Terminal Heating Electric Energy',
-    'VRF Heat Pump Heating Electric Energy',
-    'VRF Heat Pump Defrost Electric Energy',
-    'VRF Heat Pump Crankcase Heater Electric Energy',
-    'Chiller Heater System Heating Electric Energy',
+    'Heating Coil NaturalGas Energy',
+    'Heating Coil Electricity Energy',
+    'Humidifier Electricity Energy',
+    'Zone VRF Air Terminal Heating Electricity Energy',
+    'VRF Heat Pump Heating Electricity Energy',
+    'VRF Heat Pump Defrost Electricity Energy',
+    'VRF Heat Pump Crankcase Heater Electricity Energy',
+    'Chiller Heater System Heating Electricity Energy',
     'District Heating Hot Water Energy',
-    'Baseboard Electric Energy',
-    'Energy Management System Metered Output Variable 1')  # needed for ASHP electric
+    'Baseboard Electricity Energy',
+    'Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption')
 lighting_outputs = LoadBalance.LIGHTING
 electric_equip_outputs = LoadBalance.ELECTRIC_EQUIP
 gas_equip_outputs = LoadBalance.GAS_EQUIP
 fan_electric_outputs = (
-    'Zone Ventilation Fan Electric Energy',
-    'Fan Electric Energy',
-    'Cooling Tower Fan Electric Energy')
-pump_electric_outputs = 'Pump Electric Energy'
+    'Zone Ventilation Fan Electricity Energy',
+    'Fan Electricity Energy',
+    'Cooling Tower Fan Electricity Energy')
+pump_electric_outputs = 'Pump Electricity Energy'
 people_gain_outputs = LoadBalance.PEOPLE_GAIN
 solar_gain_outputs = LoadBalance.SOLAR_GAIN
 infil_gain_outputs = LoadBalance.INFIL_GAIN
