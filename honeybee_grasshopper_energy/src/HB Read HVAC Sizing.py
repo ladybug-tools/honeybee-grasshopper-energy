@@ -40,7 +40,7 @@ been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read HVAC Sizing'
 ghenv.Component.NickName = 'ReadHVAC'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -50,14 +50,14 @@ import subprocess
 import json
 
 try:
+    from ladybug.sql import SQLiteResult, ZoneSize, ComponentSize
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
+
+try:
     from honeybee.config import folders
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
-
-try:
-    from honeybee_energy.result.sql import SQLiteResult, ZoneSize, ComponentSize
-except ImportError as e:
-    raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
     from ladybug_rhino.grasshopper import all_required_inputs, list_to_data_tree

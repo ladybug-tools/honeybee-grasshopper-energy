@@ -24,7 +24,7 @@ Parse any time series data from an energy simulation SQL result file.
 
 ghenv.Component.Name = 'HB Read Custom Result'
 ghenv.Component.NickName = 'CustomResult'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -36,6 +36,7 @@ import json
 try:
     from ladybug.datacollection import HourlyContinuousCollection, \
         MonthlyCollection, DailyCollection
+    from ladybug.sql import SQLiteResult
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
@@ -43,11 +44,6 @@ try:
     from honeybee.config import folders
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
-
-try:
-    from honeybee_energy.result.sql import SQLiteResult
-except ImportError as e:
-    raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
     from ladybug_rhino.grasshopper import all_required_inputs
