@@ -27,6 +27,8 @@ varies over the simulation, the "Always On" schedule will be used as a default.
         electric_watts_: A number for the installed wattage of electric equipment
             in the room.
         gas_watts_: A number for the installed wattage of gas equipment in the room.
+        hot_wtr_flow_: Number for the peak flow rate of service hot water in the
+            room in liters per hour (L/h).
         infiltration_ach_: A number for the infiltration flow rate in air changes
             per hour (ACH).
 
@@ -37,7 +39,7 @@ varies over the simulation, the "Always On" schedule will be used as a default.
 
 ghenv.Component.Name = 'HB Apply Abolute Load Values'
 ghenv.Component.NickName = 'AbsoluteLoadVals'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -76,7 +78,13 @@ if all_required_inputs(ghenv.Component):
         for i, room in enumerate(rooms):
             room.properties.energy.abolute_gas_equipment(
                 longest_list(gas_watts_, i), conversion)
-    
+
+    # assign the hot_wtr_flow_
+    if len(hot_wtr_flow_) != 0:
+        for i, room in enumerate(rooms):
+            room.properties.energy.abolute_service_hot_water(
+                longest_list(hot_wtr_flow_, i), conversion)
+
     # assign the infiltration_ach_
     if len(infiltration_ach_) != 0:
         for i, room in enumerate(rooms):

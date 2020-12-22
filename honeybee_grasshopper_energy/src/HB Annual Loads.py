@@ -72,6 +72,7 @@ Model to OSM" component.
             * lighting
             * electric equipment
             * gas equipment (if the input rooms have it)
+            * service hot water (if the input rooms have it)
         cooling: A monthly Data Collection for the cooling load intensity in kWh/m2.
         heating: A monthly Data Collection for the heating load intensity in kWh/m2.
         lighting: A monthly Data Collection for the lighting load intensity in kWh/m2.
@@ -79,6 +80,8 @@ Model to OSM" component.
             Typically, this is only the load from electric equipment but, if
             the attached _rooms have gas equipment, this will be a list of two
             data collections for electric and gas equipment respectively.
+        hot_water: A monthly Data Collection for the service hot water load intensity
+            in kWh/m2.
         balance: A list of monthly data collections for the various terms of the
             floor-normalized load balance in kWh/m2. Will be None unless
             run_bal_ is set to True.
@@ -86,7 +89,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.1.2'
+ghenv.Component.Message = '1.1.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -183,9 +186,12 @@ heat_out = 'Zone Ideal Loads Supply Air Total Heating Energy'
 light_out = 'Zone Lights Electricity Energy'
 el_equip_out = 'Zone Electric Equipment Electricity Energy'
 gas_equip_out = 'Zone Gas Equipment NaturalGas Energy'
+shw_out = 'Water Use Equipment Heating Energy'
 gl_el_equip_out = 'Zone Electric Equipment Total Heating Energy'
 gl_gas_equip_out = 'Zone Gas Equipment Total Heating Energy'
-energy_output = (cool_out, heat_out, light_out, el_equip_out, gas_equip_out)
+gl1_shw_out = 'Water Use Equipment Zone Sensible Heat Gain Energy'
+gl2_shw_out = 'Water Use Equipment Zone Latent Gain Energy'
+energy_output = (cool_out, heat_out, light_out, el_equip_out, gas_equip_out, shw_out)
 
 
 if all_required_inputs(ghenv.Component) and _run:
@@ -214,6 +220,8 @@ if all_required_inputs(ghenv.Component) and _run:
     if run_bal_:
         _sim_par_.output.add_output(gl_el_equip_out)
         _sim_par_.output.add_output(gl_gas_equip_out)
+        _sim_par_.output.add_output(gl1_shw_out)
+        _sim_par_.output.add_output(gl2_shw_out)
         _sim_par_.output.add_gains_and_losses('Total')
         _sim_par_.output.add_surface_energy_flow()
 
@@ -269,6 +277,7 @@ if all_required_inputs(ghenv.Component) and _run:
         light_init = sql_obj.data_collections_by_output_name(light_out)
         elec_equip_init = sql_obj.data_collections_by_output_name(el_equip_out)
         gas_equip_init = sql_obj.data_collections_by_output_name(gas_equip_out)
+        shw_init = sql_obj.data_collections_by_output_name(shw_out)
     else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
         # Execute the honybee CLI to obtain the results via CPython
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
@@ -283,6 +292,7 @@ if all_required_inputs(ghenv.Component) and _run:
         light_init = serialize_data(data_coll_dicts[2])
         elec_equip_init = serialize_data(data_coll_dicts[3])
         gas_equip_init = serialize_data(data_coll_dicts[4])
+        shw_init = serialize_data(data_coll_dicts[5])
 
     # convert the results to EUI and ouput them
     cooling = data_to_load_intensity(cool_init, floor_area, 'Cooling', _cool_cop_)
@@ -296,6 +306,9 @@ if all_required_inputs(ghenv.Component) and _run:
         gas_equip = data_to_load_intensity(gas_equip_init, floor_area, 'Gas Equipment')
         equip = [equip, gas_equip]
         total_load.append(gas_equip.total)
+    if len(shw_init) != 0:
+        hot_water = data_to_load_intensity(shw_init, floor_area, 'Service Hot Water')
+        total_load.append(hot_water.total)
 
     # construct the load balance if requested
     if run_bal_:

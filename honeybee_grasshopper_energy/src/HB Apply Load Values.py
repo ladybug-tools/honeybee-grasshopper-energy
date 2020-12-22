@@ -27,6 +27,8 @@ simulation, the "Always On" schedule will be used as a default.
             in Watts per square meter of floor area.
         gas_per_floor_: A numerical value for the gas equipment power density in
             Watts per square meter of floor area.
+        hot_wtr_per_floor_: A numerical value for the total volume flow rate of water
+            per unit area of floor in (L/h-m2).
         infilt_per_exterior_: A numerical value for the intensity of infiltration
             in m3/s per square meter of exterior surface area. Typical values for
             this property are as follows (note all values are at typical building
@@ -54,7 +56,7 @@ simulation, the "Always On" schedule will be used as a default.
 
 ghenv.Component.Name = "HB Apply Load Values"
 ghenv.Component.NickName = 'ApplyLoadVals'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -70,6 +72,7 @@ try:
     from honeybee_energy.load.people import People
     from honeybee_energy.load.lighting import Lighting
     from honeybee_energy.load.equipment import ElectricEquipment, GasEquipment
+    from honeybee_energy.load.hotwater import ServiceHotWater
     from honeybee_energy.load.infiltration import Infiltration
     from honeybee_energy.load.ventilation import Ventilation
     from honeybee_energy.lib.schedules import schedule_by_identifier
@@ -166,7 +169,14 @@ if all_required_inputs(ghenv.Component):
             equip = dup_load(obj, 'gas_equipment', GasEquipment)
             equip.watts_per_area = longest_list(gas_per_floor_, i)
             assign_load(obj, equip, 'gas_equipment')
-    
+
+    # assign the hot_wtr_per_floor_
+    if len(hot_wtr_per_floor_) != 0:
+        for i, obj in enumerate(mod_obj):
+            shw = dup_load(obj, 'service_hot_water', ServiceHotWater)
+            shw.flow_per_area = longest_list(hot_wtr_per_floor_, i)
+            assign_load(obj, shw, 'service_hot_water')
+
     # assign the infilt_per_exterior_
     if len(infilt_per_exterior_) != 0:
         for i, obj in enumerate(mod_obj):
