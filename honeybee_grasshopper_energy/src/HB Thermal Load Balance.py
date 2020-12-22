@@ -26,6 +26,8 @@ honeybee Rooms or a Model.
         electric_equip_: Array of data collections for 'Zone Electric Equipment
             Heating Energy'.
         gas_equip_: Array of data collections for 'Zone Gas Equipment Heating Energy'.
+        hot_water_: Array of data collections for 'Water Use Equipment Zone Heat
+            Gain Energy' that correspond to the input rooms.
         people_gain_: Array of data collections for 'Zone People Heating Energy'.
         solar_gain_: Array of data collections for 'Zone Windows Transmitted
             Solar Radiation Energy'.
@@ -38,7 +40,7 @@ honeybee Rooms or a Model.
             heat loss (negative) or heat gain (positive).
         face_energy_flow_: An array of data collections for the surface heat loss
             (negative) or heat gain (positive).
-    
+
     Returns:
         report: ...
         balance:  A list of data collections where each collection represents a
@@ -63,7 +65,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -117,6 +119,7 @@ if all_required_inputs(ghenv.Component):
     lighting_ = check_input(lighting_)
     electric_equip_ = check_input(electric_equip_)
     gas_equip_ = check_input(gas_equip_)
+    hot_water_ = check_input(hot_water_)
     people_gain_ = check_input(people_gain_)
     solar_gain_ = check_input(solar_gain_)
     infiltration_load_ = check_input(infiltration_load_)
@@ -126,7 +129,7 @@ if all_required_inputs(ghenv.Component):
 
     # construct the load balance object and output the results
     load_bal_obj = LoadBalance(
-        rooms, cooling_, heating_, lighting_, electric_equip_, gas_equip_,
+        rooms, cooling_, heating_, lighting_, electric_equip_, gas_equip_, hot_water_,
         people_gain_, solar_gain_, infiltration_load_, mech_vent_load_,
         nat_vent_load_, face_energy_flow_, units_system(), use_all_solar=is_model)
 

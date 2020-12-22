@@ -1,0 +1,64 @@
+{
+  "version": "1.1.0", 
+  "nickname": "ServiceHotWater", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "hot_water", 
+        "description": "A ServiceHotWater object that can be used to specify hot water usage\nin a ProgramType.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "Text to set the name for the ServiceHotWater and to be incorporated\ninto a unique ServiceHotWater identifier. If None, a unique name will\nbe generated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_flow_per_area", 
+      "description": "A numerical value for the total volume flow rate of water\nper unit area of floor (L/h-m2).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_schedule", 
+      "description": "A fractional schedule for the use of hot water over the course of\nthe year. The fractional values will get multiplied by the\n_flow_per_area to yield a complete water usage profile.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_target_temp_", 
+      "description": "The target temperature of the water out of the tap in Celsius.\nThis the temperature after the hot water has been mixed with cold\nwater from the water mains. The default value assumes that the\nflow_per_area on this object is only for water straight out\nof the water heater. (Default: 60C).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_sensible_fract_", 
+      "description": "A number between 0 and 1 for the fraction of the total\nhot water load given off as sensible heat in the zone. (Default: 0.2).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_latent_fract_", 
+      "description": "A number between 0 and 1 for the fraction of the total\nhot water load that is latent (as opposed to sensible). (Default: 0.05).", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.hotwater import ServiceHotWater\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # make a default ServiceHotWater name if none is provided\n    if _name_ is None:\n        name = 'ServiceHotWater_{}'.format(uuid.uuid4())\n    else:\n        name = clean_and_id_ep_string(_name_)\n\n    # get the schedule\n    if isinstance(_schedule, str):\n        _schedule = schedule_by_identifier(_schedule)\n\n    # get default radiant, latent, and lost fractions\n    _target_temp_ = _target_temp_ if _target_temp_ is not None else 60\n    _sensible_fract_ = _sensible_fract_ if _sensible_fract_ is not None else 0.2\n    _latent_fract_ = _latent_fract_ if _latent_fract_ is not None else 0.05\n\n    # create the ServiceHotWater object\n    equip = ServiceHotWater(name, _flow_per_area, _schedule, _target_temp_,\n                            _sensible_fract_, _latent_fract_)\n    if _name_ is not None:\n        equip.display_name = _name_", 
+  "category": "HB-Energy", 
+  "name": "HB Service Hot Water", 
+  "description": "Create an ServiceHotWater object that can be used to specify hot water usage in\na ProgramType.\n-"
+}

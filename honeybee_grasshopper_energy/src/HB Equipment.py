@@ -8,8 +8,7 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Create an Equipment object that can be used to create a ProgramType or be assigned
-directly to a Room.
+Create an Equipment object that can be used to specify equipment usage in a ProgramType.
 -
 
     Args:
@@ -18,28 +17,28 @@ directly to a Room.
             be generated.
          _watts_per_area: A numerical value for the equipment power density in
             Watts per square meter of floor area.
-        _schedule: A fractional for the use of equipment over the course of the year.
-            The fractional values will get multiplied by the _watts_per_area to
-            yield a complete equipment profile.
+        _schedule: A fractional schedule for the use of equipment over the course of
+            the year. The fractional values will get multiplied by the
+            _watts_per_area to yield a complete equipment profile.
         radiant_fract_: A number between 0 and 1 for the fraction of the total
-            equipment load given off as long wave radiant heat. Default: 0.
+            equipment load given off as long wave radiant heat. (Default: 0).
         latent_fract_: A number between 0 and 1 for the fraction of the total
-            equipment load that is latent (as opposed to sensible). Default: 0.
+            equipment load that is latent (as opposed to sensible). (Default: 0).
         lost_fract_: A number between 0 and 1 for the fraction of the total
             equipment load that is lost outside of the zone and the HVAC system.
             Typically, this is used to represent heat that is exhausted directly
-            out of a zone (as you would for a stove). Default: 0.
+            out of a zone (as you would for a stove). (Default: 0).
         gas_: Set to "True" to have the output Equipment object be for GasEquipment
             (as opposed to ElectricEquipment).
-    
+
     Returns:
-        equip: An Equipment object that can be used to create a ProgramType or
-            be assigned directly to a Room.
+        equip: An Equipment object that can be used to specify equipment usage in
+            a ProgramType.
 """
 
 ghenv.Component.Name = "HB Equipment"
 ghenv.Component.NickName = 'Equipment'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"

@@ -25,11 +25,13 @@ that has been generated from an energy simulation.
             Air loads, this is the heat that must be added to each room.  For
             detailed HVAC systems, this will be fuel energy or electric energy
             needed for each boiler/heating element.
-        lighting: DataCollections for the electric lighting energy needed for
+        lighting: DataCollections for the electric lighting energy used for
             each room in kWh.
-        electric_equip: DataCollections for the electric equipment energy needed
+        electric_equip: DataCollections for the electric equipment energy used
             for each room in kWh.
-        gas_equip: DataCollections for the gas equipment energy needed for each
+        gas_equip: DataCollections for the gas equipment energy used for each
+            room in kWh.
+        hot_water: DataCollections for the service hote water energy used for each
             room in kWh.
         fan_electric: DataCollections for the fan electric energy in kWh for
             either a ventilation fan or a HVAC system fan.
@@ -49,7 +51,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.1.2'
+ghenv.Component.Message = '1.1.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -130,6 +132,7 @@ heating_outputs = LoadBalance.HEATING + (
 lighting_outputs = LoadBalance.LIGHTING
 electric_equip_outputs = LoadBalance.ELECTRIC_EQUIP
 gas_equip_outputs = LoadBalance.GAS_EQUIP
+shw_outputs = ('Water Use Equipment Heating Energy',) + LoadBalance.HOT_WATER
 fan_electric_outputs = (
     'Zone Ventilation Fan Electricity Energy',
     'Fan Electricity Energy',
@@ -145,9 +148,9 @@ nat_vent_gain_outputs = LoadBalance.NAT_VENT_GAIN
 nat_vent_loss_outputs = LoadBalance.NAT_VENT_LOSS
 all_output = \
 [cooling_outputs, heating_outputs, lighting_outputs, electric_equip_outputs,
- gas_equip_outputs, fan_electric_outputs, pump_electric_outputs, people_gain_outputs,
- solar_gain_outputs, infil_gain_outputs, infil_loss_outputs, vent_loss_outputs,
- vent_gain_outputs, nat_vent_gain_outputs, nat_vent_loss_outputs]
+ gas_equip_outputs, shw_outputs, fan_electric_outputs, pump_electric_outputs,
+ people_gain_outputs, solar_gain_outputs, infil_gain_outputs, infil_loss_outputs,
+ vent_loss_outputs, vent_gain_outputs, nat_vent_gain_outputs, nat_vent_loss_outputs]
 
 
 if all_required_inputs(ghenv.Component):
@@ -160,6 +163,7 @@ if all_required_inputs(ghenv.Component):
         heating = sql_obj.data_collections_by_output_name(heating_outputs)
         lighting = sql_obj.data_collections_by_output_name(lighting_outputs)
         electric_equip = sql_obj.data_collections_by_output_name(electric_equip_outputs)
+        hot_water = sql_obj.data_collections_by_output_name(shw_outputs)
         gas_equip = sql_obj.data_collections_by_output_name(gas_equip_outputs)
         fan_electric = sql_obj.data_collections_by_output_name(fan_electric_outputs)
         pump_electric = sql_obj.data_collections_by_output_name(pump_electric_outputs)
@@ -191,18 +195,19 @@ if all_required_inputs(ghenv.Component):
         lighting = serialize_data(data_coll_dicts[2])
         electric_equip = serialize_data(data_coll_dicts[3])
         gas_equip = serialize_data(data_coll_dicts[4])
-        fan_electric = serialize_data(data_coll_dicts[5])
-        pump_electric = serialize_data(data_coll_dicts[6])
+        hot_water = serialize_data(data_coll_dicts[5])
+        fan_electric = serialize_data(data_coll_dicts[6])
+        pump_electric = serialize_data(data_coll_dicts[7])
 
         # get all of the results relevant for gains and losses
-        people_gain = serialize_data(data_coll_dicts[7])
-        solar_gain = serialize_data(data_coll_dicts[8])
-        infil_gain = serialize_data(data_coll_dicts[9])
-        infil_loss = serialize_data(data_coll_dicts[10])
-        vent_loss = serialize_data(data_coll_dicts[11])
-        vent_gain = serialize_data(data_coll_dicts[12])
-        nat_vent_gain = serialize_data(data_coll_dicts[13])
-        nat_vent_loss = serialize_data(data_coll_dicts[14])
+        people_gain = serialize_data(data_coll_dicts[8])
+        solar_gain = serialize_data(data_coll_dicts[9])
+        infil_gain = serialize_data(data_coll_dicts[10])
+        infil_loss = serialize_data(data_coll_dicts[11])
+        vent_loss = serialize_data(data_coll_dicts[12])
+        vent_gain = serialize_data(data_coll_dicts[13])
+        nat_vent_gain = serialize_data(data_coll_dicts[14])
+        nat_vent_loss = serialize_data(data_coll_dicts[15])
 
     # do arithmetic with any of the gain/loss data collections
     if len(infil_gain) == len(infil_loss):
@@ -217,3 +222,11 @@ if all_required_inputs(ghenv.Component):
                 'Zone Ideal Loads Ventilation Heat Energy'
     if len(nat_vent_gain) == len(nat_vent_loss):
         nat_vent_load = subtract_loss_from_gain(nat_vent_gain, nat_vent_loss)
+
+    # remove the district hot water system used for service hot water from space heating
+    for i, heat in enumerate(heating):
+        try:
+            if heat.header.metadata['System'] == 'SERVICE HOT WATER DISTRICT HEAT':
+                heating.pop(i)
+        except KeyError:
+            pass

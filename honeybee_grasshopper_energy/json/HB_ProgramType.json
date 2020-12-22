@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "ProgramType", 
   "outputs": [
     [
@@ -30,56 +30,63 @@
     {
       "access": "item", 
       "name": "_people_", 
-      "description": "A People object to describe the occupancy of the program. If None,\nno occupancy will be assumed for the program. Default: None.", 
+      "description": "A People object to describe the occupancy of the program. If None,\nno occupancy will be assumed for the program. (Default: None).", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_lighting_", 
-      "description": "A Lighting object to describe the lighting usage of the program.\nIf None, no lighting will be assumed for the program. Default: None.", 
+      "description": "A Lighting object to describe the lighting usage of the program.\nIf None, no lighting will be assumed for the program. (Default: None).", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_electric_equip_", 
-      "description": "An ElectricEquipment object to describe the usage\nof electric equipment within the program. If None, no electric equipment\nwill be assumed for the program. Default: None.", 
+      "description": "An ElectricEquipment object to describe the usage\nof electric equipment within the program. If None, no electric equipment\nwill be assumed for the program. (Default: None).", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_gas_equip_", 
-      "description": "A GasEquipment object to describe the usage of gas equipment\nwithin the program. If None, no gas equipment will be assumed for\nthe program. Default: None.", 
+      "description": "A GasEquipment object to describe the usage of gas equipment\nwithin the program. If None, no gas equipment will be assumed for\nthe program. (Default: None).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_hot_water_", 
+      "description": "A ServiceHotWater object to describe the usage of hot water\nwithin the program. If None, no hot water will be assumed for\nthe program. (Default: None).", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_infiltration_", 
-      "description": "An Infiltration object to describe the outdoor air leakage of\nthe program. If None, no infiltration will be assumed for the program.", 
+      "description": "An Infiltration object to describe the outdoor air leakage of\nthe program. If None, no infiltration will be assumed for the\nprogram. (Default: None).", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_ventilation_", 
-      "description": "A Ventilation object to describe the minimum outdoor air\nrequirement of the program. If None, no ventilation requirement will\nbe assumed for the program. Default: None", 
+      "description": "A Ventilation object to describe the minimum outdoor air\nrequirement of the program. If None, no ventilation requirement will\nbe assumed for the program. (Default: None).", 
       "type": "System.Object", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_setpoint_", 
-      "description": "A Setpoint object to describe the temperature and humidity\nsetpoints of the program.  If None, the ProgramType cannot be assigned\nto a Room that is conditioned. Default: None.", 
+      "description": "A Setpoint object to describe the temperature and humidity\nsetpoints of the program.  If None, the ProgramType cannot be assigned\nto a Room that is conditioned. (Default: None).", 
       "type": "System.Object", 
       "default": null
     }
   ], 
   "subcategory": "0 :: Basic Properties", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.programtype import ProgramType\n    from honeybee_energy.lib.programtypes import program_type_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # get the base program type\n    if base_program_ is None:\n        program = ProgramType(clean_and_id_ep_string(_name))\n        program.display_name = _name\n    else:\n        if isinstance(base_program_, str):\n            base_program_ = program_type_by_identifier(base_program_)\n        program = base_program_.duplicate()\n        program.identifier = clean_and_id_ep_string(_name)\n        program.display_name = _name\n    \n    # go through each input load and assign it to the set\n    if _people_ is not None:\n        program.people = _people_\n    if _lighting_ is not None:\n        program.lighting = _lighting_\n    if _electric_equip_ is not None:\n        program.electric_equipment = _electric_equip_\n    if _gas_equip_ is not None:\n        program.gas_equipment = _gas_equip_\n    if _infiltration_ is not None:\n        program.infiltration = _infiltration_\n    if _ventilation_ is not None:\n        program.ventilation = _ventilation_\n    if _setpoint_ is not None:\n        program.setpoint = _setpoint_\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.programtype import ProgramType\n    from honeybee_energy.lib.programtypes import program_type_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # get the base program type\n    if base_program_ is None:\n        program = ProgramType(clean_and_id_ep_string(_name))\n        program.display_name = _name\n    else:\n        if isinstance(base_program_, str):\n            base_program_ = program_type_by_identifier(base_program_)\n        program = base_program_.duplicate()\n        program.identifier = clean_and_id_ep_string(_name)\n        program.display_name = _name\n    \n    # go through each input load and assign it to the set\n    if _people_ is not None:\n        program.people = _people_\n    if _lighting_ is not None:\n        program.lighting = _lighting_\n    if _electric_equip_ is not None:\n        program.electric_equipment = _electric_equip_\n    if _gas_equip_ is not None:\n        program.gas_equipment = _gas_equip_\n    if _hot_water_ is not None:\n        program.service_hot_water = _hot_water_\n    if _infiltration_ is not None:\n        program.infiltration = _infiltration_\n    if _ventilation_ is not None:\n        program.ventilation = _ventilation_\n    if _setpoint_ is not None:\n        program.setpoint = _setpoint_\n", 
   "category": "HB-Energy", 
   "name": "HB ProgramType", 
-  "description": "Create a ProgramType object possessing all schedules and loads defining a program.\nProgramTypes can be assigned to Honeybee Rooms to specify all default schedules\nand loads on the Room.\n-"
+  "description": "Create a ProgramType object possessing all schedules and loads defining the\nusage of a space.\n_\nProgramTypes can be assigned to Honeybee Rooms to specify all default schedules\nand loads on the Room.\n-"
 }
