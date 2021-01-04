@@ -1,0 +1,64 @@
+{
+  "version": "1.1.0", 
+  "nickname": "DecnstrHotWater", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "name", 
+        "description": "An Equipment object that can be used to create a ProgramType or\nbe assigned directly to a Room.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "flow_per_area", 
+        "description": "A numerical value for the total volume flow rate of water\nper unit area of floor (L/h-m2).", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "schedule", 
+        "description": "A fractional schedule for the use of hot water over the course of\nthe year. The fractional values will get multiplied by the\n_flow_per_area to yield a complete water usage profile.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "target_temp", 
+        "description": "The target temperature of the water out of the tap in Celsius.\nThis the temperature after the hot water has been mixed with cold\nwater from the water mains.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "sensible_fract", 
+        "description": "A number between 0 and 1 for the fraction of the total\nhot water load given off as sensible heat in the zone.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "latent_fract", 
+        "description": "A number between 0 and 1 for the fraction of the total\nhot water load that is latent (as opposed to sensible).", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_hot_water", 
+      "description": "A ServiceHotWater object to be deconstructed.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.load.hotwater import ServiceHotWater\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _hot_water is not None:\n    # check the input\n    assert isinstance(_hot_water, ServiceHotWater), \\\n        'Expected ServiceHotWater object. Got {}.'.format(type(_hot_water))\n\n    # get the properties of the object\n    name = _hot_water.display_name\n    flow_per_area = _hot_water.flow_per_area\n    schedule = _hot_water.schedule\n    target_temp = _hot_water.target_temperature\n    sensible_fract = _hot_water.sensible_fraction\n    latent_fract = _hot_water.latent_fraction\n", 
+  "category": "HB-Energy", 
+  "name": "HB Deconstruct Hot Water", 
+  "description": "Deconstruct a ServiceHotWater object into its constituient properties.\n-"
+}

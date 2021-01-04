@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "DeconstrProgram", 
   "outputs": [
     [
@@ -28,6 +28,13 @@
         "access": "None", 
         "name": "gas_equip", 
         "description": "A GasEquipment object to describe the usage of gas equipment\nwithin the program. If None, no gas equipment is assumed to be installed.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "a", 
+        "description": "A ServiceHotWater object to describe the usage of hot water within\nthe program. If None, no hot water is be assumed for the program.", 
         "type": null, 
         "default": null
       }, 
@@ -64,7 +71,7 @@
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\ntry:\n    from honeybee_energy.lib.programtypes import program_type_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # get the program from the library if it is a identifier\n    if isinstance(_program, str):\n        _program = program_type_by_identifier(_program)\n\n    # get the components of the program\n    people = _program.people\n    lighting = _program.lighting\n    electric_equip = _program.electric_equipment\n    gas_equip = _program.gas_equipment\n    infiltration = _program.infiltration\n    ventilation = _program.ventilation\n    setpoint = _program.setpoint\n", 
+  "code": "\ntry:\n    from honeybee_energy.lib.programtypes import program_type_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # get the program from the library if it is a identifier\n    if isinstance(_program, str):\n        _program = program_type_by_identifier(_program)\n\n    # get the components of the program\n    people = _program.people\n    lighting = _program.lighting\n    electric_equip = _program.electric_equipment\n    gas_equip = _program.gas_equipment\n    hot_water = _program.service_hot_water\n    infiltration = _program.infiltration\n    ventilation = _program.ventilation\n    setpoint = _program.setpoint\n", 
   "category": "HB-Energy", 
   "name": "HB Deconstruct ProgramType", 
   "description": "Deconstruct a ProgramType object into its component load objects.\n-"
