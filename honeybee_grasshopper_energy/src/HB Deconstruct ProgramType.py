@@ -25,6 +25,8 @@ Deconstruct a ProgramType object into its component load objects.
             is assumed to be installed.
         gas_equip: A GasEquipment object to describe the usage of gas equipment
             within the program. If None, no gas equipment is assumed to be installed.
+        hot_water: A ServiceHotWater object to describe the usage of hot water within
+            the program. If None, no hot water is be assumed for the program.
         infiltration: An Infiltration object to describe the outdoor air leakage of
             the program. If None, no infiltration is be assumed for the program.
         ventilation: A Ventilation object to describe the minimum outdoor air
@@ -37,7 +39,7 @@ Deconstruct a ProgramType object into its component load objects.
 
 ghenv.Component.Name = "HB Deconstruct ProgramType"
 ghenv.Component.NickName = 'DeconstrProgram'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -63,6 +65,7 @@ if all_required_inputs(ghenv.Component):
     lighting = _program.lighting
     electric_equip = _program.electric_equipment
     gas_equip = _program.gas_equipment
+    hot_water = _program.service_hot_water
     infiltration = _program.infiltration
     ventilation = _program.ventilation
     setpoint = _program.setpoint
