@@ -33,13 +33,7 @@ like auditoriums, kitchens, laundromats, etc.
         _vintage_: Text for the vintage of the template system. This will be used
             to set efficiencies for various pieces of equipment within the system.
             The "HB Building Vintages" component has a full list of supported
-            HVAC vintages. (Default: 90.1-2013). Choose from the following.
-                * DOE Ref Pre-1980
-                * DOE Ref 1980-2004
-                * 90.1-2004
-                * 90.1-2007
-                * 90.1-2010
-                * 90.1-2013
+            HVAC vintages. (Default: ASHRAE_2013).
         _name_: Text to set the name for the HVAC system and to be incorporated into
             unique HVAC identifier. If the name is not provided, a random name
             will be assigned.
@@ -60,11 +54,13 @@ like auditoriums, kitchens, laundromats, etc.
 
 ghenv.Component.Name = "HB DOAS HVAC"
 ghenv.Component.NickName = 'DOASHVAC'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
+import os
+import json
 import uuid
 
 try:  # import the honeybee extension
@@ -75,6 +71,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy extension
+    from honeybee_energy.config import folders
     from honeybee_energy.hvac.doas import EQUIPMENT_TYPES_DICT
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -86,20 +83,33 @@ except ImportError as e:
 
 # dictionary to get correct vintages
 vintages = {
-    'DOE Ref Pre-1980': 'DOE Ref Pre-1980',
-    'DOE Ref 1980-2004': 'DOE Ref 1980-2004',
-    '90.1-2004': '90.1-2004',
-    '90.1-2007': '90.1-2007',
-    '90.1-2010': '90.1-2010',
-    '90.1-2013': '90.1-2013',
-    'pre_1980': 'DOE Ref Pre-1980',
-    '1980_2004': 'DOE Ref 1980-2004',
-    '2004': '90.1-2004',
-    '2007': '90.1-2007',
-    '2010': '90.1-2010',
-    '2013': '90.1-2013',
-    None: '90.1-2013'
+    'DOE_Ref_Pre_1980': 'DOE_Ref_Pre_1980',
+    'DOE_Ref_1980_2004': 'DOE_Ref_1980_2004',
+    'ASHRAE_2004': 'ASHRAE_2004',
+    'ASHRAE_2007': 'ASHRAE_2007',
+    'ASHRAE_2010': 'ASHRAE_2010',
+    'ASHRAE_2013': 'ASHRAE_2013',
+    'DOE Ref Pre-1980': 'DOE_Ref_Pre_1980',
+    'DOE Ref 1980-2004': 'DOE_Ref_1980_2004',
+    '90.1-2004': 'ASHRAE_2004',
+    '90.1-2007': 'ASHRAE_2007',
+    '90.1-2010': 'ASHRAE_2010',
+    '90.1-2013': 'ASHRAE_2013',
+    'pre_1980': 'DOE_Ref_Pre_1980',
+    '1980_2004': 'DOE_Ref_1980_2004',
+    '2004': 'ASHRAE_2004',
+    '2007': 'ASHRAE_2007',
+    '2010': 'ASHRAE_2010',
+    '2013': 'ASHRAE_2013',
+    None: 'ASHRAE_2013'
     }
+
+# dictionary of HVAC template names
+ext_folder = folders.standards_extension_folders[0]
+hvac_reg = os.path.join(ext_folder, 'hvac_registry.json')
+with open(hvac_reg, 'r') as f:
+    hvac_dict = json.load(f)
+
 
 if all_required_inputs(ghenv.Component):
     # extract any rooms from input Models and duplicate the rooms
@@ -112,9 +122,13 @@ if all_required_inputs(ghenv.Component):
 
     # create the instance of the HVAC system to be applied to the rooms
     try:  # get the class for the HVAC system
-        hvac_class = EQUIPMENT_TYPES_DICT[_system_type]
+        try:
+            _sys_name = hvac_dict[_system_type]
+        except KeyError:
+            _sys_name = _system_type
+        hvac_class = EQUIPMENT_TYPES_DICT[_sys_name]
     except KeyError:
-        raise ValueError('System Type "{}" is not recognized as an all-air HVAC '
+        raise ValueError('System Type "{}" is not recognized as a DOAS HVAC '
                          'system.'.format(_system_type))
     vintage = vintages[_vintage_]  # get the vintage of the HVAC
     # set default values for heat recovery
@@ -122,7 +136,7 @@ if all_required_inputs(ghenv.Component):
     latent = latent_hr_ if latent_hr_ is not None else autosize
     # get an identifier for the HVAC system
     name = clean_and_id_ep_string(_name_) if _name_ is not None else str(uuid.uuid4())[:8]
-    hvac = hvac_class(name, vintage, _system_type, sens, latent)
+    hvac = hvac_class(name, vintage, _sys_name, sens, latent)
     if _name_ is not None:
         hvac.display_name = _name_
 
