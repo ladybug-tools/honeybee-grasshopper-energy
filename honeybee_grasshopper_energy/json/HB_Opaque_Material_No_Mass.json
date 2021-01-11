@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "OpaqueMatNoMass", 
   "outputs": [
     [
@@ -30,21 +30,21 @@
     {
       "access": "item", 
       "name": "_roughness_", 
-      "description": "Text describing the relative roughness of a particular material.\nMust be one of the following: 'VeryRough', 'Rough', 'MediumRough',\n'MediumSmooth', 'Smooth', 'VerySmooth'.", 
+      "description": "Text describing the relative roughness of a particular material.\nMust be one of the following: 'VeryRough', 'Rough', 'MediumRough',\n'MediumSmooth', 'Smooth', 'VerySmooth'. (Default: 'MediumRough').", 
       "type": "string", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_therm_absp_", 
-      "description": "A number between 0 and 1 for the fraction of incident\nlong wavelength radiation that is absorbed by the material.", 
+      "description": "A number between 0 and 1 for the fraction of incident long\nwavelength radiation that is absorbed by the material. (Default: 0.9).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_sol_absp_", 
-      "description": "A number between 0 and 1 for the fraction of incident solar\nradiation absorbed by the material. Default: 0.7.", 
+      "description": "A number between 0 and 1 for the fraction of incident solar\nradiation absorbed by the material. (Default: 0.7).", 
       "type": "double", 
       "default": null
     }, 
@@ -57,7 +57,7 @@
     }
   ], 
   "subcategory": "1 :: Constructions", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.opaque import EnergyMaterialNoMass\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _roughness_ = 'MediumRough' if _roughness_ is None else _roughness_\n    _therm_absp_ = 0.9 if _therm_absp_ is None else _therm_absp_\n    _sol_absp_ = 0.7 if _sol_absp_ is None else _sol_absp_\n\n    # create the material\n    mat = EnergyMaterialNoMass(\n        clean_and_id_ep_string(_name), _r_value, _roughness_, _therm_absp_,\n        _sol_absp_, _vis_absp_)\n    mat.display_name = _name\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.opaque import EnergyMaterialNoMass\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _roughness_ = 'MediumRough' if _roughness_ is None else _roughness_\n    _therm_absp_ = 0.9 if _therm_absp_ is None else _therm_absp_\n    _sol_absp_ = 0.7 if _sol_absp_ is None else _sol_absp_\n    name = clean_and_id_ep_string('OpaqueNoMassMaterial') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # create the material\n    mat = EnergyMaterialNoMass(name, _r_value, _roughness_, _therm_absp_,\n                               _sol_absp_, _vis_absp_)\n    if _name_ is not None:\n        mat.display_name = _name_\n", 
   "category": "HB-Energy", 
   "name": "HB Opaque Material No Mass", 
   "description": "Create an opaque material that has no mass, which can be plugged into the\n\"HB Opaque Construction\" component.\n-"

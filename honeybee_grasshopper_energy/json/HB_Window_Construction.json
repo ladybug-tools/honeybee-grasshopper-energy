@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "WindowConstr", 
   "outputs": [
     [
@@ -29,7 +29,7 @@
     }
   ], 
   "subcategory": "1 :: Constructions", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.construction.window import WindowConstruction\n    from honeybee_energy.lib.materials import window_material_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    material_objs = []\n    for material in _materials:\n        if isinstance(material, str):\n            material = window_material_by_identifier(material)\n        material_objs.append(material)\n    \n    constr = WindowConstruction(clean_and_id_ep_string(_name), material_objs)\n    constr.display_name = _name\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.construction.window import WindowConstruction\n    from honeybee_energy.lib.materials import window_material_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    name = clean_and_id_ep_string('WindowConstruction') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    material_objs = []\n    for material in _materials:\n        if isinstance(material, str):\n            material = window_material_by_identifier(material)\n        material_objs.append(material)\n\n    constr = WindowConstruction(name, material_objs)\n    if _name_ is not None:\n        constr.display_name = _name_\n", 
   "category": "HB-Energy", 
   "name": "HB Window Construction", 
   "description": "Create an EnergyPlus window construction. Material inputs can be either the\nidentifiers of materials within the library or a custom material made with any\nof the EnergyPlus Material components.\n_\nNote that the _materials should be ordered from outermost (exterior) layer to the\ninnermost (interior) layer.\n-"

@@ -18,30 +18,26 @@ the shade. Shades are considered to be perfect diffusers.
     Args:
         _name: Text to set the name for the material and to be incorporated into
             a unique material identifier.
-        _thickness_: Number for the thickness of the shade layer [m].
-            Default: 0.005 meters (5 mm).
+        _thickness: Number for the thickness of the shade layer in meters.
         _transmittance_:  Number between 0 and 1 for the transmittance of both solar
-            radiation and visible light through the shade. Default: 0.4, which
-            is typical of a white diffusing shade.
+            radiation and visible light through the shade. (Default: 0.4, which
+            is typical of a white diffusing shade).
         _reflectance_: Number between 0 and 1 for the reflectance of both solar
-            radiation and visible light off of the shade.
-            Default: 0.5, which is typical of a white diffusing shade.
-        _t_infrared_: Long-wave hemisperical transmittance of the shade.
-            Default: 0.
+            radiation and visible light off of the shade. (Default: 0.5,
+            which is typical of a white diffusing shade).
+        _t_infrared_: Long-wave hemisperical transmittance of the shade. (Default: 0).
         _emissivity_: Number between 0 and 1 for the infrared hemispherical
-            emissivity of the shade.  Default: 0.9, which is typical of most
-            diffusing shade materials.
-        _conductivity_: Number for the thermal conductivity of the shade [W/m-K].
-            Default: 0.05, typical of cotton shades.
-        _dist_to_glass_: A number between 0.001 and 1.0 for the distance
-            between the shade and neighboring glass layers [m].
-            Default: 0.05 (50 mm).
-        _open_mult_: Factor between 0 and 1 that is multiplied by the area at
-            the top, bottom and sides of the shade for air flow calculations.
-            Default: 0.5.
-        _permeability_: The fraction of the shade surface that is open to
-            air flow. Must be between 0 and 0.8. Default: 0 for no permeability.
-    
+            emissivity of the shade. (Default: 0.9, which is typical of most
+            diffusing shade materials).
+        _conductivity_: Number for the thermal conductivity of the shade in
+            W/m-K. (Default: 0.05, typical of cotton shades).
+        _dist_to_glass_: A number between 0.001 and 1.0 for the distance between the
+            shade and neighboring glass layers [m]. (Default: 0.05 (50 mm)).
+        _open_mult_: Factor between 0 and 1 that is multiplied by the area at the top,
+            bottom and sides of the shade for air flow calculations. (Default: 0.5).
+        _permeability_: The fraction of the shade surface that is open to air flow.
+            Must be between 0 and 0.8. (Default: 0 for no permeability).
+
     Returns:
         mat: A material for a shade layer in a window construction (like a roller
             shade) that can be assigned to a Honeybee Window construction.
@@ -49,13 +45,13 @@ the shade. Shades are considered to be perfect diffusers.
 
 ghenv.Component.Name = 'HB Shade Material'
 ghenv.Component.NickName = 'ShadeMat'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
-ghenv.Component.AdditionalHelpFromDocStrings = '7'
+ghenv.Component.AdditionalHelpFromDocStrings = '6'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -72,7 +68,6 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # set the default material properties
-    _thickness_ = 0.005 if _thickness_ is None else _thickness_
     _transmittance_ = 0.4 if _transmittance_ is None else _transmittance_
     _reflectance_ = 0.5 if _reflectance_ is None else _reflectance_
     _t_infrared_ = 0 if _t_infrared_ is None else _t_infrared_
@@ -81,10 +76,13 @@ if all_required_inputs(ghenv.Component):
     _dist_to_glass_ = 0.05 if _dist_to_glass_ is None else _dist_to_glass_
     _open_mult_ = 0.5 if _open_mult_ is None else _open_mult_
     _permeability_ = 0.0 if _permeability_ is None else _permeability_
-    
+    name = clean_and_id_ep_string('ShadeMaterial') if _name_ is None else \
+        clean_ep_string(_name_)
+
     # create the material
     mat = EnergyWindowMaterialShade(
-        clean_and_id_ep_string(_name), _thickness_, _transmittance_, _reflectance_,
+        name, _thickness, _transmittance_, _reflectance_,
         _transmittance_, _reflectance_, _t_infrared_, _emissivity_, _conductivity_,
         _dist_to_glass_, _open_mult_, _permeability_)
-    mat.display_name = _name
+    if _name_ is not None:
+        mat.display_name = _name_

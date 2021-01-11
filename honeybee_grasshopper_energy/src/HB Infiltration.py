@@ -27,23 +27,21 @@ assigned directly to a Room.
             of the year. The fractional values will get multiplied by the
             flow_per_exterior_area to yield a complete infiltration profile.
             Default: 'Always On'
-    
+
     Returns:
         infil: An Infiltration object that can be used to create a ProgramType or
             be assigned directly to a Room.
 """
 
-ghenv.Component.Name = "HB Infiltration"
+ghenv.Component.Name = 'HB Infiltration'
 ghenv.Component.NickName = 'Infiltration'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
-ghenv.Component.AdditionalHelpFromDocStrings = "3"
-
-import uuid
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -61,10 +59,8 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # make a default Infiltration name if none is provided
-    if _name_ is None:
-        name = "Infiltration_{}".format(uuid.uuid4())
-    else:
-        name = clean_and_id_ep_string(_name_)
+    name = clean_and_id_ep_string('Infiltration') if _name_ is None else \
+        clean_ep_string(_name_)
 
     # get the schedule
     _schedule_ = _schedule_ if _schedule_ is not None else 'Always On'

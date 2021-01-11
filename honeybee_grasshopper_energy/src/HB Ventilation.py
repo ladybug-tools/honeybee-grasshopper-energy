@@ -45,23 +45,21 @@ in the simulation.
             this schedule to be the occupancy schedule of the zone will mimic demand
             controlled ventilation. If None, the design level of ventilation will
             be used throughout all timesteps of the simulation. Default: None.
-    
+
     Returns:
         vent: An Ventilation object that can be used to create a ProgramType or
             be assigned directly to a Room.
 """
 
-ghenv.Component.Name = "HB Ventilation"
+ghenv.Component.Name = 'HB Ventilation'
 ghenv.Component.NickName = 'Ventilation'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
-ghenv.Component.AdditionalHelpFromDocStrings = "3"
-
-import uuid
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -78,10 +76,8 @@ except ImportError as e:
 
 
 # make a default Ventilation name if none is provided
-if _name_ is None:
-    name = "Ventilation_{}".format(uuid.uuid4())
-else:
-    name = clean_and_id_ep_string(_name_)
+name = clean_and_id_ep_string('Ventilation') if _name_ is None else \
+    clean_ep_string(_name_)
 
 # get the schedule
 if isinstance(_schedule_, str):

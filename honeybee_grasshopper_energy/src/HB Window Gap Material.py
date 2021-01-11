@@ -13,17 +13,17 @@ This material can be plugged into the "HB Window Construction" component.
 -
 
     Args:
-        _name: Text to set the name for the material and to be incorporated into
+        _name_: Text to set the name for the material and to be incorporated into
             a unique material identifier.
-        _thickness_: Number for the thickness of the air gap layer [m].
-            Default: 0.0125
+        _thickness_: Number for the thickness of the air gap layer in
+            meters. (Default: 0.0125 m).
         _gas_types_: A list of text describing the types of gas in the gap.
             Text must be one of the following: 'Air', 'Argon', 'Krypton', 'Xenon'.
             Default: ['Air']
         _gas_ratios_: A list of text describing the volumetric fractions of gas
             types in the mixture.  This list must align with the gas_types
             input list. Default: Equal amout of gases for each type.
-    
+
     Returns:
         mat: A window gas gap material that describes a layer in a window construction
             and can be assigned to a Honeybee Window construction.
@@ -31,13 +31,13 @@ This material can be plugged into the "HB Window Construction" component.
 
 ghenv.Component.Name = "HB Window Gap Material"
 ghenv.Component.NickName = 'GapMat'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "6"
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -61,12 +61,13 @@ if all_required_inputs(ghenv.Component):
         len(_gas_ratios_) == 0 else _gas_ratios_
     assert len(_gas_types_) == len(_gas_ratios_), \
         'Length of _gas_types_ does not equal length of _gas_ratios_.'
+    name = clean_and_id_ep_string('GapMaterial') if _name_ is None else \
+        clean_ep_string(_name_)
 
     # create the material
     if len(_gas_types_) == 1:
-        mat = EnergyWindowMaterialGas(
-            clean_and_id_ep_string(_name), _thickness_, _gas_types_[0])
+        mat = EnergyWindowMaterialGas(name, _thickness_, _gas_types_[0])
     else:
-        mat = EnergyWindowMaterialGasMixture(
-            clean_and_id_ep_string(_name), _thickness_, _gas_types_, _gas_ratios_)
-    mat.display_name = _name
+        mat = EnergyWindowMaterialGasMixture(name, _thickness_, _gas_types_, _gas_ratios_)
+    if _name_ is not None:
+        mat.display_name = _name_

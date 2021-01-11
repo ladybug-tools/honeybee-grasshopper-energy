@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "WindowMat", 
   "outputs": [
     [
@@ -37,13 +37,13 @@
     {
       "access": "item", 
       "name": "_t_vis_", 
-      "description": "A number between 0 and 1 for the visible transmittance of the\nglazing system. Default: 0.6.", 
+      "description": "A number between 0 and 1 for the visible transmittance of the\nglazing system. (Default: 0.6).", 
       "type": "double", 
       "default": null
     }
   ], 
   "subcategory": "1 :: Constructions", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.glazing import EnergyWindowMaterialSimpleGlazSys\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _t_vis_ = 0.6 if _t_vis_ is None else _t_vis_\n\n    # create the material\n    mat = EnergyWindowMaterialSimpleGlazSys(\n        clean_and_id_ep_string(_name), _u_factor, _shgc, _t_vis_)\n    mat.display_name = _name\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.glazing import EnergyWindowMaterialSimpleGlazSys\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _t_vis_ = 0.6 if _t_vis_ is None else _t_vis_\n    name = clean_and_id_ep_string('WindowMaterial') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # create the material\n    mat = EnergyWindowMaterialSimpleGlazSys(name, _u_factor, _shgc, _t_vis_)\n    if _name_ is not None:\n        mat.display_name = _name_\n", 
   "category": "HB-Energy", 
   "name": "HB Window Material", 
   "description": "Create a simple window material to describe an entire glazing system, including\nglass, gaps, and frame. This material can be plugged into the \"HB Window\nConstruction\" component.\n-"

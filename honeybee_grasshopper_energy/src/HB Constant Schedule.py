@@ -17,7 +17,7 @@ repeating continuously over every day of the year.
         _values: A list of 24 values that represent the schedule values at each
             hour of the day. This can also be a single constant value for the
             whole day.
-        _name: Text to set the name for the Schedule and to be incorporated
+        _name_: Text to set the name for the Schedule and to be incorporated
             into a unique Schedule identifier.
         _type_limit_: A text string from the identifier of the ScheduleTypeLimit to
             be looked up in the schedule type limit library. This can also be a
@@ -34,7 +34,7 @@ repeating continuously over every day of the year.
                 * Humidity
                 * Angle
                 * Delta Temperature
-    
+
     Returns:
         report: Reports, errors, warnings, etc.
         schedule: A ScheduleRuleset object that can be assigned to a Room, a Load
@@ -46,15 +46,15 @@ repeating continuously over every day of the year.
             user_library.idf file.
 """
 
-ghenv.Component.Name = "HB Constant Schedule"
+ghenv.Component.Name = 'HB Constant Schedule'
 ghenv.Component.NickName = 'ConstantSchedule'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
-ghenv.Component.AdditionalHelpFromDocStrings = "4"
+ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -78,15 +78,16 @@ if all_required_inputs(ghenv.Component):
         _type_limit_ = schedule_type_limit_by_identifier(_type_limit_)
 
     # create the schedule object
+    name = clean_and_id_ep_string('ConstantSchedule') if _name_ is None else \
+        clean_ep_string(_name_)
     if len(_values) == 1:
-        schedule = ScheduleRuleset.from_constant_value(
-            clean_and_id_ep_string(_name), _values[0], _type_limit_)
+        schedule = ScheduleRuleset.from_constant_value(name, _values[0], _type_limit_)
         idf_text, constant_none = schedule.to_idf()
     else:
-        schedule = ScheduleRuleset.from_daily_values(
-            clean_and_id_ep_string(_name), _values, timestep=1,
+        schedule = ScheduleRuleset.from_daily_values(name, _values, timestep=1,
             schedule_type_limit=_type_limit_)
         idf_year, idf_week = schedule.to_idf()
         idf_days = [day_sch.to_idf(_type_limit_) for day_sch in schedule.day_schedules]
         idf_text = [idf_year] + idf_week + idf_days
-    schedule.display_name = _name
+    if _name_ is not None:
+        schedule.display_name = _name_

@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "GapMat", 
   "outputs": [
     [
@@ -23,7 +23,7 @@
     {
       "access": "item", 
       "name": "_thickness_", 
-      "description": "Number for the thickness of the air gap layer [m].", 
+      "description": "Number for the thickness of the air gap layer in\nmeters. (Default: 0.0125 m).", 
       "type": "double", 
       "default": null
     }, 
@@ -43,7 +43,7 @@
     }
   ], 
   "subcategory": "1 :: Constructions", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.gas import EnergyWindowMaterialGas, \\\n        EnergyWindowMaterialGasMixture\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _thickness_ = 0.0125 if _thickness_ is None else _thickness_\n    _gas_types_ = ['Air'] if len(_gas_types_) == 0 else _gas_types_\n    _gas_ratios_ = [1 / len(_gas_types_)] * len(_gas_types_) if \\\n        len(_gas_ratios_) == 0 else _gas_ratios_\n    assert len(_gas_types_) == len(_gas_ratios_), \\\n        'Length of _gas_types_ does not equal length of _gas_ratios_.'\n\n    # create the material\n    if len(_gas_types_) == 1:\n        mat = EnergyWindowMaterialGas(\n            clean_and_id_ep_string(_name), _thickness_, _gas_types_[0])\n    else:\n        mat = EnergyWindowMaterialGasMixture(\n            clean_and_id_ep_string(_name), _thickness_, _gas_types_, _gas_ratios_)\n    mat.display_name = _name\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.gas import EnergyWindowMaterialGas, \\\n        EnergyWindowMaterialGasMixture\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _thickness_ = 0.0125 if _thickness_ is None else _thickness_\n    _gas_types_ = ['Air'] if len(_gas_types_) == 0 else _gas_types_\n    _gas_ratios_ = [1 / len(_gas_types_)] * len(_gas_types_) if \\\n        len(_gas_ratios_) == 0 else _gas_ratios_\n    assert len(_gas_types_) == len(_gas_ratios_), \\\n        'Length of _gas_types_ does not equal length of _gas_ratios_.'\n    name = clean_and_id_ep_string('GapMaterial') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # create the material\n    if len(_gas_types_) == 1:\n        mat = EnergyWindowMaterialGas(name, _thickness_, _gas_types_[0])\n    else:\n        mat = EnergyWindowMaterialGasMixture(name, _thickness_, _gas_types_, _gas_ratios_)\n    if _name_ is not None:\n        mat.display_name = _name_\n", 
   "category": "HB-Energy", 
   "name": "HB Window Gap Material", 
   "description": "Create a window gas gap material that corresponds to a layer in a window construction.\nThis material can be plugged into the \"HB Window Construction\" component.\n-"
