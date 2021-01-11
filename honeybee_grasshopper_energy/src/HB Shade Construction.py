@@ -23,7 +23,7 @@ do not have layers and are only defined by their exterior reflectance.
             should be diffuse (False) or specular (True). Set to True if the
             construction is representing a glass facade or a mirror
             material. Default: False.
-    
+
     Returns:
         constr: A shade construction that can be assigned to Honeybee
             Shades or ConstructionSets.
@@ -31,13 +31,13 @@ do not have layers and are only defined by their exterior reflectance.
 
 ghenv.Component.Name = "HB Shade Construction"
 ghenv.Component.NickName = 'ShadeConstr'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -56,8 +56,10 @@ if all_required_inputs(ghenv.Component):
     _sol_ref_ = 0.2 if _sol_ref_ is None else _sol_ref_
     _vis_ref_ = 0.2 if _vis_ref_ is None else _vis_ref_
     specular_ = False if specular_ is None else specular_
-    
+    name = clean_and_id_ep_string('ShadeConstruction') if _name_ is None else \
+        clean_ep_string(_name_)
+
     # create the construction
-    constr = ShadeConstruction(clean_and_id_ep_string(_name), _sol_ref_,
-                               _vis_ref_, specular_)
-    constr.display_name = _name
+    constr = ShadeConstruction(name, _sol_ref_, _vis_ref_, specular_)
+    if _name_ is not None:
+        constr.display_name = _name_

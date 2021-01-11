@@ -30,7 +30,7 @@ running over the entirety of the simulation period.
             values take effect. Default is for the whole year. Note that this
             default usually should not be changed unless you plan to run a
             simulation that is much shorter than a year.
-        _name: Text to set the name for the Schedule and to be incorporated
+        _name_: Text to set the name for the Schedule and to be incorporated
             into a unique Schedule identifier.
         _type_limit_: A text string from the name of the ScheduleTypeLimit to
             be looked up in the schedule type limit library. This can also be a
@@ -47,7 +47,7 @@ running over the entirety of the simulation period.
                 * Humidity
                 * Angle
                 * Delta Temperature
-    
+
     Returns:
         report: Reports, errors, warnings, etc.
         schedule: A ScheduleRuleset object that can be assigned to a Room, a Load
@@ -56,7 +56,7 @@ running over the entirety of the simulation period.
 
 ghenv.Component.Name = "HB Fixed Interval Schedule"
 ghenv.Component.NickName = 'FixedIntervalSchedule'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
@@ -67,7 +67,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -88,6 +88,8 @@ if all_required_inputs(ghenv.Component):
     _timestep_ = 1 if _timestep_ is None else _timestep_
     start_date = Date(1, 1) if analysis_period_ is None else \
         analysis_period_.st_time.date
+    name = clean_and_id_ep_string('FixedIntervalSchedule') if _name_ is None else \
+        clean_ep_string(_name_)
 
     # get the ScheduleTypeLimit object
     if _type_limit_ is None:
@@ -97,6 +99,7 @@ if all_required_inputs(ghenv.Component):
 
     # create the schedule object
     schedule = ScheduleFixedInterval(
-        clean_and_id_ep_string(_name), _values, _type_limit_, _timestep_, start_date,
+        name, _values, _type_limit_, _timestep_, start_date,
         placeholder_value=0, interpolate=False)
-    schedule.display_name = _name
+    if _name_ is not None:
+        schedule.display_name = _name_

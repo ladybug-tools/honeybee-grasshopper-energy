@@ -31,9 +31,9 @@ each schedule should be applied.
             overlap with one another, then the schedules that come later in
             this list will overwrite those that come earlier in the list for
             the duration of the overlapping time period.
-        _name: Text to set the name for the Schedule and to be incorporated
+        _name_: Text to set the name for the Schedule and to be incorporated
             into a unique Schedule identifier.
-    
+
     Returns:
         report: Reports, errors, warnings, etc.
         schedule: A ScheduleRuleset object that can be assigned to a Room, a Load
@@ -57,13 +57,13 @@ each schedule should be applied.
 
 ghenv.Component.Name = "HB Seasonal Schedule"
 ghenv.Component.NickName = 'SeasonalSchedule'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -86,11 +86,14 @@ if all_required_inputs(ghenv.Component):
         '\n{} does not equal {}'.format(len(_season_scheds), len(_analysis_periods))
 
     # start by duplicating the base schedule
+    name = clean_and_id_ep_string('SeasonalSchedule') if _name_ is None else \
+        clean_ep_string(_name_)
     if isinstance(_base_schedule, str):
         _base_schedule = schedule_by_identifier(_base_schedule)
     schedule = _base_schedule.duplicate()
-    schedule.identifier = clean_and_id_ep_string(_name)
-    schedule.display_name = _name
+    schedule.identifier = name
+    if _name_ is not None:
+        schedule.display_name = _name_
 
     # translate the _season_scheds to individual Rules and apply them to the base
     for season_sch, a_period in zip(_season_scheds, _analysis_periods):

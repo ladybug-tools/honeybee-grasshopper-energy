@@ -15,7 +15,8 @@ specify all default constructions on the Room.
 
     Args:
         _name: Text to set the name for the ConstructionSet and to be incorporated
-            into a unique ConstructionSet identifier.
+            into a unique ConstructionSet identifier. If None, a random one will
+            be genrated.
         base_constr_set_: An optional ConstructionSet object that will be used
             as the starting point for the new ConstructionSet output from this
             component. This can also be text for the name of a ConstructionSet
@@ -34,7 +35,7 @@ specify all default constructions on the Room.
         _subface_subset_: A construction subset list from the "HB Subface Subset"
             component. Note that None values in this list correspond to no
             change to the given construction in the base_constr_set_.
-    
+
     Returns:
         constr_set: A ConstructionSet object that can be assigned to Honeybee
             Rooms in order to specify all default constructions on the Room.
@@ -42,13 +43,13 @@ specify all default constructions on the Room.
 
 ghenv.Component.Name = "HB ConstructionSet"
 ghenv.Component.NickName = 'ConstructionSet'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -66,15 +67,18 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # get the base construction set
+    name = clean_and_id_ep_string('ConstructionSet') if _name_ is None else \
+        clean_ep_string(_name_)
     if base_constr_set_ is None:
-        constr_set = ConstructionSet(clean_and_id_ep_string(_name))
+        constr_set = ConstructionSet(name)
     else:
         if isinstance(base_constr_set_, str):
             base_constr_set_ = construction_set_by_identifier(base_constr_set_)
         constr_set = base_constr_set_.duplicate()
-        constr_set.identifier = clean_and_id_ep_string(_name)
-        constr_set.display_name = _name
-    
+        constr_set.identifier = name
+        if _name_ is not None:
+            constr_set.display_name = _name_
+
     # go through each input construction subset and assign it to the set
     if len(_exterior_subset_) != 0:
         assert len(_exterior_subset_) == 3, 'Input _exterior_subset_ is not valid.'

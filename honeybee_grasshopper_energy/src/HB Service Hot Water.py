@@ -38,15 +38,13 @@ a ProgramType.
 
 ghenv.Component.Name = 'HB Service Hot Water'
 ghenv.Component.NickName = 'ServiceHotWater'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
-import uuid
-
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -64,10 +62,8 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # make a default ServiceHotWater name if none is provided
-    if _name_ is None:
-        name = 'ServiceHotWater_{}'.format(uuid.uuid4())
-    else:
-        name = clean_and_id_ep_string(_name_)
+    name = clean_and_id_ep_string('ServiceHotWater') if _name_ is None else \
+        clean_ep_string(_name_)
 
     # get the schedule
     if isinstance(_schedule, str):
@@ -79,7 +75,7 @@ if all_required_inputs(ghenv.Component):
     _latent_fract_ = _latent_fract_ if _latent_fract_ is not None else 0.05
 
     # create the ServiceHotWater object
-    equip = ServiceHotWater(name, _flow_per_area, _schedule, _target_temp_,
-                            _sensible_fract_, _latent_fract_)
+    hot_water = ServiceHotWater(name, _flow_per_area, _schedule, _target_temp_,
+                                _sensible_fract_, _latent_fract_)
     if _name_ is not None:
-        equip.display_name = _name_
+        hot_water.display_name = _name_

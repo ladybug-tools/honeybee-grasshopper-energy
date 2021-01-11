@@ -16,7 +16,7 @@ WindowConstruction.
 -
 
     Args:
-        _name: Text to set the name for the Construction and to be incorporated
+        _name_: Text to set the name for the Construction and to be incorporated
             into a unique Construction identifier.
         _win_constr: A WindowConstruction object that serves as the "switched off"
             version of the construction (aka. the "bare construction"). The
@@ -64,13 +64,13 @@ WindowConstruction.
 
 ghenv.Component.Name = 'HB Window Construction Shade'
 ghenv.Component.NickName = 'WindowConstrShd'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -113,7 +113,8 @@ CONTROL_TYPES = {
 
 if all_required_inputs(ghenv.Component):
     # set default values
-    constr_id = clean_and_id_ep_string(_name)
+    constr_id = clean_and_id_ep_string('ShadedWindowConstruction') if _name_ is None else \
+        clean_ep_string(_name_)
     _shd_location_ = 'Interior' if _shd_location_ is None else _shd_location_.title()
     _control_type_ = 'AlwaysOn' if _control_type_ is None \
         else CONTROL_TYPES[_control_type_]
@@ -133,4 +134,5 @@ if all_required_inputs(ghenv.Component):
     constr = WindowConstructionShade(
         constr_id, _win_constr, _shd_material, _shd_location_, _control_type_,
         setpoint_, schedule_)
-    constr.display_name = _name
+    if _name_ is not None:
+        constr.display_name = _name_

@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "BlindMat", 
   "outputs": [
     [
@@ -23,90 +23,90 @@
     {
       "access": "item", 
       "name": "_vertical_", 
-      "description": "Set to \"True\" to have the blinds be vertically-oriented and\nset to \"False\" to have them be horizontally-oriented.", 
+      "description": "Set to \"True\" to have the blinds be vertically-oriented and set to\n\"False\" to have them be horizontally-oriented. (Default: False\nfor horizontal).", 
       "type": "bool", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_slat_width_", 
-      "description": "The width of slat measured from edge to edge [m].", 
+      "description": "The width of slat measured from edge to edge [m]. (Default: 0.025 m).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_slat_separation_", 
-      "description": "The distance between each of the slats [m].", 
+      "description": "The distance between each of the slats [m]. (Default: 0.01875 m).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_slat_thickness_", 
-      "description": "A number between 0 and 0.1 for the thickness of the slat [m].", 
+      "description": "A number between 0 and 0.1 for the thickness of the slat\nin meters. (Default: 0.001 m).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_slat_angle_", 
-      "description": "A number between 0 and 180 for the angle between the slats\nand the glazing normal in degrees. 90 signifies slats that are\nperpendicular to the glass. Default: 45.", 
+      "description": "A number between 0 and 180 for the angle between the slats\nand the glazing normal in degrees. 90 signifies slats that are\nperpendicular to the glass. (Default: 45).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_conductivity_", 
-      "description": "Number for the thermal conductivity of the blind material\n[W/m-K]. Default: 221, typical of aluminum blinds.", 
+      "description": "Number for the thermal conductivity of the blind material\n[W/m-K]. (Default: 221, typical of aluminum blinds).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_transmittance_", 
-      "description": "Number between 0 and 1 for the transmittance of solar\nradiation and visible light through the blind material. Default: 0.", 
+      "description": "Number between 0 and 1 for the transmittance of solar\nradiation and visible light through the blind material. (Default: 0).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_reflectance_", 
-      "description": "Number between 0 and 1 for the reflectance of solar\nradiation and visible light off of the blind material.", 
+      "description": "Number between 0 and 1 for the reflectance of solar\nradiation and visible light off of the blind material. (Default: 0.5,\nwhich is typical of a painted white blind).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_t_infrared_", 
-      "description": "Long-wave hemisperical transmittance of the blind material.", 
+      "description": "Long-wave hemisperical transmittance of the blind material. (Default: 0).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_emissivity_", 
-      "description": "Number between 0 and 1 for the infrared hemispherical\nemissivity of the blind material.  Default: 0.9, which is typical\nof most painted blinds.", 
+      "description": "Number between 0 and 1 for the infrared hemispherical emissivity\nof the blind material. (Default: 0.9, which is typical of most\npainted blinds).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_dist_to_glass_", 
-      "description": "A number between 0.001 and 1.0 for the distance\nbetween the blind edge and neighboring glass layers [m].", 
+      "description": "A number between 0.001 and 1.0 for the distance between the\nblind edge and neighboring glass layers [m]. (Default: 0.05 m).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_open_mult_", 
-      "description": "Factor between 0 and 1 that is multiplied by the area at\nthe top, bottom and sides of the blind for air flow calculations.", 
+      "description": "Factor between 0 and 1 that is multiplied by the area at the top,\nbottom and sides of the blind for air flow calculations. (Default: 0.5).", 
       "type": "double", 
       "default": null
     }
   ], 
   "subcategory": "1 :: Constructions", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.shade import EnergyWindowMaterialBlind\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    orientation = 'Vertical' if _vertical_ else 'Horizontal'\n    _slat_width_ = 0.025 if _slat_width_ is None else _slat_width_\n    _slat_separation_ = 0.01875 if _slat_separation_ is None else _slat_separation_\n    _slat_thickness_ = 0.001 if _slat_thickness_ is None else _slat_thickness_\n    _slat_angle_ = 45 if _slat_angle_ is None else _slat_angle_\n    _conductivity_ = 221 if _conductivity_ is None else _conductivity_\n    _transmittance_ = 0 if _transmittance_ is None else _transmittance_\n    _reflectance_ = 0.5 if _reflectance_ is None else _reflectance_\n    _t_infrared_ = 0 if _t_infrared_ is None else _t_infrared_\n    _emissivity_ = 0.9 if _emissivity_ is None else _emissivity_\n    _dist_to_glass_ = 0.05 if _dist_to_glass_ is None else _dist_to_glass_\n    _open_mult_ = 0.5 if _open_mult_ is None else _open_mult_\n    \n    # create the material\n    mat = EnergyWindowMaterialBlind(\n        clean_and_id_ep_string(_name), orientation, _slat_width_, _slat_separation_,\n        _slat_thickness_, _slat_angle_, _conductivity_, _transmittance_,\n        _reflectance_, _transmittance_,  _reflectance_, _t_infrared_, _emissivity_,\n        _dist_to_glass_, _open_mult_)\n    mat.display_name = _name\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.shade import EnergyWindowMaterialBlind\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    orientation = 'Vertical' if _vertical_ else 'Horizontal'\n    _slat_width_ = 0.025 if _slat_width_ is None else _slat_width_\n    _slat_separation_ = 0.01875 if _slat_separation_ is None else _slat_separation_\n    _slat_thickness_ = 0.001 if _slat_thickness_ is None else _slat_thickness_\n    _slat_angle_ = 45 if _slat_angle_ is None else _slat_angle_\n    _conductivity_ = 221 if _conductivity_ is None else _conductivity_\n    _transmittance_ = 0 if _transmittance_ is None else _transmittance_\n    _reflectance_ = 0.5 if _reflectance_ is None else _reflectance_\n    _t_infrared_ = 0 if _t_infrared_ is None else _t_infrared_\n    _emissivity_ = 0.9 if _emissivity_ is None else _emissivity_\n    _dist_to_glass_ = 0.05 if _dist_to_glass_ is None else _dist_to_glass_\n    _open_mult_ = 0.5 if _open_mult_ is None else _open_mult_\n    name = clean_and_id_ep_string('BlindMaterial') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # create the material\n    mat = EnergyWindowMaterialBlind(\n        name, orientation, _slat_width_, _slat_separation_,\n        _slat_thickness_, _slat_angle_, _conductivity_, _transmittance_,\n        _reflectance_, _transmittance_,  _reflectance_, _t_infrared_, _emissivity_,\n        _dist_to_glass_, _open_mult_)\n    if _name_ is not None:\n        mat.display_name = _name_\n", 
   "category": "HB-Energy", 
   "name": "HB Blind Material", 
   "description": "Create a material for a blind layer in a window construction.\nThis material can be plugged into the \"HB Window Construction\" component.\n_\nWindow blind properties consist of flat, equally-spaced slats.\n-"

@@ -46,7 +46,7 @@ Create a schedule from lists of daily values for each day of the week.
             values at each hour of the summer design day. This can also be a
             single constant value for the whole day. If None, the daily
             schedule with the lowest average value will be used.
-        _name: Text to set the name for the Schedule and to be incorporated
+        _name_: Text to set the name for the Schedule and to be incorporated
             into a unique Schedule identifier.
         _type_limit_: A text string from the identifier of the ScheduleTypeLimit to
             be looked up in the schedule type limit library. This can also be a
@@ -63,7 +63,7 @@ Create a schedule from lists of daily values for each day of the week.
                 * Humidity
                 * Angle
                 * Delta Temperature
-    
+
     Returns:
         report: Reports, errors, warnings, etc.
         schedule: A ScheduleRuleset object that can be assigned to a Room, a Load
@@ -87,13 +87,13 @@ Create a schedule from lists of daily values for each day of the week.
 
 ghenv.Component.Name = "HB Weekly Schedule"
 ghenv.Component.NickName = 'WeeklySchedule'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -107,6 +107,7 @@ try:  # import ladybug_rhino dependencies
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+
 
 def check_sched_values(values):
     """Check that input schedules are valid and format them to all be 24 values."""
@@ -139,11 +140,14 @@ if all_required_inputs(ghenv.Component):
         _type_limit_ = schedule_type_limit_by_identifier(_type_limit_)
 
     # create the schedule object
+    name = clean_and_id_ep_string('WeeklySchedule') if _name_ is None else \
+        clean_ep_string(_name_)
     schedule = ScheduleRuleset.from_week_daily_values(
-        clean_and_id_ep_string(_name), _sun, _mon, _tue, _wed, _thu, _fri, _sat,
-        _holiday_, timestep=1, schedule_type_limit=_type_limit_,
+        name, _sun, _mon, _tue, _wed, _thu, _fri, _sat, _holiday_,
+        timestep=1, schedule_type_limit=_type_limit_,
         summer_designday_values=_summer_des_, winter_designday_values=_winter_des_)
-    schedule.display_name = _name
+    if _name_ is not None:
+        schedule.display_name = _name_
 
     # get the idf strings of the schedule
     idf_year, idf_week = schedule.to_idf()

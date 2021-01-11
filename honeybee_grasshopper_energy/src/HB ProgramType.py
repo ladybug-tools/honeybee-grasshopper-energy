@@ -16,7 +16,7 @@ and loads on the Room.
 -
 
     Args:
-        _name: Text to set the name for the ProgramType and to be incorporated
+        _name_: Text to set the name for the ProgramType and to be incorporated
             into a unique ProgramType identifier.
         base_program_: An optional ProgramType object that will be used as the
             starting point for the new ProgramType output from this component.
@@ -52,15 +52,15 @@ and loads on the Room.
             order to specify all default schedules and loads on the Room.
 """
 
-ghenv.Component.Name = "HB ProgramType"
+ghenv.Component.Name = 'HB ProgramType'
 ghenv.Component.NickName = 'ProgramType'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
-ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -78,16 +78,18 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # get the base program type
+    name = clean_and_id_ep_string('ProgramType') if _name_ is None else \
+        clean_ep_string(_name_)
     if base_program_ is None:
-        program = ProgramType(clean_and_id_ep_string(_name))
-        program.display_name = _name
+        program = ProgramType(name)
     else:
         if isinstance(base_program_, str):
             base_program_ = program_type_by_identifier(base_program_)
         program = base_program_.duplicate()
-        program.identifier = clean_and_id_ep_string(_name)
-        program.display_name = _name
-    
+        program.identifier = name
+    if _name_ is not None:
+        program.display_name = _name_
+
     # go through each input load and assign it to the set
     if _people_ is not None:
         program.people = _people_

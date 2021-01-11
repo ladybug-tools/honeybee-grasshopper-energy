@@ -24,8 +24,8 @@ Construction" component.
             heat as well as solar heat that is absorbed by the glazing system and
             conducts towards the interior.
         _t_vis_: A number between 0 and 1 for the visible transmittance of the
-            glazing system. Default: 0.6.
-    
+            glazing system. (Default: 0.6).
+
     Returns:
         mat: A window material that describes an entire glazing system, including
             glass, gaps, and frame and can be assigned to a Honeybee Window
@@ -34,13 +34,13 @@ Construction" component.
 
 ghenv.Component.Name = 'HB Window Material'
 ghenv.Component.NickName = 'WindowMat'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -58,8 +58,10 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # set the default material properties
     _t_vis_ = 0.6 if _t_vis_ is None else _t_vis_
+    name = clean_and_id_ep_string('WindowMaterial') if _name_ is None else \
+        clean_ep_string(_name_)
 
     # create the material
-    mat = EnergyWindowMaterialSimpleGlazSys(
-        clean_and_id_ep_string(_name), _u_factor, _shgc, _t_vis_)
-    mat.display_name = _name
+    mat = EnergyWindowMaterialSimpleGlazSys(name, _u_factor, _shgc, _t_vis_)
+    if _name_ is not None:
+        mat.display_name = _name_

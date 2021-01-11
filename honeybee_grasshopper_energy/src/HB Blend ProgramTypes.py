@@ -13,7 +13,7 @@ average based on program ratios.
 -
 
     Args:
-        _name: Text to set the name for the ProgramType and to be incorporated
+        _name_: Text to set the name for the ProgramType and to be incorporated
             into a unique ProgramType identifier.
         _programs: A list of ProgramType objects that will be averaged
             together to make a new ProgramType.
@@ -21,21 +21,21 @@ average based on program ratios.
             programs that sum to 1. These will be used to weight each of the
             ProgramType objects in the resulting average. If None, the input
             program objects will be weighted equally. Default: None.
-    
+
     Returns:
         program: A ProgramType object that's a weighted average between the
             input _programs.
 """
 
-ghenv.Component.Name = "HB Blend ProgramTypes"
+ghenv.Component.Name = 'HB Blend ProgramTypes'
 ghenv.Component.NickName = 'BlendPrograms'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
-ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -54,6 +54,8 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # set default ratios to None
     _ratios_ = _ratios_ if len(_ratios_) != 0 else None
+    name = clean_and_id_ep_string('ProgramType') if _name_ is None else \
+        clean_ep_string(_name_)
 
     # get programs from library if a name is input
     for i, prog in enumerate(_programs):
@@ -61,5 +63,6 @@ if all_required_inputs(ghenv.Component):
             _programs[i] = program_type_by_identifier(prog)
 
     # create blended program
-    program = ProgramType.average(clean_and_id_ep_string(_name), _programs, _ratios_)
-    program.display_name = _name
+    program = ProgramType.average(name, _programs, _ratios_)
+    if _name_ is not None:
+        program.display_name = _name_

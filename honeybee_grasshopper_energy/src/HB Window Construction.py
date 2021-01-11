@@ -17,7 +17,7 @@ innermost (interior) layer.
 -
 
     Args:
-        _name: Text to set the name for the Construction and to be incorporated
+        _name_: Text to set the name for the Construction and to be incorporated
             into a unique Construction identifier.
         _materials: List of materials in the construction (from exterior to interior).
             These materials can be either fully-detailed material objects built
@@ -25,7 +25,7 @@ innermost (interior) layer.
             looked up in the window material library. Note that a native Grasshopper
             "Merge" component can be used to help order the materials correctly
             for the input here.
-    
+
     Returns:
         constr: A window construction that can be assigned to Honeybee
             Apertures or ConstructionSets.
@@ -33,13 +33,13 @@ innermost (interior) layer.
 
 ghenv.Component.Name = "HB Window Construction"
 ghenv.Component.NickName = 'WindowConstr'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
 
 try:  # import the core honeybee dependencies
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -56,11 +56,15 @@ except ImportError as e:
 
 
 if all_required_inputs(ghenv.Component):
+    name = clean_and_id_ep_string('WindowConstruction') if _name_ is None else \
+        clean_ep_string(_name_)
+
     material_objs = []
     for material in _materials:
         if isinstance(material, str):
             material = window_material_by_identifier(material)
         material_objs.append(material)
-    
-    constr = WindowConstruction(clean_and_id_ep_string(_name), material_objs)
-    constr.display_name = _name
+
+    constr = WindowConstruction(name, material_objs)
+    if _name_ is not None:
+        constr.display_name = _name_

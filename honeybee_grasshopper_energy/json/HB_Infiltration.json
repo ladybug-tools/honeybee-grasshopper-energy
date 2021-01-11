@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0", 
+  "version": "1.1.1", 
   "nickname": "Infiltration", 
   "outputs": [
     [
@@ -36,7 +36,7 @@
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\nimport uuid\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.infiltration import Infiltration\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # make a default Infiltration name if none is provided\n    if _name_ is None:\n        name = \"Infiltration_{}\".format(uuid.uuid4())\n    else:\n        name = clean_and_id_ep_string(_name_)\n\n    # get the schedule\n    _schedule_ = _schedule_ if _schedule_ is not None else 'Always On'\n    if isinstance(_schedule_, str):\n        _schedule_ = schedule_by_identifier(_schedule_)\n\n    # create the Infiltration object\n    infil = Infiltration(name, _flow_per_ext_area, _schedule_)\n    if _name_ is not None:\n        infil.display_name = _name_\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.infiltration import Infiltration\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # make a default Infiltration name if none is provided\n    name = clean_and_id_ep_string('Infiltration') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # get the schedule\n    _schedule_ = _schedule_ if _schedule_ is not None else 'Always On'\n    if isinstance(_schedule_, str):\n        _schedule_ = schedule_by_identifier(_schedule_)\n\n    # create the Infiltration object\n    infil = Infiltration(name, _flow_per_ext_area, _schedule_)\n    if _name_ is not None:\n        infil.display_name = _name_\n", 
   "category": "HB-Energy", 
   "name": "HB Infiltration", 
   "description": "Create an Infiltration object that can be used to create a ProgramType or be\nassigned directly to a Room.\n-"
