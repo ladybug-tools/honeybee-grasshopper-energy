@@ -75,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -189,6 +189,8 @@ if all_required_inputs(ghenv.Component) and _write:
     # delete any existing files in the directory and prepare it for simulation
     nukedir(directory, True)
     preparedir(directory)
+    sch_directory = os.path.join(directory, 'schedules')
+    preparedir(sch_directory)
 
     # write the model parameter JSONs
     model_dict = _model.to_dict(triangulate_sub_faces=True)
@@ -209,8 +211,9 @@ if all_required_inputs(ghenv.Component) and _write:
 
     # collect the two jsons for output and write out the osw file
     jsons = [model_json, sim_par_json]
-    osw = to_openstudio_osw(directory, model_json, sim_par_json,
-                            additional_measures=measures, epw_file=_epw_file)
+    osw = to_openstudio_osw(
+        directory, model_json, sim_par_json, additional_measures=measures,
+        epw_file=_epw_file, schedule_directory=sch_directory)
 
     # run the measure to translate the model JSON to an openstudio measure
     silent = True if run_ == 3 else False
