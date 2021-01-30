@@ -25,10 +25,10 @@ collections for the cooling/heating load over the peak design day.
 
 ghenv.Component.Name = 'HB Read Zone Sizing'
 ghenv.Component.NickName = 'ReadZSZ'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
-ghenv.Component.AdditionalHelpFromDocStrings = '1'
+ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 try:
     from honeybee_energy.result.zsz import ZSZ
