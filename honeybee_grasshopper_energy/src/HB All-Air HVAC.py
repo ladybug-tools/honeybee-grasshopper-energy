@@ -58,7 +58,7 @@ than systems that separate ventilation from the meeting of thermal loads.
 
 ghenv.Component.Name = "HB All-Air HVAC"
 ghenv.Component.NickName = 'AllAirHVAC'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -71,6 +71,7 @@ try:  # import the honeybee extension
     from honeybee.altnumber import autosize
     from honeybee.typing import clean_and_id_ep_string
     from honeybee.model import Model
+    from honeybee.room import Room
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -121,8 +122,11 @@ if all_required_inputs(ghenv.Component):
     for hb_obj in _rooms:
         if isinstance(hb_obj, Model):
             rooms.extend([room.duplicate() for room in hb_obj.rooms])
-        else:
+        elif isinstance(hb_obj, Room):
             rooms.append(hb_obj.duplicate())
+        else:
+            raise ValueError(
+                'Expected Honeybee Room or Model. Got {}.'.format(type(hb_obj)))
 
     # create the instance of the HVAC system to be applied to the rooms
     try:  # get the class for the HVAC system
