@@ -1,0 +1,162 @@
+{
+  "version": "1.1.0", 
+  "nickname": "PMVMap", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "temperature", 
+        "description": "A folder containing CSV maps of Operative Temperature for each sensor\ngrid at each time step of the analysis. Alternatively, if the\nwrite_set_map_ option is used, the CSV maps here will contain Standard\nEffective Temperature (SET). Values are in Celsius.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "condition", 
+        "description": "A folder containing CSV maps of comfort conditions for each sensor\ngrid at each time step of the analysis.\n_\n.    -1 = unacceptably cold conditions\n.     0 = neutral (comfortable) conditions\n.    +1 = unacceptably hot conditions", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "pmv", 
+        "description": "A folder containing CSV maps of the Predicted Mean Vote (PMV) for each\nsensor grid at each time step of the analysis. This can be used to\nunderstand not just whether conditions are acceptable but how\nuncomfortably hot or cold they are.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "TCP", 
+        "description": "Lists of values between 0 and 100 for the Thermal Comfort Percent (TCP).\nThese can be plugged into the \"LB Spatial Heatmap\" component along\nwith meshes of the sensor grids to visualize spatial thermal comfort.\nTCP is the percentage of occupied time where thermal conditions are\nacceptable/comfortable. Occupied hours are determined from the\noccuppancy schedules of each room (any time where the occupancy\nschedule is >= 0.1 will be considered occupied). Outdoor sensors\nare considered occupied at all times. More custom TCP studies can\nbe done by post-processing the condition results.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "HSP", 
+        "description": "Lists of values between 0 and 100 for the Heat Sensation Percent (HSP).\nThese can be plugged into the \"LB Spatial Heatmap\" component along with\nmeshes of the sensor grids to visualize uncomfortably hot locations.\nHSP is the percentage of occupied time where thermal conditions are\nhotter than what is considered acceptable/comfortable. Occupied hours\nare determined from the occuppancy schedules of each room (any time\nwhere the occupancy schedule is >= 0.1 will be considered occupied).\nOutdoor sensors are considered occupied at all times. More custom HSP\nstudies can be done by post-processing the condition results.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "CSP", 
+        "description": "Lists of values between 0 and 100 for the Cold Sensation Percent (CSP).\nThese can be plugged into the \"LB Spatial Heatmap\" component along with\nmeshes of the sensor grids to visualize uncomfortably cold locations.\nCSP is the percentage of occupied time where thermal conditions are\ncolder than what is considered acceptable/comfortable. Occupied hours\nare determined from the occuppancy schedules of each room (any time\nwhere the occupancy schedule is >= 0.1 will be considered occupied).\nOutdoor sensors are considered occupied at all times. More custom CSP\nstudies can be done by post-processing the condition results.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model for which PMV comfort will be mapped. Note that\nthis model should have radiance grids assigned to it in order\nto produce meaningful results.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_epw", 
+      "description": "Path to an EPW weather file to be used for the comfort map simulation.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_ddy", 
+      "description": "Path to a DDY file with design days to be used for the initial sizing\ncalculation of the energy simulation.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "north_", 
+      "description": "A number between -360 and 360 for the counterclockwise difference\nbetween the North and the positive Y-axis in degrees. This can\nalso be Vector for the direction to North. (Default: 0).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_period_", 
+      "description": "An AnalysisPeriod to set the start and end dates of the simulation.\nIf None, the simulation will be annual.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "sensor_count_", 
+      "description": "Integer for the maximum number of sensor grid points per\nparallel execution. (Default: 200).", 
+      "type": "int", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "write_set_map_", 
+      "description": "A boolean to note whether the output temperature CSV should\nrecord Operative Temperature or Standard Effective Temperature (SET).\nSET is relatively intense to compute and so only recording Operative\nTemperature can greatly reduce run time, particularly when air speeds\nare low. However, SET accounts for all 6 PMV model inputs and so is a\nmore representative \"feels-like\" temperature for the PMV model.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_air_speed_", 
+      "description": "A single number for air speed in m/s or an hourly data collection\nof air speeds that align with the input run_period_. This will be\nused for all indoor comfort evaluation. Note that the EPW wind speed\nwill be used for any outdoor sensors. (Default: 0.1).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_met_rate_", 
+      "description": "A single number for metabolic rate in met or an hourly data collection\nof met rates that align with the run_period_. (Default: 1.1, for\nseated, typing).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_clo_value_", 
+      "description": "A single number for clothing level in clo or an hourly data collection\nof clothing levels that align with the run_period_. (Default: 0.7,\nfor pants and a long sleeve shirt).", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "comfort_par_", 
+      "description": "Optional comfort parameters from the \"LB PMV Comfort Parameters\"\ncomponent to specify the criteria under which conditions are\nconsidered acceptable/comfortable. The default will assume a\nPPD threshold of 10% and no absolute humidity constraints.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "solar_body_par_", 
+      "description": "Optional solar body parameters from the \"LB Solar Body Parameters\"\nobject to specify the properties of the human geometry assumed in the\nshortwave MRT calculation. The default assumes average skin/clothing\nabsorptivity and a human subject always has their back to the sun\nat a 45-degree angle (SHARP = 135).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "radiance_par_", 
+      "description": "Text for the radiance parameters to be used for ray\ntracing. (Default: -ab 2 -ad 5000 -lw 2e-05).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "run_settings_", 
+      "description": "Settings from the \"HB Recipe Settings\" component that specify\nhow the recipe should be run. This can also be a text string of\nrecipe settings.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_run", 
+      "description": "Set to True to run the recipe and get results.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "7 :: Thermal Map", 
+  "code": "\nimport os\n\ntry:\n    from honeybee.config import folders as hb_folders\n    from honeybee.model import Model\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from lbt_recipes.recipe import Recipe\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, recipe_result\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # create the recipe and set the input arguments\n    recipe = Recipe('pmv_comfort_map')\n    recipe.input_value_by_name('model', _model)\n    recipe.input_value_by_name('epw', _epw)\n    recipe.input_value_by_name('ddy', _ddy)\n    recipe.input_value_by_name('north', north_)\n    recipe.input_value_by_name('run-period', run_period_)\n    recipe.input_value_by_name('sensor-count', sensor_count_)\n    recipe.input_value_by_name('write-set-map', write_set_map_)\n    recipe.input_value_by_name('air-speed', _air_speed_)\n    recipe.input_value_by_name('met-rate', _met_rate_)\n    recipe.input_value_by_name('clo-value', _clo_value_)\n    recipe.input_value_by_name('comfort-parameters', comfort_par_)\n    recipe.input_value_by_name('solarcal-parameters', solar_body_par_)\n    recipe.input_value_by_name('radiance-parameters', radiance_par_)\n\n    # set the default project folder based on the model name if available\n    if isinstance(_model, Model):\n        recipe.default_project_folder = os.path.join(\n            hb_folders.default_simulation_folder, _model.identifier, 'Comfort')\n\n    # run the recipe\n    project_folder = recipe.run(\n        run_settings_, radiance_check=True, openstudio_check=True)\n\n    # load the results\n    temperature = recipe_result(recipe.output_value_by_name('temperature', project_folder))\n    condition = recipe_result(recipe.output_value_by_name('condition', project_folder))\n    pmv = recipe_result(recipe.output_value_by_name('condition-intensity', project_folder))\n", 
+  "category": "HB-Energy", 
+  "name": "HB PMV Comfort Map", 
+  "description": "Compute spatially-resolved operative temperature and PMV thermal comfort from\na Honeybee model. This recipe can also (optionally) compute Standard Effective\nTemperature (SET).\n_\nThis recipe uses EnergyPlus to obtain longwave radiant temperatures and indoor air\ntemperatures. The outdoor air temperature and air speed are taken directly from\nthe EPW. A Radiance-based, enhanced 2-phase method is used for shortwave MRT\ncalculations, which uses an accurate direct sun calculation with precise solar\npositions.\n_\nThe energy properties of the model geometry are what determine the outcome of the\nsimulation, though the model's Radiance sensor grids are what determine where\nthe comfort mapping occurs.\n-"
+}
