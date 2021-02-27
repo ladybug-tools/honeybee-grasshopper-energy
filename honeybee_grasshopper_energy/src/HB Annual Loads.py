@@ -89,7 +89,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.1.3'
+ghenv.Component.Message = '1.1.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -126,22 +126,15 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
+    from lbt_recipes.version import check_energyplus_version
+except ImportError as e:
+    raise ImportError('\nFailed to import lbt_recipes:\n\t{}'.format(e))
+
+try:
     from ladybug_rhino.config import conversion_to_meters, tolerance, angle_tolerance
     from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
-
-# check the presence of openstudio and check that the version is compatible
-compatibe_ep_version = (9, 4, 0)
-hb_url = 'https://github.com/ladybug-tools/lbt-grasshopper/wiki/1.4-Compatibility-Matrix'
-in_msg = 'Get a compatible version of EnergyPlus by downloading and installing\nthe ' \
-    'version of OpenStudio listed in the Ladybug Tools compatibility matrix\n{}.'.format(hb_url)
-assert energy_folders.energyplus_path is not None, \
-    'No EnergyPlus installation was found on this machine.\n{}'.format(in_msg)
-ep_version = energy_folders.energyplus_version
-assert ep_version is not None and ep_version >= compatibe_ep_version, \
-    'The installed EnergyPlus is not version {} or greater.' \
-    '\n{}'.format('.'.join(str(v) for v in compatibe_ep_version), in_msg)
 
 
 def check_window_vent(rooms):
@@ -195,6 +188,9 @@ energy_output = (cool_out, heat_out, light_out, el_equip_out, gas_equip_out, shw
 
 
 if all_required_inputs(ghenv.Component) and _run:
+    # check the presence of energyplus and check that the version is compatible
+    check_energyplus_version()
+
     # set defaults for COP
     _heat_cop_ = 1 if _heat_cop_ is None else _heat_cop_
     _cool_cop_ = 1 if _cool_cop_ is None else _cool_cop_
@@ -306,6 +302,7 @@ if all_required_inputs(ghenv.Component) and _run:
         gas_equip = data_to_load_intensity(gas_equip_init, floor_area, 'Gas Equipment')
         equip = [equip, gas_equip]
         total_load.append(gas_equip.total)
+    hot_water = []
     if len(shw_init) != 0:
         hot_water = data_to_load_intensity(shw_init, floor_area, 'Service Hot Water')
         total_load.append(hot_water.total)

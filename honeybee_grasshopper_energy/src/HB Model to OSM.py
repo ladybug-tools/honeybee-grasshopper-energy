@@ -75,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.1.2'
+ghenv.Component.Message = '1.1.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -105,22 +105,15 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
+    from lbt_recipes.version import check_openstudio_version
+except ImportError as e:
+    raise ImportError('\nFailed to import lbt_recipes:\n\t{}'.format(e))
+
+try:
     from ladybug_rhino.grasshopper import all_required_inputs, give_warning
     from ladybug_rhino.config import units_system
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
-
-# check the presence of openstudio and check that the version is compatible
-compatibe_os_version = (3, 1, 0)
-hb_url = 'https://github.com/ladybug-tools/lbt-grasshopper/wiki/1.4-Compatibility-Matrix'
-in_msg = 'Download and install the version of OpenStudio listed in the Ladybug ' \
-    'Tools compatibility matrix\n{}.'.format(hb_url)
-assert energy_folders.openstudio_path is not None, \
-    'No OpenStudio installation was found on this machine.\n{}'.format(in_msg)
-os_version = energy_folders.openstudio_version
-assert os_version is not None and os_version >= compatibe_os_version, \
-    'The installed OpenStudio is not version {} or greater.' \
-    '\n{}'.format('.'.join(str(v) for v in compatibe_os_version), in_msg)
 
 
 def orphaned_warning(object_type):
@@ -132,6 +125,9 @@ def orphaned_warning(object_type):
 
 
 if all_required_inputs(ghenv.Component) and _write:
+    # check the presence of openstudio and check that the version is compatible
+    check_openstudio_version()
+
     # process the simulation parameters
     if _sim_par_ is None:
         _sim_par_ = SimulationParameter()
