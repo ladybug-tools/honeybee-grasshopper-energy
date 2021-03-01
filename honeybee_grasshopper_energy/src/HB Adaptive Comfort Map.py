@@ -101,7 +101,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB Adaptive Comfort Map'
 ghenv.Component.NickName = 'AdaptiveMap'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -151,4 +151,7 @@ if all_required_inputs(ghenv.Component) and _run:
     # load the results
     op_temp = recipe_result(recipe.output_value_by_name('temperature', project_folder))
     condition = recipe_result(recipe.output_value_by_name('condition', project_folder))
-    deg_neut = recipe_result(recipe.output_value_by_name('condition-intensity', project_folder))
+    deg_neut = recipe_result(recipe.output_value_by_name('degrees-from-neutral', project_folder))
+    TCP = recipe_result(recipe.output_value_by_name('tcp', project_folder))
+    HSP = recipe_result(recipe.output_value_by_name('hsp', project_folder))
+    CSP = recipe_result(recipe.output_value_by_name('csp', project_folder))
