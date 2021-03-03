@@ -1,26 +1,26 @@
 {
-  "version": "1.1.1", 
+  "version": "1.1.2", 
   "nickname": "PMVMap", 
   "outputs": [
     [
       {
         "access": "None", 
         "name": "temperature", 
-        "description": "A folder containing CSV maps of Operative Temperature for each sensor\ngrid at each time step of the analysis. Alternatively, if the\nwrite_set_map_ option is used, the CSV maps here will contain Standard\nEffective Temperature (SET). Values are in Celsius.", 
+        "description": "A folder containing CSV maps of Operative Temperature for each sensor\ngrid at each time step of the analysis. Alternatively, if the\nwrite_set_map_ option is used, the CSV maps here will contain\nStandard Effective Temperature (SET). This can be connected to the\n\"HB Read Thermal Matrix\" component to parse detailed results into\nGrasshopper. Values are in Celsius.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "condition", 
-        "description": "A folder containing CSV maps of comfort conditions for each sensor\ngrid at each time step of the analysis.\n_\n.    -1 = unacceptably cold conditions\n.     0 = neutral (comfortable) conditions\n.    +1 = unacceptably hot conditions", 
+        "description": "A folder containing CSV maps of comfort conditions for each sensor\ngrid at each time step of the analysis. This can be connected to the\n\"HB Read Thermal Matrix\" component to parse detailed results into\nGrasshopper. Values are as follows.\n_\n.    -1 = unacceptably cold conditions\n.     0 = neutral (comfortable) conditions\n.    +1 = unacceptably hot conditions", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "pmv", 
-        "description": "A folder containing CSV maps of the Predicted Mean Vote (PMV) for each\nsensor grid at each time step of the analysis. This can be used to\nunderstand not just whether conditions are acceptable but how\nuncomfortably hot or cold they are.", 
+        "description": "A folder containing CSV maps of the Predicted Mean Vote (PMV) for each\nsensor grid at each time step of the analysis. This can be connected\nto the \"HB Read Thermal Matrix\" component to parse detailed results\ninto Grasshopper. This can be used to understand not just whether\nconditions are acceptable but how uncomfortably hot or cold they are.", 
         "type": null, 
         "default": null
       }, 

@@ -1,0 +1,36 @@
+{
+  "version": "1.1.0", 
+  "nickname": "ThermalMtx", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "comf_mtx", 
+        "description": "A Matrix object that can be connected to the \"HB Visualize Thermal\nMap\" component in order to spatially visualize results. This Matrix\nobject can also be connected to the \"LB Deconstruct Matrix\"\ncomponent to obtain detailed point-by-point and hour-by-hour\nvalues.\n_\nWhen deconstructed, each sub-list of the matrix (aka. branch of the\nData Tree) represents one of the sensor grids used for analysis.\nThe length of each sub-list matches the number of points in the\ngrid. Each value in the sub-list is an hourly data collection\ncontaining hour-by-hour results for each point.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_comf_result", 
+      "description": "Path to a folder containing CSV files output by a thermal\nmapping component.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_load", 
+      "description": "Set to True to load the data from the CSV files into Grasshopper.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "7 :: Thermal Map", 
+  "code": "\nimport os\nimport json\n\ntry:\n    from ladybug.header import Header\n    from ladybug.datacollection import HourlyContinuousCollection, \\\n        HourlyDiscontinuousCollection\n    from ladybug.futil import csv_to_num_matrix\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, objectify_output\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _load:\n    # parse the result_info.json into a data collection header\n    with open(os.path.join(_comf_result, 'results_info.json')) as json_file:\n        data_header = Header.from_dict(json.load(json_file))\n    a_per = data_header.analysis_period\n    continuous = True if a_per.st_hour == 0 and a_per.end_hour == 23 else False\n    if not continuous:\n        dates = a_per.datetimes\n\n    # parse the grids_info.json with the correct order of the grid files\n    with open(os.path.join(_comf_result, 'grids_info.json')) as json_file:\n        grid_list = json.load(json_file)\n\n    # loop through the grid CSV files, parse their results, and build data collections\n    comf_matrix = []\n    for grid in grid_list:\n        grid_name = grid['id']\n        metadata = {'grid': grid_name}\n        grid_file = os.path.join(_comf_result, '{}.csv'.format(grid_name))\n        data_matrix = csv_to_num_matrix(grid_file)\n        grid_data = []\n        for i, row in enumerate(data_matrix):\n            header = data_header.duplicate()\n            header.metadata = metadata.copy()\n            header.metadata['sensor_index'] = i\n            data = HourlyContinuousCollection(header, row) if continuous else \\\n                HourlyDiscontinuousCollection(header, row, dates)\n            grid_data.append(data)\n        comf_matrix.append(grid_data)\n\n    # wrap the maptrix into an object so that it does not slow the {{Plugin}} UI\n    comf_mtx = objectify_output(\n        '{} Matrix'.format(data_header.data_type.name), comf_matrix)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Read Thermal Matrix", 
+  "description": "Read the detailed results of a thermal mapping analysis from a folder of CSV\nfiles output by a thermal mapping component.\n_\nDetailed results include temperature amd thermal condition results. It also\nincludes metrics that give a sense of how hot or cold condition are like\npmv, utci category, or adaptive comfort degrees from neutral temperature.\n-"
+}

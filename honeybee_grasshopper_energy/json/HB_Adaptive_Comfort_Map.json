@@ -1,26 +1,26 @@
 {
-  "version": "1.1.1", 
+  "version": "1.1.2", 
   "nickname": "AdaptiveMap", 
   "outputs": [
     [
       {
         "access": "None", 
         "name": "op_temp", 
-        "description": "A folder containing CSV maps of Operative Temperature for each sensor\ngrid at each time step of the analysis. Values are in Celsius.", 
+        "description": "A folder containing CSV maps of Operative Temperature for each sensor\ngrid at each time step of the analysis. This can be connected to the\n\"HB Read Thermal Matrix\" component to parse detailed results into\nGrasshopper. Values are in Celsius.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "condition", 
-        "description": "A folder containing CSV maps of comfort conditions for each sensor\ngrid at each time step of the analysis.\n_\n.    -1 = unacceptably cold conditions\n.     0 = neutral (comfortable) conditions\n.    +1 = unacceptably hot conditions", 
+        "description": "A folder containing CSV maps of comfort conditions for each sensor\ngrid at each time step of the analysis. This can be connected to the\n\"HB Read Thermal Matrix\" component to parse detailed results into\nGrasshopper. Values are as follows.\n_\n.    -1 = unacceptably cold conditions\n.     0 = neutral (comfortable) conditions\n.    +1 = unacceptably hot conditions", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "deg_neut", 
-        "description": "A folder containing CSV maps of the degrees Celsius from the adaptive\ncomfort neutral temperature for each sensor grid at each time step of\nthe analysis. This can be used to understand not just whether conditions\nare acceptable but how uncomfortably hot or cold they are.", 
+        "description": "A folder containing CSV maps of the degrees Celsius from the adaptive\ncomfort neutral temperature for each sensor grid at each time step of\nthe analysis. This can be connected to the \"HB Read Thermal Matrix\"\ncomponent to parse detailed results into Grasshopper. This can be\nused to understand not just whether conditions are acceptable but\nhow uncomfortably hot or cold they are.", 
         "type": null, 
         "default": null
       }, 

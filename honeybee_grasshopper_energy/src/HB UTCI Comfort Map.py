@@ -56,17 +56,22 @@ the comfort mapping occurs.
         report: Reports, errors, warnings, etc.
         utci: A folder containing CSV maps of Universal Thermal Climate Index (UTCI)
             temperatures for each sensor grid at each time step of the analysis.
-            Values are in Celsius.
+            This can be connected to the "HB Read Thermal Matrix" component to
+            parse detailed results into Grasshopper. Values are in Celsius.
         condition: A folder containing CSV maps of comfort conditions for each sensor
-            grid at each time step of the analysis.
+            grid at each time step of the analysis. This can be connected to the
+            "HB Read Thermal Matrix" component to parse detailed results into
+            Grasshopper. Values are as follows.
             _
             .    -1 = unacceptably cold conditions
             .     0 = neutral (comfortable) conditions
             .    +1 = unacceptably hot conditions
         category: A folder containing CSV maps of the heat/cold stress categories for
-            each sensor grid at each time step of the analysis. This can be used
-            to understand not just whether conditions are acceptable but how
-            uncomfortably hot or cold they are. Values indicate the following.
+            each sensor grid at each time step of the analysis. This can be connected
+            to the "HB Read Thermal Matrix" component to parse detailed results
+            into Grasshopper. This can be used to understand not just whether
+            conditions are acceptable but how uncomfortably hot or cold they
+            are. Values indicate the following.
             .    -5 = extreme cold stress
             .    -4 = very strong cold stress
             .    -3 = strong cold stress
@@ -109,7 +114,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
