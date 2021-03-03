@@ -73,18 +73,23 @@ the comfort mapping occurs.
         report: Reports, errors, warnings, etc.
         temperature: A folder containing CSV maps of Operative Temperature for each sensor
             grid at each time step of the analysis. Alternatively, if the
-            write_set_map_ option is used, the CSV maps here will contain Standard
-            Effective Temperature (SET). Values are in Celsius.
+            write_set_map_ option is used, the CSV maps here will contain
+            Standard Effective Temperature (SET). This can be connected to the
+            "HB Read Thermal Matrix" component to parse detailed results into
+            Grasshopper. Values are in Celsius.
         condition: A folder containing CSV maps of comfort conditions for each sensor
-            grid at each time step of the analysis.
+            grid at each time step of the analysis. This can be connected to the
+            "HB Read Thermal Matrix" component to parse detailed results into
+            Grasshopper. Values are as follows.
             _
             .    -1 = unacceptably cold conditions
             .     0 = neutral (comfortable) conditions
             .    +1 = unacceptably hot conditions
         pmv: A folder containing CSV maps of the Predicted Mean Vote (PMV) for each
-            sensor grid at each time step of the analysis. This can be used to
-            understand not just whether conditions are acceptable but how
-            uncomfortably hot or cold they are.
+            sensor grid at each time step of the analysis. This can be connected
+            to the "HB Read Thermal Matrix" component to parse detailed results
+            into Grasshopper. This can be used to understand not just whether
+            conditions are acceptable but how uncomfortably hot or cold they are.
         TCP: Lists of values between 0 and 100 for the Thermal Comfort Percent (TCP).
             These can be plugged into the "LB Spatial Heatmap" component along
             with meshes of the sensor grids to visualize spatial thermal comfort.
@@ -116,7 +121,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB PMV Comfort Map'
 ghenv.Component.NickName = 'PMVMap'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
