@@ -35,10 +35,10 @@ https://bcl.nrel.gov/nrel/types/measure
 
 ghenv.Component.Name = 'HB Load Measure'
 ghenv.Component.NickName = 'LoadMeasure'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = "3"
+ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:
     from honeybee_energy.measure import Measure

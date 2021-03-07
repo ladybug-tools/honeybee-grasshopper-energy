@@ -58,8 +58,10 @@ Model to OSM" component.
             simulation is run. This ensures that data collections for various
             terms of the load balance are output from the "balance".
             This can help explain why the loads are what they are but can
-            also indrease the component run time slightly. (Default: False).
-        _run: Set to "True" to run the simulation to obtain annual loads.
+            also increase the component run time. (Default: False).
+        _run: Set to "True" to run the simulation to obtain annual loads. This can
+            also be the integer 2 to run the simulation while being able to see
+            the simulation process (with a batch window).
 
     Returns:
         report: A report of the energy simulation run.
@@ -89,10 +91,10 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.1.4'
+ghenv.Component.Message = '1.1.5'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = '1'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 import os
 import subprocess
@@ -138,7 +140,7 @@ except ImportError as e:
 
 
 def check_window_vent(rooms):
-    """Check a rooms to make sure there's no opening of windows as coars timestep."""
+    """Check a rooms to make sure there's no opening of windows as coarse timestep."""
     for room in rooms:
         if room.properties.energy.window_vent_control is not None:
             msg = 'Window ventilation was detected but your timestep is too low ' \
@@ -258,7 +260,8 @@ if all_required_inputs(ghenv.Component) and _run:
     write_to_file_by_name(directory, 'in.idf', idf_str, True)
 
     # run the IDF through EnergyPlus
-    sql, zsz, rdd, html, err = run_idf(idf, _epw_file, silent=True)
+    silent = True if _run == 1 else False
+    sql, zsz, rdd, html, err = run_idf(idf, _epw_file, silent=silent)
     if html is None and err is not None:  # something went wrong; parse the errors
         err_obj = Err(err)
         print(err_obj.file_contents)
