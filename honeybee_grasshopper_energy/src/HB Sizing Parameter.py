@@ -34,12 +34,12 @@ Create parameters with criteria for sizing the heating and cooling system.
             order to specify settings for the EnergyPlus simulation.
 """
 
-ghenv.Component.Name = "HB Sizing Parameter"
+ghenv.Component.Name = 'HB Sizing Parameter'
 ghenv.Component.NickName = 'SizingPar'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 try:
     from honeybee_energy.simulation.sizing import SizingParameter

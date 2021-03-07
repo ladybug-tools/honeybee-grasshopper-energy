@@ -37,10 +37,10 @@ comfort matrix.
 
 ghenv.Component.Name = 'HB Visualize Thermal Map'
 ghenv.Component.NickName = 'VizThermalMap'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
-ghenv.Component.AdditionalHelpFromDocStrings = '1'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:
     from ladybug_geometry.geometry3d.mesh import Mesh3D

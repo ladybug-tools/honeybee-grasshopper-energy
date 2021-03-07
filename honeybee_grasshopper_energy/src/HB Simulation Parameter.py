@@ -69,12 +69,12 @@ simulation settings and can be plugged into the "HB Model To OSM" component.
             simulation settings
 """
 
-ghenv.Component.Name = "HB Simulation Parameter"
+ghenv.Component.Name = 'HB Simulation Parameter'
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.1.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 try:
     from ladybug.dt import Date, DateTime

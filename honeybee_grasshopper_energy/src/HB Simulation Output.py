@@ -51,12 +51,12 @@ The resulting object can be used to request output variables from EnergyPlus.
             types of outputs should be written from EnergyPlus.
 """
 
-ghenv.Component.Name = "HB Simulation Output"
+ghenv.Component.Name = 'HB Simulation Output'
 ghenv.Component.NickName = 'SimOutput'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.1.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 try:
     from honeybee_energy.simulation.output import SimulationOutput
