@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1", 
+  "version": "1.2.0", 
   "nickname": "ShadeMat", 
   "outputs": [
     [
@@ -15,14 +15,14 @@
   "inputs": [
     {
       "access": "item", 
-      "name": "_name", 
+      "name": "_name_", 
       "description": "Text to set the name for the material and to be incorporated into\na unique material identifier.", 
       "type": "string", 
       "default": null
     }, 
     {
       "access": "item", 
-      "name": "_thickness_", 
+      "name": "_thickness", 
       "description": "Number for the thickness of the shade layer in meters.", 
       "type": "double", 
       "default": null

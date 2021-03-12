@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1", 
+  "version": "1.2.0", 
   "nickname": "GlassMat", 
   "outputs": [
     [
@@ -15,14 +15,14 @@
   "inputs": [
     {
       "access": "item", 
-      "name": "_name", 
+      "name": "_name_", 
       "description": "Text to set the name for the material and to be incorporated into\na unique material identifier.", 
       "type": "string", 
       "default": null
     }, 
     {
       "access": "item", 
-      "name": "_thickness_", 
+      "name": "_thickness", 
       "description": "Number for the thickness of the glass layer [m]. Typical values\nrange from 0.003 meters (3 mm) to 0.012 meters (12 mm).", 
       "type": "double", 
       "default": null
