@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2020, Ladybug Tools.
+# Copyright (c) 2021, Ladybug Tools.
 # You should have received a copy of the GNU General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -31,7 +31,7 @@ Deconstruct a construction set into its constituient interior constructions.
 
 ghenv.Component.Name = "HB Deconstruct ConstructionSet Interior"
 ghenv.Component.NickName = 'DecnstrConstrSetInt'
-ghenv.Component.Message = '1.1.0'
+ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "2"

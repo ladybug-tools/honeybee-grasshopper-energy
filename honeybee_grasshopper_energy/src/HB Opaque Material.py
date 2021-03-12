@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2020, Ladybug Tools.
+# Copyright (c) 2021, Ladybug Tools.
 # You should have received a copy of the GNU General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -37,7 +37,7 @@ Construction" component.
 
 ghenv.Component.Name = "HB Opaque Material"
 ghenv.Component.NickName = 'OpaqueMat'
-ghenv.Component.Message = '1.1.1'
+ghenv.Component.Message = '1.2.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "5"
