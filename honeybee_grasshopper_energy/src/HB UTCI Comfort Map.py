@@ -114,18 +114,10 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
-
-import os
-
-try:
-    from honeybee.config import folders as hb_folders
-    from honeybee.model import Model
-except ImportError as e:
-    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from lbt_recipes.recipe import Recipe
@@ -150,11 +142,6 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('wind-speed', _wind_speed_)
     recipe.input_value_by_name('solarcal-parameters', solar_body_par_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
-
-    # set the default project folder based on the model name if available
-    if isinstance(_model, Model):
-        recipe.default_project_folder = os.path.join(
-            hb_folders.default_simulation_folder, _model.identifier, 'Comfort')
 
     # run the recipe
     project_folder = recipe.run(
