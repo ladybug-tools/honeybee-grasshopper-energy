@@ -43,6 +43,10 @@ ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
+import os
+import subprocess
+import json
+
 from collections import OrderedDict
 
 try:
@@ -52,6 +56,11 @@ try:
     from ladybug.datatype.energy import Energy
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
+
+try:
+    from honeybee.config import folders
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from ladybug_rhino.grasshopper import all_required_inputs
@@ -71,17 +80,41 @@ if all_required_inputs(ghenv.Component):
     for use in all_uses:
         end_uses[use] = 0
 
+    # ensure that _sql is a list rather than a single string
+    if isinstance(_sql, basestring):
+        _sql = [_sql]
+
     # loop through the sql files in the directory and add the energy use
     for result_file in _sql:
-        # parse the SQL file
-        sql_obj = SQLiteResult(result_file)
-        # get the total floor area of the model
-        area_dict = sql_obj.tabular_data_by_name('Building Area')
-        areas = tuple(area_dict.values())
-        total_floor_area += areas[0][0]
-        # get the energy use
-        eui_dict = sql_obj.tabular_data_by_name('End Uses')
-        euis = tuple(eui_dict.values())
+
+        if os.name == 'nt':  # we are on windows; use IronPython like usual
+            # parse the SQL file
+            sql_obj = SQLiteResult(result_file)
+            # get the total floor area of the model
+            area_dict = sql_obj.tabular_data_by_name('Building Area')
+            areas = tuple(area_dict.values())
+            total_floor_area += areas[0][0]
+            # get the energy use
+            eui_dict = sql_obj.tabular_data_by_name('End Uses')
+            euis = tuple(eui_dict.values())
+            
+        else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
+            # Execute the honybee CLI to obtain the results via CPython
+            # get the total floor area of the model
+            cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
+                    'tabular-data', result_file, 'Building Area']
+            process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+            stdout = process.communicate()
+            results = json.loads(stdout[0])
+            total_floor_area += results[0][0]
+            # get the energy use
+            cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
+                    'tabular-data', result_file, 'End Uses']
+            process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+            stdout = process.communicate()
+            euis = json.loads(stdout[0])
+
+        # add energy use values
         total_energy += sum([val for val in euis[-2][:12]])
         end_uses['heating'] += sum([val for val in euis[0][:12]])
         end_uses['cooling'] += sum([val for val in euis[1][:12]])
