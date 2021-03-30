@@ -70,6 +70,12 @@ dictate when the operable Apertures of the Room open.
             derived from values in m3/s-m2 of infiltration, they are easier to
             relate to the results of infiltration blower-door tests, which
             typically express infiltration rates in these units.
+        _delta_pressure_: The air pressure difference across the building envelope in
+            Pascals, which is used to calculate infiltration crack flow
+            coefficients when no leakage tempate is specified. The resulting
+            average simulated air pressure difference will roughly equal this
+            delta pressure times the nth root of the ratio between the simulated
+            and target room infiltration rates. (Default: 4).
         _ref_pressure_: The reference barometric pressure measurement in Pascals
             under which the surface crack data were obtained. (Default: 101325).
         _high_rise_: Booling indicating whether the Model is LowRise or HighRise.
@@ -108,7 +114,7 @@ dictate when the operable Apertures of the Room open.
 
 ghenv.Component.Name = 'HB Airflow Newtwork'
 ghenv.Component.NickName = 'AFN'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -144,9 +150,10 @@ if all_required_inputs(ghenv.Component):
                         'Excellent, Medium VeryPoor'.format(leakage_template_))
     use_room_infiltration = True if leakage_template_ is None else False
     pressure = _ref_pressure_ if _ref_pressure_ is not None else 101325
+    delta_pressure = _delta_pressure_ if _delta_pressure_ is not None else 4
 
     # generate the AFN leakage for all of the surfaces of the Model
-    generate(model.rooms, leakage, use_room_infiltration, pressure)
+    generate(model.rooms, leakage, use_room_infiltration, pressure, delta_pressure)
 
     # set up the Model-wide VentilationSimulationParameters for the AFN
     vent_sim_par = model.properties.energy.ventilation_simulation_control
