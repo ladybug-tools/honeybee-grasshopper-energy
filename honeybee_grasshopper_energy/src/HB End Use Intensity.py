@@ -50,6 +50,7 @@ import json
 from collections import OrderedDict
 
 try:
+    from ladybug.sql import SQLiteResult
     from ladybug.datatype.area import Area
     from ladybug.datatype.energyintensity import EnergyIntensity
     from ladybug.datatype.energy import Energy
@@ -67,24 +68,78 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
+# Use the SQLiteResult class to parse the result files directly on Windows.
+def get_results_windows(sql_files):
+    # set initial values that will be computed based on results
+    total_floor_area, total_energy = 0, 0
+    all_uses = \
+        ('heating', 'cooling', 'interior_lighting', 'exterior_lighting',
+         'interior_equipment', 'exterior_equipment', 'fans', 'pumps',
+         'heat_rejection', 'humidification', 'heat_recovery', 'water_systems',
+          'refrigeration', 'generators')
+    end_uses = OrderedDict()
+    for use in all_uses:
+        end_uses[use] = 0
+
+    # loop through the sql files in the directory and add the energy use
+    for result_file in sql_files:
+        # parse the SQL file
+        sql_obj = SQLiteResult(result_file)
+        # get the total floor area of the model
+        area_dict = sql_obj.tabular_data_by_name('Building Area')
+        areas = tuple(area_dict.values())
+        total_floor_area += areas[0][0]
+        # get the energy use
+        eui_dict = sql_obj.tabular_data_by_name('End Uses')
+        euis = tuple(eui_dict.values())
+        total_energy += sum([val for val in euis[-2][:12]])
+        end_uses['heating'] += sum([val for val in euis[0][:12]])
+        end_uses['cooling'] += sum([val for val in euis[1][:12]])
+        end_uses['interior_lighting'] += sum([val for val in euis[2][:12]])
+        end_uses['exterior_lighting'] += sum([val for val in euis[3][:12]])
+        end_uses['interior_equipment'] += sum([val for val in euis[4][:12]])
+        end_uses['exterior_equipment'] += sum([val for val in euis[5][:12]])
+        end_uses['fans'] += sum([val for val in euis[6][:12]])
+        end_uses['pumps'] += sum([val for val in euis[7][:12]])
+        end_uses['heat_rejection'] += sum([val for val in euis[8][:12]])
+        end_uses['humidification'] += sum([val for val in euis[9][:12]])
+        end_uses['heat_recovery'] += sum([val for val in euis[10][:12]])
+        end_uses['water_systems'] += sum([val for val in euis[11][:12]])
+        end_uses['refrigeration'] += sum([val for val in euis[12][:12]])
+        end_uses['generators'] += sum([val for val in euis[13][:12]])
+    
+    # assemble all of the results into a final dictionary
+    eui = round(total_energy / total_floor_area, 3)
+    gross_floor = round(total_floor_area, 3)
+    end_use_pairs = OrderedDict([(key, round(val / total_floor_area, 3))
+                     for key, val in end_uses.items() if val != 0])
+    return eui, gross_floor, end_use_pairs
+    
+
+# The SQLite3 module doesn't work in IronPython on Mac, so we must make a call
+# to the Honeybee CLI (which runs on CPython) to get the results.
+def get_results_mac(sql_files):
+    cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
+            'energy-use-intensity']
+    cmds.extend(sql_files)
+    process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+    stdout = process.communicate()
+    results = json.loads(stdout[0], object_pairs_hook=OrderedDict)
+    return results['eui'], results['total_floor_area'], results['end_uses']
+
+
 if all_required_inputs(ghenv.Component):
     # ensure that _sql is a list rather than a single string
     if isinstance(_sql, basestring):
         _sql = [_sql]
-
-    # use the honybee CLI to compute EUI
-    cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
-            'energy-use-intensity']
-    cmds.extend(_sql)
-    process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
-    stdout = process.communicate()
-    results = json.loads(stdout[0], object_pairs_hook=OrderedDict)
-
-    # place results into output variables
-    eui = results['eui']
-    gross_floor = results['total_floor_area']
-    eui_end_use = results['end_uses'].values()
-    end_uses = [use.replace('_', ' ').title() for use in results['end_uses'].keys()]
+    
+	# get the results
+    get_results = get_results_windows if os.name == 'nt' else get_results_mac
+    eui, gross_floor, end_use_pairs = get_results(_sql)
+        
+    # create separate lists for end use values and labels
+    eui_end_use = end_use_pairs.values()
+    end_uses = [use.replace('_', ' ').title() for use in end_use_pairs.keys()]
 
     # convert data to IP if requested
     if ip_:
