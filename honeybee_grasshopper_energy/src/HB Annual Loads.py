@@ -9,7 +9,7 @@
 
 """
 Run Honeybee Rooms through a quick energy simulation to obtain an estimate of
-annual heating, cooling, lighting and equipment loads.
+annual heating, cooling, lighting, equipment, and service hot water loads.
 _
 Note that the default settings used by this component are only suitable for evaluating
 annual loads in the case where an error of up to 5% is acceptable. Also
@@ -91,7 +91,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
