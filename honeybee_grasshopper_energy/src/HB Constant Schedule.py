@@ -48,7 +48,7 @@ repeating continuously over every day of the year.
 
 ghenv.Component.Name = 'HB Constant Schedule'
 ghenv.Component.NickName = 'ConstantSchedule'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -88,6 +88,7 @@ if all_required_inputs(ghenv.Component):
             schedule_type_limit=_type_limit_)
         idf_year, idf_week = schedule.to_idf()
         idf_days = [day_sch.to_idf(_type_limit_) for day_sch in schedule.day_schedules]
-        idf_text = [idf_year] + idf_week + idf_days
+        idf_text = [idf_year] + idf_week + idf_days if idf_week is not None \
+            else idf_year
     if _name_ is not None:
         schedule.display_name = _name_
