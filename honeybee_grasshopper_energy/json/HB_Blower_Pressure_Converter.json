@@ -1,0 +1,50 @@
+{
+  "version": "1.2.0", 
+  "nickname": "BlowerPresure", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "infilt", 
+        "description": "The intensity of infiltration in m3/s per square meter of exterior\nsurface area at the input _bldg_pressure_.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "C_qa", 
+        "description": "Air mass flow coefficient per square meter at 1 Pa [kg/m2/s/P^n].", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_infilt_per_exterior", 
+      "description": "A numerical value for the intensity of air flow induced by\nblower pressure in m3/s per square meter of exterior surface area.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_blower_pressure_", 
+      "description": "A number representing the pressure differential in Pascals (Pa)\nbetween indoors/outdoors at which the specified _infilt_per_exterior\noccurs. Typical pressures induced by blower doors are 75 Pa and\n50 Pa. (Default: 75).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_bldg_pressure_", 
+      "description": "The reference air pressure difference across building envelope\nunder typical conditions in Pascals. (Default: 4).", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.properties.room import RoomEnergyProperties\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default values\n    _blower_pressure_ = 75 if _blower_pressure_ is None else _blower_pressure_\n    _bldg_pressure_ = 4 if _bldg_pressure_ is None else _bldg_pressure_\n\n    # compute coeffiecient and airflow\n    C_qa = RoomEnergyProperties.solve_norm_area_flow_coefficient(\n        _infilt_per_exterior, delta_pressure=_blower_pressure_)\n    infilt = C_qa * (_bldg_pressure_ ** 0.65)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Blower Pressure Converter", 
+  "description": "Convert infiltration flow per exterior area measured at a particular blower door pressure\nto flow per exterior area measured at a typical building pressure.\n_\nThis is accomplished by computing a normalized-area air mass flow coefficient that\nis derived the power law relationship between pressure and air flow.\n    Cqa = (Qblow * d) / dPblow^n\nAnd then using the coefficient to approximate air flow at typical building pressure.\n    Qbldg = Cqa * dPbldg^n\n.\nwhere:\n    Cqa: Air mass flow coefficient per unit meter at 1 Pa [kg/m2/s/P^n]\n    Qblow: Blower-induced volumetric air flow rate per area [m3/s/m2]\n    dPblow: Blower-induced change in pressure across building envelope orifice [Pa]\n    Qbldg: Typical building volumetric air flow rate per area [m3/s/m2]\n    dPbldg: Typical building change in pressure across building envelope orifice [Pa]\n    d: Air density [1.2041 kg/m3]\n    n: Air mass flow exponent [0.65]\n-"
+}
