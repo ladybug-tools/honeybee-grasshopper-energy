@@ -13,7 +13,7 @@ to flow per exterior area measured at a typical building pressure.
 _
 This is accomplished by computing a normalized-area air mass flow coefficient that
 is derived the power law relationship between pressure and air flow.
-    Cqa = (Qblow * d) / dPblow^n
+    Cqa = Qblow / dPblow^n
 And then using the coefficient to approximate air flow at typical building pressure.
     Qbldg = Cqa * dPbldg^n
 .
@@ -45,7 +45,7 @@ where:
 
 ghenv.Component.Name = 'HB Blower Pressure Converter'
 ghenv.Component.NickName = 'BlowerPresure'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -68,5 +68,5 @@ if all_required_inputs(ghenv.Component):
 
     # compute coeffiecient and airflow
     C_qa = RoomEnergyProperties.solve_norm_area_flow_coefficient(
-        _infilt_per_exterior, delta_pressure=_blower_pressure_)
+        _infilt_per_exterior, air_density=1, delta_pressure=_blower_pressure_)
     infilt = C_qa * (_bldg_pressure_ ** 0.65)
