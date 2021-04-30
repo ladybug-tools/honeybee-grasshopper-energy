@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "Plenum", 
   "outputs": [
     [
@@ -16,7 +16,7 @@
     {
       "access": "list", 
       "name": "_rooms", 
-      "description": "HBZones that you want to turn into plenum zones.", 
+      "description": "Honeybee Rooms to be converted into plenums.", 
       "type": "System.Object", 
       "default": null
     }, 
@@ -36,8 +36,8 @@
     }
   ], 
   "subcategory": "0 :: Basic Properties", 
-  "code": "\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    rooms = [room.duplicate() for room in _rooms]  # duplicate to avoid editing input\n\n    for room in rooms:\n        # remove or add the HVAC system as needed\n        if conditioned_ and not room.properties.energy.is_conditioned:\n            room.properties.energy.add_default_ideal_air()\n        elif not conditioned_:\n            room.properties.energy.hvac = None\n\n        # remove the loads and reapply infiltration/setpoints as needed\n        infilt = None if remove_infilt_ else room.properties.energy.infiltration\n        setpt = room.properties.energy.setpoint if conditioned_ else None\n        room.properties.energy.program_type = None\n        room.properties.energy.people = None\n        room.properties.energy.lighting = None\n        room.properties.energy.electric_equipment = None\n        room.properties.energy.gas_equipment = None\n        room.properties.energy.ventilation = None\n        room.properties.energy.infiltration = infilt\n        room.properties.energy.setpoint = setpt\n", 
+  "code": "\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    rooms = [room.duplicate() for room in _rooms]  # duplicate to avoid editing input\n    for room in rooms:\n        room.properties.energy.make_plenum(conditioned_, remove_infilt_)\n", 
   "category": "HB-Energy", 
   "name": "HB Plenum", 
-  "description": "Turn Honeybee Rooms into Plenums with no internal loads.\n_\nThis includes removing all people, lighting equipment, mechanical ventilation. By\ndefault, the heating/cooling system and setpoints will also be removed but they\ncan optionally be kept. Infiltration is kept by default but can optionally be\nremoved as well.\n_\nThis is useful to appropriately assign properties for closets, underfloor spaces,\nand drop ceilings.\n-"
+  "description": "Turn Honeybee Rooms into Plenums with no internal loads.\n_\nThis includes removing all people, lighting, equipment, hot water, and mechanical\nventilation. By default, the heating/cooling system and setpoints will also be\nremoved but they can optionally be kept. Infiltration is kept by default but\ncan optionally be removed as well.\n_\nThis is useful to appropriately assign properties for closets, underfloor spaces,\nand drop ceilings.\n-"
 }
