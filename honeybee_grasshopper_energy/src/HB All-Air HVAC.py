@@ -35,22 +35,26 @@ than systems that separate ventilation from the meeting of thermal loads.
             HVAC system. Economizers will mix in a greater amount of outdoor
             air to cool the zone (rather than running the cooling system) when
             the zone needs cooling and the outdoor air is cooler than the zone.
-            Choose from the options below. If Inferred, the economizer will be set
-            to whatever is recommended for the given vintage. Default: Inferred.
-                * Inferred
+            Choose from the options below. (Default: NoEconomizer).
+            _
                 * NoEconomizer
                 * DifferentialDryBulb
                 * DifferentialEnthalpy
+                * DifferentialDryBulbAndEnthalpy
+                * FixedDryBulb
+                * FixedEnthalpy
+                * ElectronicEnthalpy
         sensible_hr_: A number between 0 and 1 for the effectiveness of sensible
             heat recovery within the system. Typical values range from 0.5 for
             simple glycol loops to 0.81 for enthalpy wheels (the latter tends to
-            be fiarly expensive for air-based systems) Default: auto-calculated
-            by vintage (usually 0 for no heat recovery).
+            be fiarly expensive for air-based systems). (Default: 0).
         latent_hr_: A number between 0 and 1 for the effectiveness of latent heat
             recovery within the system. Typical values are 0 for all types of
             heat recovery except enthalpy wheels, which can have values as high
-            as 0.76. Default: auto-calculated by vintage (usually 0 for no heat
-            recovery).
+            as 0.76. (Default: 0).
+        dcv_: Boolean to note whether demand controlled ventilation should be
+            used on the system, which will vary the amount of ventilation air
+            according to the occupancy schedule of the zone. (Default: False).
 
     Returns:
         rooms: The input Rooms with an all-air HVAC system applied.
@@ -58,18 +62,16 @@ than systems that separate ventilation from the meeting of thermal loads.
 
 ghenv.Component.Name = "HB All-Air HVAC"
 ghenv.Component.NickName = 'AllAirHVAC'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 import os
 import json
-import uuid
 
 try:  # import the honeybee extension
-    from honeybee.altnumber import autosize
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
     from honeybee.model import Model
     from honeybee.room import Room
 except ImportError as e:
@@ -78,6 +80,7 @@ except ImportError as e:
 try:  # import the honeybee-energy extension
     from honeybee_energy.config import folders
     from honeybee_energy.hvac.allair import EQUIPMENT_TYPES_DICT
+    from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -128,7 +131,7 @@ if all_required_inputs(ghenv.Component):
             raise ValueError(
                 'Expected Honeybee Room or Model. Got {}.'.format(type(hb_obj)))
 
-    # create the instance of the HVAC system to be applied to the rooms
+    # process any input properties for the HVAC system
     try:  # get the class for the HVAC system
         try:
             _sys_name = hvac_dict[_system_type]
@@ -139,13 +142,18 @@ if all_required_inputs(ghenv.Component):
         raise ValueError('System Type "{}" is not recognized as an all-air HVAC '
                          'system.'.format(_system_type))
     vintage = vintages[_vintage_]  # get the vintage of the HVAC
-    # set default values for economizer and heat recovery
-    econ = _economizer_ if _economizer_ is not None else 'Inferred'
-    sens = sensible_hr_ if sensible_hr_ is not None else autosize
-    latent = latent_hr_ if latent_hr_ is not None else autosize
-    # get an identifier for the HVAC system
-    name = clean_and_id_ep_string(_name_) if _name_ is not None else str(uuid.uuid4())[:8]
-    hvac = hvac_class(name, vintage, _sys_name, econ, sens, latent)
+    name = clean_and_id_ep_string('All-Air HVAC') if _name_ is None else clean_ep_string(_name_)
+
+    # create the HVAC
+    hvac = hvac_class(name, vintage, _sys_name)
+    if _economizer_ is not None:
+        hvac.economizer_type = _economizer_
+    if sensible_hr_ is not None:
+        hvac.sensible_heat_recovery = sensible_hr_
+    if latent_hr_ is not None:
+        hvac.latent_heat_recovery = latent_hr_
+    if dcv_:
+        hvac.demand_controlled_ventilation = True
     if _name_ is not None:
         hvac.display_name = _name_
 

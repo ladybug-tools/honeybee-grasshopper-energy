@@ -40,18 +40,16 @@ of occupancy is so low that infiltration is enough to meet fresh air demand.
 
 ghenv.Component.Name = "HB HeatCool HVAC"
 ghenv.Component.NickName = 'HeatCoolHVAC'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 import os
 import json
-import uuid
 
 try:  # import the honeybee extension
-    from honeybee.altnumber import autosize
-    from honeybee.typing import clean_and_id_ep_string
+    from honeybee.typing import clean_and_id_ep_string, clean_ep_string
     from honeybee.model import Model
     from honeybee.room import Room
 except ImportError as e:
@@ -110,7 +108,7 @@ if all_required_inputs(ghenv.Component):
             raise ValueError(
                 'Expected Honeybee Room or Model. Got {}.'.format(type(hb_obj)))
 
-    # create the instance of the HVAC system to be applied to the rooms
+    # process any input properties for the HVAC system
     try:  # get the class for the HVAC system
         try:
             _sys_name = hvac_dict[_system_type]
@@ -121,8 +119,9 @@ if all_required_inputs(ghenv.Component):
         raise ValueError('System Type "{}" is not recognized as a HeatCool HVAC '
                          'system.'.format(_system_type))
     vintage = vintages[_vintage_]  # get the vintage of the HVAC
-    # get an identifier for the HVAC system
-    name = clean_and_id_ep_string(_name_) if _name_ is not None else str(uuid.uuid4())[:8]
+    name = clean_and_id_ep_string('Heat-Cool HVAC') if _name_ is None else clean_ep_string(_name_)
+
+    # create the HVAC
     hvac = hvac_class(name, vintage, _sys_name)
     if _name_ is not None:
         hvac.display_name = _name_
