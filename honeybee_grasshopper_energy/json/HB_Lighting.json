@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "Lighting", 
   "outputs": [
     [
@@ -38,21 +38,21 @@
       "access": "item", 
       "name": "_radiant_fract_", 
       "description": "A number between 0 and 1 for the fraction of the total\nlighting load given off as long wave radiant heat.", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_visible_fract_", 
       "description": "A number between 0 and 1 for the fraction of the total\nlighting load given off as short wave visible light.", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "return_fract_", 
       "description": "A number between 0 and 1 for the fraction of the total\nlighting load that goes into the zone return air (into the zone outlet\nnode). Default: 0.0 (representative of pendant lighting).", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }, 
     {

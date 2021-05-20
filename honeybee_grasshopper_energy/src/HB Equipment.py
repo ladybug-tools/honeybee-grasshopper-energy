@@ -38,7 +38,7 @@ Create an Equipment object that can be used to specify equipment usage in a Prog
 
 ghenv.Component.Name = 'HB Equipment'
 ghenv.Component.NickName = 'Equipment'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

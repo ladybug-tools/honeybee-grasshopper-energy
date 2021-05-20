@@ -81,10 +81,9 @@ the comfort mapping occurs.
             grid at each time step of the analysis. This can be connected to the
             "HB Read Thermal Matrix" component to parse detailed results into
             Grasshopper. Values are as follows.
-            _
-            .    -1 = unacceptably cold conditions
-            .     0 = neutral (comfortable) conditions
-            .    +1 = unacceptably hot conditions
+                * -1 = unacceptably cold conditions
+                *  0 = neutral (comfortable) conditions
+                * +1 = unacceptably hot conditions
         pmv: A folder containing CSV maps of the Predicted Mean Vote (PMV) for each
             sensor grid at each time step of the analysis. This can be connected
             to the "HB Read Thermal Matrix" component to parse detailed results
@@ -121,7 +120,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB PMV Comfort Map'
 ghenv.Component.NickName = 'PMVMap'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
