@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "ServiceHotWater", 
   "outputs": [
     [
@@ -38,21 +38,21 @@
       "access": "item", 
       "name": "_target_temp_", 
       "description": "The target temperature of the water out of the tap in Celsius.\nThis the temperature after the hot water has been mixed with cold\nwater from the water mains. The default value assumes that the\nflow_per_area on this object is only for water straight out\nof the water heater. (Default: 60C).", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_sensible_fract_", 
       "description": "A number between 0 and 1 for the fraction of the total\nhot water load given off as sensible heat in the zone. (Default: 0.2).", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_latent_fract_", 
       "description": "A number between 0 and 1 for the fraction of the total\nhot water load that is latent (as opposed to sensible). (Default: 0.05).", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }
   ], 

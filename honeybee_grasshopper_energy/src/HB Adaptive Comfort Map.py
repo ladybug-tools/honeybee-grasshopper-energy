@@ -66,10 +66,9 @@ the comfort mapping occurs.
             grid at each time step of the analysis. This can be connected to the
             "HB Read Thermal Matrix" component to parse detailed results into
             Grasshopper. Values are as follows.
-            _
-            .    -1 = unacceptably cold conditions
-            .     0 = neutral (comfortable) conditions
-            .    +1 = unacceptably hot conditions
+                * -1 = unacceptably cold conditions
+                *  0 = neutral (comfortable) conditions
+                * +1 = unacceptably hot conditions
         deg_neut: A folder containing CSV maps of the degrees Celsius from the adaptive
             comfort neutral temperature for each sensor grid at each time step of
             the analysis. This can be connected to the "HB Read Thermal Matrix"
@@ -107,7 +106,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB Adaptive Comfort Map'
 ghenv.Component.NickName = 'AdaptiveMap'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

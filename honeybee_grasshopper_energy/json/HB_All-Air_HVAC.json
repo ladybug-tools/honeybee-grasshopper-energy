@@ -1,5 +1,5 @@
 {
-  "version": "1.2.1", 
+  "version": "1.2.2", 
   "nickname": "AllAirHVAC", 
   "outputs": [
     [
@@ -51,7 +51,7 @@
     {
       "access": "item", 
       "name": "_economizer_", 
-      "description": "Text to indicate the type of air-side economizer used on the\nHVAC system. Economizers will mix in a greater amount of outdoor\nair to cool the zone (rather than running the cooling system) when\nthe zone needs cooling and the outdoor air is cooler than the zone.\nChoose from the options below. (Default: NoEconomizer).\n_\n* NoEconomizer\n* DifferentialDryBulb\n* DifferentialEnthalpy\n* DifferentialDryBulbAndEnthalpy\n* FixedDryBulb\n* FixedEnthalpy\n* ElectronicEnthalpy", 
+      "description": "Text to indicate the type of air-side economizer used on the\nHVAC system. Economizers will mix in a greater amount of outdoor\nair to cool the zone (rather than running the cooling system) when\nthe zone needs cooling and the outdoor air is cooler than the zone.\nChoose from the options below. (Default: NoEconomizer).\n* NoEconomizer\n* DifferentialDryBulb\n* DifferentialEnthalpy\n* DifferentialDryBulbAndEnthalpy\n* FixedDryBulb\n* FixedEnthalpy\n* ElectronicEnthalpy", 
       "type": "string", 
       "default": null
     }, 

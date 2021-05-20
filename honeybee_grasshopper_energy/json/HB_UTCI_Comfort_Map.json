@@ -1,5 +1,5 @@
 {
-  "version": "1.2.1", 
+  "version": "1.2.2", 
   "nickname": "UTCIMap", 
   "outputs": [
     [
@@ -13,14 +13,14 @@
       {
         "access": "None", 
         "name": "condition", 
-        "description": "A folder containing CSV maps of comfort conditions for each sensor\ngrid at each time step of the analysis. This can be connected to the\n\"HB Read Thermal Matrix\" component to parse detailed results into\nGrasshopper. Values are as follows.\n_\n.    -1 = unacceptably cold conditions\n.     0 = neutral (comfortable) conditions\n.    +1 = unacceptably hot conditions", 
+        "description": "A folder containing CSV maps of comfort conditions for each sensor\ngrid at each time step of the analysis. This can be connected to the\n\"HB Read Thermal Matrix\" component to parse detailed results into\nGrasshopper. Values are as follows.\n* -1 = unacceptably cold conditions\n*  0 = neutral (comfortable) conditions\n* +1 = unacceptably hot conditions", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "category", 
-        "description": "A folder containing CSV maps of the heat/cold stress categories for\neach sensor grid at each time step of the analysis. This can be connected\nto the \"HB Read Thermal Matrix\" component to parse detailed results\ninto Grasshopper. This can be used to understand not just whether\nconditions are acceptable but how uncomfortably hot or cold they\nare. Values indicate the following.\n.    -5 = extreme cold stress\n.    -4 = very strong cold stress\n.    -3 = strong cold stress\n.    -2 = moderate cold stress\n.    -1 = slight cold stress\n.     0 = no thermal stress\n.    +1 = slight heat stress\n.    +2 = moderate heat stress\n.    +3 = strong heat stress\n.    +4 = very strong heat stress\n.    +5 = extreme heat stress", 
+        "description": "A folder containing CSV maps of the heat/cold stress categories for\neach sensor grid at each time step of the analysis. This can be connected\nto the \"HB Read Thermal Matrix\" component to parse detailed results\ninto Grasshopper. This can be used to understand not just whether\nconditions are acceptable but how uncomfortably hot or cold they\nare. Values indicate the following.\n* -5 = extreme cold stress\n* -4 = very strong cold stress\n* -3 = strong cold stress\n* -2 = moderate cold stress\n* -1 = slight cold stress\n*  0 = no thermal stress\n* +1 = slight heat stress\n* +2 = moderate heat stress\n* +3 = strong heat stress\n* +4 = very strong heat stress\n* +5 = extreme heat stress", 
         "type": null, 
         "default": null
       }, 

@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "Equipment", 
   "outputs": [
     [
@@ -38,21 +38,21 @@
       "access": "item", 
       "name": "radiant_fract_", 
       "description": "A number between 0 and 1 for the fraction of the total\nequipment load given off as long wave radiant heat. (Default: 0).", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "latent_fract_", 
       "description": "A number between 0 and 1 for the fraction of the total\nequipment load that is latent (as opposed to sensible). (Default: 0).", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "lost_fract_", 
       "description": "A number between 0 and 1 for the fraction of the total\nequipment load that is lost outside of the zone and the HVAC system.\nTypically, this is used to represent heat that is exhausted directly\nout of a zone (as you would for a stove). (Default: 0).", 
-      "type": "System.Object", 
+      "type": "double", 
       "default": null
     }, 
     {

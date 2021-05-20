@@ -1,5 +1,5 @@
 {
-  "version": "1.2.1", 
+  "version": "1.2.2", 
   "nickname": "PMVMap", 
   "outputs": [
     [
@@ -13,7 +13,7 @@
       {
         "access": "None", 
         "name": "condition", 
-        "description": "A folder containing CSV maps of comfort conditions for each sensor\ngrid at each time step of the analysis. This can be connected to the\n\"HB Read Thermal Matrix\" component to parse detailed results into\nGrasshopper. Values are as follows.\n_\n.    -1 = unacceptably cold conditions\n.     0 = neutral (comfortable) conditions\n.    +1 = unacceptably hot conditions", 
+        "description": "A folder containing CSV maps of comfort conditions for each sensor\ngrid at each time step of the analysis. This can be connected to the\n\"HB Read Thermal Matrix\" component to parse detailed results into\nGrasshopper. Values are as follows.\n* -1 = unacceptably cold conditions\n*  0 = neutral (comfortable) conditions\n* +1 = unacceptably hot conditions", 
         "type": null, 
         "default": null
       }, 

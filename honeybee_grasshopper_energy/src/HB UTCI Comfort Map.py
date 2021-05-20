@@ -62,27 +62,26 @@ the comfort mapping occurs.
             grid at each time step of the analysis. This can be connected to the
             "HB Read Thermal Matrix" component to parse detailed results into
             Grasshopper. Values are as follows.
-            _
-            .    -1 = unacceptably cold conditions
-            .     0 = neutral (comfortable) conditions
-            .    +1 = unacceptably hot conditions
+                * -1 = unacceptably cold conditions
+                *  0 = neutral (comfortable) conditions
+                * +1 = unacceptably hot conditions
         category: A folder containing CSV maps of the heat/cold stress categories for
             each sensor grid at each time step of the analysis. This can be connected
             to the "HB Read Thermal Matrix" component to parse detailed results
             into Grasshopper. This can be used to understand not just whether
             conditions are acceptable but how uncomfortably hot or cold they
             are. Values indicate the following.
-            .    -5 = extreme cold stress
-            .    -4 = very strong cold stress
-            .    -3 = strong cold stress
-            .    -2 = moderate cold stress
-            .    -1 = slight cold stress
-            .     0 = no thermal stress
-            .    +1 = slight heat stress
-            .    +2 = moderate heat stress
-            .    +3 = strong heat stress
-            .    +4 = very strong heat stress
-            .    +5 = extreme heat stress
+                * -5 = extreme cold stress
+                * -4 = very strong cold stress
+                * -3 = strong cold stress
+                * -2 = moderate cold stress
+                * -1 = slight cold stress
+                *  0 = no thermal stress
+                * +1 = slight heat stress
+                * +2 = moderate heat stress
+                * +3 = strong heat stress
+                * +4 = very strong heat stress
+                * +5 = extreme heat stress
         TCP: Lists of values between 0 and 100 for the Thermal Comfort Percent (TCP).
             These can be plugged into the "LB Spatial Heatmap" component along
             with meshes of the sensor grids to visualize spatial thermal comfort.
@@ -114,7 +113,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
