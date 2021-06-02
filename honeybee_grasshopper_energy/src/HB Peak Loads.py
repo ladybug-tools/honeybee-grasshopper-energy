@@ -84,7 +84,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -312,8 +312,10 @@ if all_required_inputs(ghenv.Component) and _run:
     # parse the result sql and get the timestep data collections
     if os.name == 'nt':  # we are on windows; use IronPython like usual
         sql_obj = SQLiteResult(sql)
-        peak_cool = [zs.calculated_design_load for zs in sql_obj.zone_cooling_sizes]
-        peak_heat = [zs.calculated_design_load for zs in sql_obj.zone_heating_sizes]
+        peak_cool_dict = {zs.zone_name: zs.calculated_design_load
+                          for zs in sql_obj.zone_cooling_sizes}
+        peak_heat_dict = {zs.zone_name: zs.calculated_design_load
+                          for zs in sql_obj.zone_heating_sizes}
     else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
         # Execute the honybee CLI to obtain the results via CPython
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
@@ -321,8 +323,21 @@ if all_required_inputs(ghenv.Component) and _run:
         process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
         stdout = process.communicate()
         peak_dicts = json.loads(stdout[0])
-        peak_cool = [zs['calculated_design_load'] for zs in peak_dicts['cooling']]
-        peak_heat = [zs['calculated_design_load'] for zs in peak_dicts['heating']]
+        peak_cool_dict = {zs['zone_name']: zs['calculated_design_load']
+                          for zs in peak_dicts['cooling']}
+        peak_heat_dict = {zs['zone_name']: zs['calculated_design_load']
+                          for zs in peak_dicts['heating']}
+    peak_cool, peak_heat = [], []
+    for rm in _rooms:
+        rm_id = rm.identifier.upper()
+        try:
+            peak_cool.append(peak_cool_dict[rm_id])
+        except KeyError:
+            peak_cool.append(0)
+        try:
+            peak_heat.append(peak_heat_dict[rm_id])
+        except KeyError:
+            peak_heat.append(0)
 
     # construct the load balance if requested
     if run_bal_:
