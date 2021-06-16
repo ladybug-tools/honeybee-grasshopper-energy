@@ -1,0 +1,50 @@
+{
+  "version": "1.2.0", 
+  "nickname": "InternalMass", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "rooms", 
+        "description": "The input Rooms with internal masses assigned.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms", 
+      "description": "Honeybee Rooms to which internal masses should be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_geo_or_area", 
+      "description": "A list of Rhino breps or meshes representing the surfaces of internal\nmasses that are exposed to the air of the Room. Alternatively, this can\nbe a number or list of numbers representing the surface area of the\ninternal masses (in square meters) that are exposed to the Room air.\n_\nIn the case of Rhino geometry representing the surfaces of internal\nmasses, this component will determine which Room the geometry is in.\nHowever, geometry must lie COMPLETELY inside a single Room and\ncannot span between Rooms or span outside the building. If a geometry\nlies between two Rooms, it should be split in two along the boundary\nbetween the Rooms. Also note that geometries are assumed to have only\none side exposed to the Room air so, if they are meant to represent\na 2-sided object, the geometry should be duplicated and offset.\n_\nIn the case of numbers representing the the surface area of the\ninternal masses, inputs can be either a single number (which will be\nused to put internal masses into all Rooms using the specified\nsurface area), or it can be a list of numbers that matches the input\nRooms, which can be used to assign different amounts of mass surface\narea to different Rooms. All numbers are assumed to be in square meters.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_construction", 
+      "description": "An OpaqueConstruction object that represents the material\nthat the internal thermal mass is composed of. This can also be\ntext for the identifier of the construction within the library.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_name_", 
+      "description": "An optional text name for the internal mass. This can be useful for\nkeeping track of different internal masses when using several of\nthese components in series. If unspecified, a unique one will be\ngenerated.", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import honeybee_energy dependencies\n    from honeybee_energy.internalmass import InternalMass\n    from honeybee_energy.construction.opaque import OpaqueConstruction\n    from honeybee_energy.lib.constructions import opaque_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.togeometry import to_face3d\n    from ladybug_{{cad}}.config import conversion_to_meters\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, longest_list, \\\n        document_counter\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects and process the construction\n    rooms = [room.duplicate() for room in _rooms]\n    if isinstance(_construction, str):\n        _construction = opaque_construction_by_identifier(_construction)\n\n    # determine whether the input _geo_or_area is geometry or floats\n    try:\n        areas = [float(num) for num in _geo_or_area]\n    except AttributeError:  # assume that the input is a list of geometry\n        geo = [f for geo in _geo_or_area for f in to_face3d(geo)]\n        conversion = conversion_to_meters() ** 2\n        areas = [0 for room in rooms]\n        for i, room in enumerate(rooms):\n            for face in geo:\n                if room.geometry.is_point_inside(face.center):\n                    areas[i] += face.area * conversion\n\n    # create the internal mass objects and assign them to the rooms\n    for i, room in enumerate(rooms):\n        area = longest_list(areas, i)\n        if area != 0:\n            if len(_name_) == 0:  # make a default Room name\n                display_name = 'Internal Mass {}'.format(document_counter('mass_count'))\n            else:\n                display_name = '{}_{}'.format(longest_list(_name_, i), i + 1) \\\n                    if len(_name_) != len(_rooms) else longest_list(_name_, i)\n            name = clean_ep_string(display_name)\n            mass = InternalMass(name, _construction, area)\n            mass.display_name = display_name\n            room.properties.energy.add_internal_mass(mass)\n            print('Internal mass with area {} m2 has been added to room '\n                  '\"{}\"'.format(round(area, 3), room.display_name))\n", 
+  "category": "HB-Energy", 
+  "name": "HB Internal Mass", 
+  "description": "Assign internal thermal masses to Rooms, which can be used to account for the\neffects of furniture inside Rooms or other massive building components like\nstaircases, hearths, etc.\n_\nThe component accepts either Rhino geometry (representing furniture or massive\nelements) or a numerical value of the mass's surface area. Several of these\ncomponents can be used in a series to descibe different internal masses made\nof different materials.\n_\nNote that internal masses assigned this way cannot \"see\" solar radiation that\nmay potentially hit them and, as such, caution should be taken when using this\ncomponent with internal mass objects that are not always in shade. Masses are\nfactored into the the thermal calculations of the Room by undergoing heat\ntransfer with the indoor air.\n-"
+}
