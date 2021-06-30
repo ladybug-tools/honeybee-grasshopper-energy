@@ -54,7 +54,7 @@ and loads on the Room.
 
 ghenv.Component.Name = 'HB ProgramType'
 ghenv.Component.NickName = 'ProgramType'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -66,7 +66,8 @@ except ImportError as e:
 
 try:
     from honeybee_energy.programtype import ProgramType
-    from honeybee_energy.lib.programtypes import program_type_by_identifier
+    from honeybee_energy.lib.programtypes import program_type_by_identifier, \
+        building_program_type_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -84,7 +85,10 @@ if all_required_inputs(ghenv.Component):
         program = ProgramType(name)
     else:
         if isinstance(base_program_, str):
-            base_program_ = program_type_by_identifier(base_program_)
+            try:
+                base_program_ = building_program_type_by_identifier(base_program_)
+            except ValueError:
+                base_program_ = program_type_by_identifier(base_program_)
         program = base_program_.duplicate()
         program.identifier = name
     if _name_ is not None:

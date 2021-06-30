@@ -68,7 +68,7 @@ given load.
 
 ghenv.Component.Name = "HB Apply Room Schedules"
 ghenv.Component.NickName = 'ApplyRoomSch'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -82,7 +82,8 @@ except ImportError as e:
 
 try:
     from honeybee_energy.lib.schedules import schedule_by_identifier
-    from honeybee_energy.lib.programtypes import program_type_by_identifier
+    from honeybee_energy.lib.programtypes import program_type_by_identifier, \
+        building_program_type_by_identifier
     from honeybee_energy.programtype import ProgramType
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -145,7 +146,10 @@ if all_required_inputs(ghenv.Component):
         elif isinstance(obj, ProgramType):
             mod_obj.append(duplicate_and_id_program(obj))
         elif isinstance(obj, str):
-            program = program_type_by_identifier(obj)
+            try:
+                program = building_program_type_by_identifier(obj)
+            except ValueError:
+                program = program_type_by_identifier(obj)
             mod_obj.append(duplicate_and_id_program(program))
         else:
             raise TypeError('Expected Honeybee Room or ProgramType. '

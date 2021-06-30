@@ -22,7 +22,7 @@ Apply ProgramType objects to Rooms.
 
 ghenv.Component.Name = "HB Apply ProgramType"
 ghenv.Component.NickName = 'ApplyProgram'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -33,7 +33,8 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from honeybee_energy.lib.programtypes import program_type_by_identifier
+    from honeybee_energy.lib.programtypes import program_type_by_identifier, \
+        building_program_type_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -51,5 +52,8 @@ if all_required_inputs(ghenv.Component):
     for i, room in enumerate(rooms):
         prog = longest_list(_program, i)
         if isinstance(prog, str):  # get the program object if it is a string
-            prog = program_type_by_identifier(prog)
+            try:
+                prog = building_program_type_by_identifier(prog)
+            except ValueError:
+                prog = program_type_by_identifier(prog)
         room.properties.energy.program_type = prog

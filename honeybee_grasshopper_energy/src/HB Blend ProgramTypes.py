@@ -29,7 +29,7 @@ average based on program ratios.
 
 ghenv.Component.Name = 'HB Blend ProgramTypes'
 ghenv.Component.NickName = 'BlendPrograms'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -41,7 +41,8 @@ except ImportError as e:
 
 try:
     from honeybee_energy.programtype import ProgramType
-    from honeybee_energy.lib.programtypes import program_type_by_identifier
+    from honeybee_energy.lib.programtypes import program_type_by_identifier, \
+        building_program_type_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -60,7 +61,10 @@ if all_required_inputs(ghenv.Component):
     # get programs from library if a name is input
     for i, prog in enumerate(_programs):
         if isinstance(prog, str):
-            _programs[i] = program_type_by_identifier(prog)
+            try:
+                _programs[i] = building_program_type_by_identifier(prog)
+            except ValueError:
+                _programs[i] = program_type_by_identifier(prog)
 
     # create blended program
     program = ProgramType.average(name, _programs, _ratios_)

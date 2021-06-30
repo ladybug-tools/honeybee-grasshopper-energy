@@ -31,7 +31,7 @@ Apply values for setpoints to a Room or ProgramType.
 
 ghenv.Component.Name = "HB Apply Setpoint Values"
 ghenv.Component.NickName = 'ApplySetpointVals'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -47,7 +47,8 @@ try:
     from honeybee_energy.load.setpoint import Setpoint
     from honeybee_energy.schedule.ruleset import ScheduleRuleset
     import honeybee_energy.lib.scheduletypelimits as _type_lib
-    from honeybee_energy.lib.programtypes import program_type_by_identifier
+    from honeybee_energy.lib.programtypes import program_type_by_identifier, \
+        building_program_type_by_identifier
     from honeybee_energy.programtype import ProgramType
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -102,7 +103,10 @@ if all_required_inputs(ghenv.Component):
         elif isinstance(obj, ProgramType):
             mod_obj.append(duplicate_and_id_program(obj))
         elif isinstance(obj, str):
-            program = program_type_by_identifier(obj)
+            try:
+                program = building_program_type_by_identifier(obj)
+            except ValueError:
+                program = program_type_by_identifier(obj)
             mod_obj.append(duplicate_and_id_program(program))
         else:
             raise TypeError('Expected Honeybee Room or ProgramType. '
