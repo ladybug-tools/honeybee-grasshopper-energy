@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "BlendPrograms", 
   "outputs": [
     [
@@ -36,7 +36,7 @@
     }
   ], 
   "subcategory": "0 :: Basic Properties", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.programtype import ProgramType\n    from honeybee_energy.lib.programtypes import program_type_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default ratios to None\n    _ratios_ = _ratios_ if len(_ratios_) != 0 else None\n    name = clean_and_id_ep_string('ProgramType') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # get programs from library if a name is input\n    for i, prog in enumerate(_programs):\n        if isinstance(prog, str):\n            _programs[i] = program_type_by_identifier(prog)\n\n    # create blended program\n    program = ProgramType.average(name, _programs, _ratios_)\n    if _name_ is not None:\n        program.display_name = _name_", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.programtype import ProgramType\n    from honeybee_energy.lib.programtypes import program_type_by_identifier, \\\n        building_program_type_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default ratios to None\n    _ratios_ = _ratios_ if len(_ratios_) != 0 else None\n    name = clean_and_id_ep_string('ProgramType') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # get programs from library if a name is input\n    for i, prog in enumerate(_programs):\n        if isinstance(prog, str):\n            try:\n                _programs[i] = building_program_type_by_identifier(prog)\n            except ValueError:\n                _programs[i] = program_type_by_identifier(prog)\n\n    # create blended program\n    program = ProgramType.average(name, _programs, _ratios_)\n    if _name_ is not None:\n        program.display_name = _name_", 
   "category": "HB-Energy", 
   "name": "HB Blend ProgramTypes", 
   "description": "Create a ProgramType object by blending other ProgramTypes together using a weighted\naverage based on program ratios.\n-"
