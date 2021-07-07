@@ -76,7 +76,7 @@ properties assigned by this component are still relevant for such AFN simulation
 
 ghenv.Component.Name = 'HB Window Opening'
 ghenv.Component.NickName = 'WindowOpen'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -119,7 +119,10 @@ if all_required_inputs(ghenv.Component):
             for face in room.faces:
                 for ap in face.apertures:
                     if ap.is_operable:
-                        orient_angles.append(ap.horizontal_orientation())
+                        try:
+                            orient_angles.append(ap.horizontal_orientation())
+                        except ZeroDivisionError:
+                            orient_angles.append(0)
             if len(orient_angles) != 0:
                 orient_angles.sort()
                 vent_open.wind_cross_vent = \
@@ -136,4 +139,4 @@ if all_required_inputs(ghenv.Component):
     if op_count == 0:
         give_warning(
             ghenv.Component, 'No operable Apertures were found among the connected _rooms.\n'
-            'Make sure that you have set the is_oeprable property of Apertures to True.')
+            'Make sure that you have set the is_operable property of Apertures to True.')
