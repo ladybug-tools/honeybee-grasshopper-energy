@@ -91,7 +91,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -150,7 +150,7 @@ def check_window_vent(rooms):
             give_warning(ghenv.Component, msg)
 
 
-def data_to_load_intensity(data_colls, floor_area, data_type, cop=1):
+def data_to_load_intensity(data_colls, floor_area, data_type, cop=1, mults=None):
     """Convert data collections output by EnergyPlus to a single load intensity collection.
 
     Args:
@@ -160,6 +160,8 @@ def data_to_load_intensity(data_colls, floor_area, data_type, cop=1):
         cop: Optional number for the COP, which the results will be divided by.
     """
     if len(data_colls) != 0:
+        if mults is not None:
+            data_colls = [dat * mul for dat, mul in zip(data_colls, mults)]
         total_vals = [sum(month_vals) / floor_area for month_vals in zip(*data_colls)]
         if cop != 1:
             total_vals = [val / cop for val in total_vals]
@@ -203,6 +205,8 @@ if all_required_inputs(ghenv.Component) and _run:
     floor_area = _model.floor_area
     assert floor_area != 0, 'Connected _rooms have no floors with which to compute EUI.'
     floor_area = floor_area * conversion_to_meters() ** 2
+    mults = [rm.multiplier for rm in _rooms]
+    mults = None if all(mul == 1 for mul in mults) else mults
 
     # process the simulation folder name and the directory
     directory = os.path.join(folders.default_simulation_folder, _model.identifier)
@@ -296,18 +300,18 @@ if all_required_inputs(ghenv.Component) and _run:
     # convert the results to EUI and ouput them
     cooling = data_to_load_intensity(cool_init, floor_area, 'Cooling', _cool_cop_)
     heating = data_to_load_intensity(heat_init, floor_area, 'Heating', _heat_cop_)
-    lighting = data_to_load_intensity(light_init, floor_area, 'Lighting')
-    equip = data_to_load_intensity(elec_equip_init, floor_area, 'Electric Equipment')
+    lighting = data_to_load_intensity(light_init, floor_area, 'Lighting', 1, mults)
+    equip = data_to_load_intensity(elec_equip_init, floor_area, 'Electric Equipment', 1, mults)
     total_load = [cooling.total, heating.total, lighting.total, equip.total]
 
     # add gas equipment if it is there
     if len(gas_equip_init) != 0:
-        gas_equip = data_to_load_intensity(gas_equip_init, floor_area, 'Gas Equipment')
+        gas_equip = data_to_load_intensity(gas_equip_init, floor_area, 'Gas Equipment', 1, mults)
         equip = [equip, gas_equip]
         total_load.append(gas_equip.total)
     hot_water = []
     if len(shw_init) != 0:
-        hot_water = data_to_load_intensity(shw_init, floor_area, 'Service Hot Water')
+        hot_water = data_to_load_intensity(shw_init, floor_area, 'Service Hot Water', 1, mults)
         total_load.append(hot_water.total)
 
     # construct the load balance if requested
