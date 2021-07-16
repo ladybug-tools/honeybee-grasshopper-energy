@@ -67,7 +67,8 @@ the comfort mapping occurs.
         run_settings_: Settings from the "HB Recipe Settings" component that specify
             how the recipe should be run. This can also be a text string of
             recipe settings.
-        _run: Set to True to run the recipe and get results.
+        _run: Set to True to run the recipe and get results. This input can also be
+            the integer "2" to run the recipe silently.
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -120,7 +121,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB PMV Comfort Map'
 ghenv.Component.NickName = 'PMVMap'
-ghenv.Component.Message = '1.2.2'
+ghenv.Component.Message = '1.2.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -154,13 +155,17 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
 
     # run the recipe
+    silent = True if _run > 1 else False
     project_folder = recipe.run(
-        run_settings_, radiance_check=True, openstudio_check=True)
+        run_settings_, radiance_check=True, openstudio_check=True, silent=silent)
 
     # load the results
-    temperature = recipe_result(recipe.output_value_by_name('temperature', project_folder))
-    condition = recipe_result(recipe.output_value_by_name('condition', project_folder))
-    pmv = recipe_result(recipe.output_value_by_name('pmv', project_folder))
-    TCP = recipe_result(recipe.output_value_by_name('tcp', project_folder))
-    HSP = recipe_result(recipe.output_value_by_name('hsp', project_folder))
-    CSP = recipe_result(recipe.output_value_by_name('csp', project_folder))
+    try:
+        temperature = recipe_result(recipe.output_value_by_name('temperature', project_folder))
+        condition = recipe_result(recipe.output_value_by_name('condition', project_folder))
+        pmv = recipe_result(recipe.output_value_by_name('pmv', project_folder))
+        TCP = recipe_result(recipe.output_value_by_name('tcp', project_folder))
+        HSP = recipe_result(recipe.output_value_by_name('hsp', project_folder))
+        CSP = recipe_result(recipe.output_value_by_name('csp', project_folder))
+    except Exception:
+        raise Exception(recipe.failure_message(project_folder))
