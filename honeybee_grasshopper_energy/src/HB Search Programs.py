@@ -20,10 +20,10 @@ space types within OpenStudio.
             lists all of the building programs available in the library. If None,
             all ProgramTypes within the library will be output (filtered by
             keywords_ below).
-        _vintage_: Text for the building vintage to search (eg. "2013", "pre_1980",
+        _vintage_: Text for the building vintage to search (eg. "2019", "pre_1980",
             etc.). The Honeybee "Building Vintages" component lists all of the
-            vintages available in the library. Default: "2013" (for ASHRAE 90.1
-            2013 | IECC 2015). Note that vintages are often called "templates"
+            vintages available in the library. Default: "2019" (for ASHRAE 90.1
+            2019 | IECC 2015). Note that vintages are often called "templates"
             within the OpenStudio standards gem and so this property effective
             maps to the standards gem "template".
         keywords_: Optional keywords to be used to narrow down the output list of
@@ -37,7 +37,7 @@ space types within OpenStudio.
 
 ghenv.Component.Name = "HB Search Programs"
 ghenv.Component.NickName = 'SearchProg'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -56,7 +56,7 @@ except ImportError as e:
 
 if bldg_prog_ is not None:
     # set the default vintage
-    _vintage_ = _vintage_ if _vintage_ is not None else '2013'
+    _vintage_ = _vintage_ if _vintage_ is not None else '2019'
     try:  # get the available programs for the vintage
         vintage_subset = STANDARDS_REGISTRY[_vintage_]
     except KeyError:
