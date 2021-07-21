@@ -27,9 +27,28 @@ jobs:
         run:
           npm install @semantic-release/exec
       - name: run semantic release
+        id: new_release  # Need an `id` for output variables
         run:
+          nextRelease="`npx semantic-release --dryRun | grep -oP 'Published release \K.*? ' || true`"
           npx semantic-release
+          echo "::set-output name=tag::$nextRelease"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
           PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+      - name: Update lbt-grasshopper
+        if: contains(steps.new_release.outputs.tag, '.')
+        env:
+          RELEASE_TAG: ${{ steps.new_release.outputs.tag }}
+          DISPATCH_REPO: ladybug-tools/lbt-grasshopper
+          DEPS_TOKEN: ${{ secrets.DEPS_UPDATING }}
+        run: |
+          curl -X POST https://api.github.com/repos/$DISPATCH_REPO/dispatches \
+          -H "Accept: application/vnd.github.everest-preview+json" \
+          -d '{
+            "event_type": "honeybee_grasshopper_core_release",
+            "client_payload": {
+              "version" : "'$RELEASE_TAG'"
+            }
+          }' \
+          -u ladybugbot:$DEPS_TOKEN
