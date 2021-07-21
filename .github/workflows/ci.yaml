@@ -39,7 +39,7 @@ jobs:
       - name: Update lbt-grasshopper
         if: contains(steps.new_release.outputs.tag, '.')
         env:
-          RELEASE_TAG: ${{ steps.new_release.outputs.tag }}
+          RELEASE_TAG: steps.new_release.outputs.tag
           DISPATCH_REPO: ladybug-tools/lbt-grasshopper
           DEPS_TOKEN: ${{ secrets.DEPS_UPDATING }}
         run: |
