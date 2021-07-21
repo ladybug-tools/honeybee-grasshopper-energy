@@ -25,8 +25,8 @@ given load.
         occupancy_sch_: A fractional schedule for the occupancy over the course
             of the year. This can also be the identifier of a schedule to be looked
             up in the schedule library.
-        activity_sch_: A schedule for the activity of the occupants over the
-            course of the year. The type limt of this schedule should be "Power"
+        activity_sch_: A schedule for the activity of the occupants over the course of the
+            year. The type limt of this schedule should be "ActivityLevel"
             and the values of the schedule equal to the number of Watts given off
             by an individual person in the room. If None, it will a default constant
             schedule with 120 Watts per person will be used, which is typical of
@@ -68,7 +68,7 @@ given load.
 
 ghenv.Component.Name = "HB Apply Room Schedules"
 ghenv.Component.NickName = 'ApplyRoomSch'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
