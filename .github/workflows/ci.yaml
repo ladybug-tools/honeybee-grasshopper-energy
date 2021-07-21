@@ -27,8 +27,8 @@ jobs:
         run:
           npm install @semantic-release/exec
       - name: run semantic release
-        id: new_release  # Need an `id` for output variables
-        run:
+        id: new_release
+        run: |
           nextRelease="`npx semantic-release --dryRun | grep -oP 'Published release \K.*? ' || true`"
           npx semantic-release
           echo "::set-output name=tag::$nextRelease"
