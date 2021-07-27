@@ -28,7 +28,7 @@ Deconstruct a material into its constituient attributes and values.
 
 ghenv.Component.Name = "HB Deconstruct Material"
 ghenv.Component.NickName = 'DecnstrMat'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -59,7 +59,7 @@ if all_required_inputs(ghenv.Component):
             _mat = opaque_material_by_identifier(_mat)
         except ValueError:
             _mat = window_material_by_identifier(_mat)
-    
+
     # get the values and attribute names
     mat_str = str(_mat)
     values = parse_idf_string(mat_str)
@@ -67,7 +67,7 @@ if all_required_inputs(ghenv.Component):
     attr_name_pattern2 = re.compile(r'!- (.*)$')
     attr_names = attr_name_pattern1.findall(mat_str) + \
         attr_name_pattern2.findall(mat_str)
-    
+
     # get the r-value
     try:
         r_val_si = _mat.r_value
@@ -75,3 +75,8 @@ if all_required_inputs(ghenv.Component):
     except AttributeError:
         r_val_si = 'varies'
         r_val_ip = 'varies'
+
+    # re-order the E+ attributes of opaque constructions to align with component
+    if len(attr_names) == 9:
+        values.insert(5, values.pop(1))
+        attr_names.insert(5, attr_names.pop(1))
