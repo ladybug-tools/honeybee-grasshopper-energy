@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0", 
+  "version": "1.2.1", 
   "nickname": "WeeklySchedule", 
   "outputs": [
     [
@@ -114,7 +114,7 @@
     {
       "access": "item", 
       "name": "_type_limit_", 
-      "description": "A text string from the identifier of the ScheduleTypeLimit to\nbe looked up in the schedule type limit library. This can also be a\ncustom ScheduleTypeLimit object from the \"HB Type Limit\" component.\nThe input here will be used to validate schedule values against\nupper/lower limits and assign units to the schedule values. Default:\n\"Fractional\" for values that range continuously between 0 and 1.\nChoose from the following built-in options:\n* Fractional\n* On-Off\n* Temperature\n* Activity Level\n* Power\n* Humidity\n* Angle\n* Delta Temperature", 
+      "description": "A text string from the identifier of the ScheduleTypeLimit to\nbe looked up in the schedule type limit library. This can also be a\ncustom ScheduleTypeLimit object from the \"HB Type Limit\" component.\nThe input here will be used to validate schedule values against\nupper/lower limits and assign units to the schedule values. Default:\n\"Fractional\" for values that range continuously between 0 and 1.\nChoose from the following built-in options:\n* Fractional\n* On-Off\n* Temperature\n* Activity Level\n* Power\n* Humidity\n* Angle\n* Delta Temperature\n* Control Level", 
       "type": "System.Object", 
       "default": null
     }

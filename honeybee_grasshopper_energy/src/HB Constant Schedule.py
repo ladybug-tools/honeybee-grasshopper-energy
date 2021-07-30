@@ -34,6 +34,7 @@ repeating continuously over every day of the year.
                 * Humidity
                 * Angle
                 * Delta Temperature
+                * Control Level
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -48,7 +49,7 @@ repeating continuously over every day of the year.
 
 ghenv.Component.Name = 'HB Constant Schedule'
 ghenv.Component.NickName = 'ConstantSchedule'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

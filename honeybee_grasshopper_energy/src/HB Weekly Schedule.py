@@ -63,6 +63,7 @@ Create a schedule from lists of daily values for each day of the week.
                 * Humidity
                 * Angle
                 * Delta Temperature
+                * Control Level
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -85,12 +86,12 @@ Create a schedule from lists of daily values for each day of the week.
             user_library.idf file along with the other idf text outputs.
 """
 
-ghenv.Component.Name = "HB Weekly Schedule"
+ghenv.Component.Name = 'HB Weekly Schedule'
 ghenv.Component.NickName = 'WeeklySchedule'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
-ghenv.Component.AdditionalHelpFromDocStrings = "4"
+ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import the core honeybee dependencies
     from honeybee.typing import clean_and_id_ep_string, clean_ep_string

@@ -47,6 +47,7 @@ running over the entirety of the simulation period.
                 * Humidity
                 * Angle
                 * Delta Temperature
+                * Control Level
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -54,12 +55,12 @@ running over the entirety of the simulation period.
             object, or a ProgramType object.
 """
 
-ghenv.Component.Name = "HB Fixed Interval Schedule"
+ghenv.Component.Name = 'HB Fixed Interval Schedule'
 ghenv.Component.NickName = 'FixedIntervalSchedule'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
-ghenv.Component.AdditionalHelpFromDocStrings = "4"
+ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import the ladybug dependencies
     from ladybug.dt import Date
