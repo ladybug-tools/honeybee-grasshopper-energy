@@ -1,0 +1,43 @@
+{
+  "version": "1.2.0", 
+  "nickname": "WindowConstrDyn", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "constr", 
+        "description": "A dynamic window construction that can be assigned to Honeybee\nApertures or ConstructionSets.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "Text to set the name for the Construction and to be incorporated\ninto a unique Construction identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_constructions", 
+      "description": "List of materials in the construction (from exterior to interior).\nThese materials can be either fully-detailed material objects built\nwith the material components or text for a material identifier to be\nlooked up in the window material library. Note that a native Grasshopper\n\"Merge\" component can be used to help order the materials correctly\nfor the input here.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_schedule", 
+      "description": "A control schedule that dictates which constructions that are active\nat given times throughout the simulation. Inputs can be either\nthe identifiers of schedules within the library or custom\nschedules made with any of the honeybee schedule components.\nThe values of the schedule should be intergers and range from 0 to one\nless then the number of constructions. Zero indicates that the first\nconstruction is active, one indicates that the second on is active, etc.\nThe schedule type limits of this schedule should be \"Control Level.\"\nIf building custom schedule type limits that describe a particular\nrange of states, the type limits should be \"Discrete\" and the unit\ntype should be \"Mode,\" \"Control,\" or some other fractional unit.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.construction.dynamic import WindowConstructionDynamic\n    from honeybee_energy.lib.constructions import window_construction_by_identifier\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    name = clean_and_id_ep_string('DynamicWindowConstruction') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # get objects from the library if they are strings\n    constr_objs = []\n    for con in _constructions:\n        if isinstance(con, str):\n            con = window_construction_by_identifier(con)\n        constr_objs.append(con)\n    if isinstance(_schedule, str):\n        _schedule = schedule_by_identifier(_schedule)\n\n    # create the construction object\n    constr = WindowConstructionDynamic(name, constr_objs, _schedule)\n    if _name_ is not None:\n        constr.display_name = _name_\n", 
+  "category": "HB-Energy", 
+  "name": "HB Window Construction Dynamic", 
+  "description": "Create an EnergyPlus window construction with any number of dynamic states.\n-"
+}
