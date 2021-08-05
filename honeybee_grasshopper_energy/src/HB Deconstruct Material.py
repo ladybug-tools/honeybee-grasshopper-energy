@@ -28,7 +28,7 @@ Deconstruct a material into its constituient attributes and values.
 
 ghenv.Component.Name = "HB Deconstruct Material"
 ghenv.Component.NickName = 'DecnstrMat'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -42,7 +42,7 @@ try:  # import the honeybee-energy dependencies
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 try:  # import ladybug_rhino dependencies
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 try:
@@ -72,6 +72,15 @@ if all_required_inputs(ghenv.Component):
     try:
         r_val_si = _mat.r_value
         r_val_ip = RValue().to_ip([r_val_si], 'm2-K/W')[0][0]
+
+        # give a warning if there's a negative R-value for a vertical surface
+        if r_val_si <= 0:
+            msg = 'Material "{}" has an overall R-value that is less than the\n' \
+                'resistance of vertically-oriented air films. This indicates that the ' \
+                'construction is only suitable for horizontal/skylight geometry.'.format(
+                    _mat.display_name)
+            print(msg)
+            give_warning(ghenv.Component, msg)
     except AttributeError:
         r_val_si = 'varies'
         r_val_ip = 'varies'
