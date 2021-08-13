@@ -30,12 +30,16 @@ Deconstruct an opaque or window construction into its constituient materials.
             include the resistance of air films on either side of the construction.
         u_fac_ip: U-factor of the construction in Btu/h-ft2-F.  Note that U-factors
             include the resistance of air films on either side of the construction.
+        shgc: The estimated solar heat gain coefficient (SHGC) of the construction.
+            This value is produced by finding the solution to the relationship between
+            U-value, Solar Transmittance, and SHGC as defined for the simple glazing
+            system material in EnergyPlus. More information can be found
+            at https://bigladdersoftware.com/epx/docs/9-5/engineering-reference/
+            on this partticular sub-page of the engineering reference:
+            window-calculation-module.html#step-4.-determine-layer-solar-transmittance
         t_sol: The unshaded shortwave solar transmittance of the construction at normal
             incidence. Note that 'unshaded' in this case means that all blind +
-            shade materials in the construction are ignored. Also note that the
-            solar transmittance ouput here is only for shortwave solar irradiation.
-            So it is NOT the same as SHGC or G-Value, which also includes the solar
-            heat that is absorbed by the construction and then conducts to the indoors.
+            shade materials in the construction are ignored.
         t_vis: The unshaded visible transmittance of the window at normal incidence.
             Note that 'unshaded' in this case means that all blind + shade
             materials in the construction are ignored.
@@ -43,7 +47,7 @@ Deconstruct an opaque or window construction into its constituient materials.
 
 ghenv.Component.Name = 'HB Deconstruct Construction'
 ghenv.Component.NickName = 'DecnstrConstr'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.2.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -53,6 +57,7 @@ try:  # import the honeybee-energy dependencies
     from honeybee_energy.construction.opaque import OpaqueConstruction
     from honeybee_energy.construction.window import WindowConstruction
     from honeybee_energy.construction.windowshade import WindowConstructionShade
+    from honeybee_energy.construction.dynamic import WindowConstructionDynamic
     from honeybee_energy.lib.constructions import opaque_construction_by_identifier
     from honeybee_energy.lib.constructions import window_construction_by_identifier
 except ImportError as e:
@@ -101,12 +106,12 @@ if all_required_inputs(ghenv.Component):
         give_warning(ghenv.Component, msg)
 
     # get the transmittance
-    if isinstance(_constr, WindowConstruction):
+    win_types = (WindowConstruction, WindowConstructionShade, WindowConstructionDynamic)
+    if isinstance(_constr, win_types):
+        shgc = _constr.shgc
         t_sol = _constr.solar_transmittance
         t_vis = _constr.visible_transmittance
-    elif isinstance(_constr, WindowConstructionShade):  # get unshaded transmittance
-        t_sol = _constr.window_construction.solar_transmittance
-        t_vis = _constr.window_construction.visible_transmittance
     else:
+        shgc = 0
         t_sol = 0
         t_vis = 0
