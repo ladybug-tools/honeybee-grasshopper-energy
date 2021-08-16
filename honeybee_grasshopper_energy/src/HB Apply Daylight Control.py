@@ -11,10 +11,10 @@
 Apply simple daylight controls to Rooms.
 _
 Such simple controls will dim the lights in the energy simulation according to
-whether the illuminance at a senor location is at a target illuminance setpoint.
+whether the illuminance at a sensor location is at a target illuminance setpoint.
 The method used to estimate illuiminance is fairly simple and, for more detailed
-control over the parameters used to compute illuminance, HB-Radiance should
-be used.
+control over the parameters used to compute illuminance, the "HB Daylight Control
+Schedule" component under HB-Radiance should be used.
 -
 
     Args:
@@ -61,7 +61,7 @@ be used.
 
 ghenv.Component.Name = 'HB Apply Daylight Control'
 ghenv.Component.NickName = 'DaylightControl'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
