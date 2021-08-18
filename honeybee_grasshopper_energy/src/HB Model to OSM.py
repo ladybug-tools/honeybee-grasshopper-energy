@@ -75,12 +75,13 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.2.3'
+ghenv.Component.Message = '1.2.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 import os
+import re
 import json
 
 try:
@@ -163,7 +164,8 @@ if all_required_inputs(ghenv.Component) and _write:
 
     # process the simulation folder name and the directory
     _folder_ = hb_config.folders.default_simulation_folder if _folder_ is None else _folder_
-    directory = os.path.join(_folder_, _model.identifier, 'OpenStudio')
+    clean_name = re.sub(r'[^.A-Za-z0-9_-]', '_', _model.display_name)
+    directory = os.path.join(_folder_, clean_name, 'openstudio')
 
     # check the model to be sure there are no orphaned faces, apertures, or doors
     assert len(_model.orphaned_faces) == 0, orphaned_warning('Face')
@@ -190,7 +192,7 @@ if all_required_inputs(ghenv.Component) and _write:
 
     # write the model parameter JSONs
     model_dict = _model.to_dict(triangulate_sub_faces=True)
-    model_json = os.path.join(directory, '{}.hbjson'.format(_model.identifier))
+    model_json = os.path.join(directory, '{}.hbjson'.format(clean_name))
     with open(model_json, 'w') as fp:
         json.dump(model_dict, fp)
 
