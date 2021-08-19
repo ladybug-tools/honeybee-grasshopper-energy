@@ -15,10 +15,10 @@ Run an IDF file through EnergyPlus.
         _idf: Path to an IDF file as a text string. This can also be a list of
             IDF files.
         _epw_ile: Path to an .epw file as a text string.
-        parallel_: Set to "True" to run execute simulations of multiple IDF files
-            in parallel, which can greatly increase the speed of calculation but
-            may not be desired when other processes are running. If False, all
-            EnergyPlus simulations will be be run on a single core. Default: False.
+        _cpu_count_: An integer to set the number of CPUs used in the execution of each
+            connected IDF file. If unspecified, it will automatically default
+            to one less than the number of CPUs currently available on the
+            machine (or 1 if only one processor is available).
         _run: Set to "True" to run the IDF through EnergyPlus.
             _
             This input can also be the integer "2", which will run the whole
@@ -42,14 +42,13 @@ Run an IDF file through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run IDF'
 ghenv.Component.NickName = 'RunIDF'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
 
 import os
 import shutil
-import System.Threading.Tasks as tasks
 
 try:
     from ladybug.futil import preparedir
@@ -63,7 +62,8 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning, \
+        recommended_processor_count, run_function_in_parallel
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -76,7 +76,7 @@ def run_idf_and_report_errors(i):
     # report any errors on this component
     if err_i is not None:
         err_obj = Err(err_i)
-        err_objs.append(err_obj)
+        err_objs[i] = err_obj
         for warn in err_obj.severe_errors:
             give_warning(ghenv.Component, warn)
         for error in err_obj.fatal_errors:
@@ -84,16 +84,22 @@ def run_idf_and_report_errors(i):
             raise Exception(error)
 
     # append everything to the global lists
-    sql.append(sql_i)
-    zsz.append(zsz_i)
-    rdd.append(rdd_i)
-    html.append(html_i)
-    err.append(err_i)
+    sql[i] = sql_i
+    zsz[i] = zsz_i
+    rdd[i] = rdd_i
+    html[i] = html_i
+    err[i] = err_i
 
 
 if all_required_inputs(ghenv.Component) and _run:
     # global lists of outputs to be filled
-    sql, zsz, rdd, html, err, err_objs = [], [], [], [], [], []
+    iter_count = len(_idf)
+    sql = [None] * iter_count
+    zsz = [None] * iter_count
+    rdd = [None] * iter_count
+    html = [None] * iter_count
+    err = [None] * iter_count
+    err_objs = [None] * iter_count
 
     # copy the IDFs into a sub-directory if they are not already labeled as in.idf
     idfs = []
@@ -110,11 +116,8 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # run the IDF files through E+
     silent = True if _run == 2 else False
-    if parallel_:
-        tasks.Parallel.ForEach(range(len(idfs)), run_idf_and_report_errors)
-    else:
-        for i in range(len(idfs)):
-            run_idf_and_report_errors(i)
+    workers = _cpu_count_ if _cpu_count_ is not None else recommended_processor_count()
+    run_function_in_parallel(run_idf_and_report_errors, iter_count, workers)
 
     # print out error report if it's only one
     # otherwise it's too much data to be read-able
