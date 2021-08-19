@@ -21,10 +21,10 @@ through EnergyPlus.
             written into the IDF.  The strings input here should be complete
             EnergyPlus objects that are correctly formatted. This input can be used to
             write objects into the IDF that are not currently supported by Honeybee.
-        parallel_: Set to "True" to run execute simulations of multiple IDF files
-            in parallel, which can greatly increase the speed of calculation but
-            may not be desired when other processes are running. If False, all
-            EnergyPlus simulations will be be run on a single core. Default: False.
+        _cpu_count_: An integer to set the number of CPUs used in the execution of each
+            connected OSM file. If unspecified, it will automatically default
+            to one less than the number of CPUs currently available on the
+            machine (or 1 if only one processor is available).
         _translate: Set to "True" to translate the OSM files to IDFs using the
             OpenStudio command line interface (CLI).
         run_: Set to "True" to run the resulting IDF through EnergyPlus.
@@ -52,14 +52,13 @@ through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run OSM'
 ghenv.Component.NickName = 'RunOSM'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
 
-import json
 import os
-import System.Threading.Tasks as tasks
+import json
 
 try:
     from honeybee_energy.run import run_osw, run_idf
@@ -68,9 +67,11 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning, \
+        recommended_processor_count, run_function_in_parallel
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+
 
 def run_osm_and_report_errors(i):
     """Run an OSW through OpenStudio CLI."""
@@ -90,8 +91,8 @@ def run_osm_and_report_errors(i):
         add_str = '/n'.join(add_str_)
         with open(idf, "a") as idf_file:
             idf_file.write(add_str)
-    osm.append(osm_i)
-    idf.append(idf_i)
+    osm[i] = osm_i
+    idf[i] = idf_i
 
     # run the IDF through EnergyPlus
     if run_:
@@ -100,7 +101,7 @@ def run_osm_and_report_errors(i):
         # report any errors on this component
         if err_i is not None:
             err_obj = Err(err_i)
-            err_objs.append(err_obj)
+            err_objs[i] = err_obj
             for warn in err_obj.severe_errors:
                 give_warning(ghenv.Component, warn)
             for error in err_obj.fatal_errors:
@@ -108,26 +109,31 @@ def run_osm_and_report_errors(i):
                 raise Exception(error)
 
         # append everything to the global lists
-        sql.append(sql_i)
-        zsz.append(zsz_i)
-        rdd.append(rdd_i)
-        html.append(html_i)
-        err.append(err_i)
+        sql[i] = sql_i
+        zsz[i] = zsz_i
+        rdd[i] = rdd_i
+        html[i] = html_i
+        err[i] = err_i
 
 
 if all_required_inputs(ghenv.Component) and _translate:
     # global lists of outputs to be filled
-    osm, idf, sql, zsz, rdd, html, err, err_objs = [], [], [], [], [], [], [], []
+    iter_count = len(_osm)
+    osm = [None] * iter_count
+    idf = [None] * iter_count
+    sql = [None] * iter_count
+    zsz = [None] * iter_count
+    rdd = [None] * iter_count
+    html = [None] * iter_count
+    err = [None] * iter_count
+    err_objs = [None] * iter_count
 
     # run the OSW files through OpenStudio CLI
     silent = True if run_ == 2 else False
-    if parallel_:
-        tasks.Parallel.ForEach(range(len(_osm)), run_osm_and_report_errors)
-    else:
-        for i in range(len(_osm)):
-            run_osm_and_report_errors(i)
+    workers = _cpu_count_ if _cpu_count_ is not None else recommended_processor_count()
+    run_function_in_parallel(run_osm_and_report_errors, iter_count, workers)
 
     # print out error report if it's only one file
     # otherwise it's too much data to be read-able
-    if len(err_objs) == 1:
+    if len(err_objs) == 1 and err_objs[0] is not None:
         print(err_objs[0].file_contents)
