@@ -58,7 +58,7 @@ Visualize Room-level energy simulation results as colored Room geometry.
 
 ghenv.Component.Name = "HB Color Rooms"
 ghenv.Component.NickName = 'ColorRooms'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -66,6 +66,7 @@ ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:
     from honeybee.model import Model
+    from honeybee.room import Room
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -87,6 +88,38 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
+def split_solar_enclosure_data(data_to_split, rooms):
+    """Split solar enclosure data according to exterior aperture area."""
+    # figure out the ratios of exterior aperture area in each room
+    enclosures = Room.group_by_air_boundary_adjacency(rooms)
+    encl_ratios = []
+    for encl in enclosures:
+        if len(encl) != 1:
+            ap_areas = [rm.exterior_aperture_area for rm in encl]
+            total_a = sum(ap_areas)
+            if total_a != 0:
+                rat_dict = {rm.identifier: ap / total_a
+                            for rm, ap in zip(encl, ap_areas)}
+            else:
+                rat_dict = {rm.identifier: 0 for rm in encl}
+            encl_ratios.append(rat_dict)
+
+    # create the list of split data collections
+    split_data, enc_count = [], 0
+    for dat in data_to_split:
+        if 'Solar Enclosure' in dat.header.metadata['Zone']:
+            rm_ratios = encl_ratios[enc_count]
+            for rm_id, rm_rat in rm_ratios.items():
+                new_data = dat.duplicate()
+                new_data.header.metadata['Zone'] = rm_id.upper()
+                new_data.values = [val * rm_rat for val in dat.values]
+                split_data.append(new_data)
+            enc_count += 1
+        else:
+            split_data.append(dat)
+    return split_data
+
+
 if all_required_inputs(ghenv.Component):
     # extract any rooms from input Models
     rooms = []
@@ -102,6 +135,11 @@ if all_required_inputs(ghenv.Component):
 
     # set default norm_by_floor value
     norm_by_flr_ = True if norm_by_flr_ is None else norm_by_flr_
+
+    # sense if the conneccted data is for a solar enclosure and split the data if so
+    zone_solar = 'Zone Windows Total Transmitted Solar Radiation Energy'
+    if isinstance(_rooms_model[0], Model) and _data[0].header.metadata['type'] == zone_solar:
+        _data = split_solar_enclosure_data(_data, rooms)
 
     # create the ColorRoom visualization object and output geometry
     color_obj = ColorRoom(_data, rooms, legend_par_, sim_step_, norm_by_flr_,
