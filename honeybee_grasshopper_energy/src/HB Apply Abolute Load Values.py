@@ -12,8 +12,13 @@ Apply abolute load values to Rooms.
 _
 Note that, while the assigned load values are abolute, this component will convert
 them to the "normalized" value for each room (eg. lighting per floor area) in
-order to apply them to the rooms. So, if a room has no floors or exterior walls,
-load values will be equal to 0 regardless of the input here.
+order to apply them to the rooms. So any existing specification of load intensity
+is overwritten with the absolute load here.
+_
+This also means that, if a room has no floors (or exterior walls for infiltration),
+the resulting load values will be equal to 0 regardless of the input here. The
+only exception is the vent_flow_, which will be applied regardless of the room
+properties.
 _
 This component will not edit any of the schedules or other properties associated
 with each load value. If no schedule currently exists to describe how the load
@@ -23,14 +28,18 @@ varies over the simulation, the "Always On" schedule will be used as a default.
     Args:
         _rooms: Honeybee Rooms to which the input load values should be assigned.
         person_count_: A number for the quantity of people in the room.
-        lighting_watts_: A number for the installed wattage of lighting in the room.
+        lighting_watts_: A number for the installed wattage of lighting in the room (W).
         electric_watts_: A number for the installed wattage of electric equipment
-            in the room.
-        gas_watts_: A number for the installed wattage of gas equipment in the room.
+            in the room (W).
+        gas_watts_: A number for the installed wattage of gas equipment in the room (W).
         hot_wtr_flow_: Number for the peak flow rate of service hot water in the
             room in liters per hour (L/h).
         infiltration_ach_: A number for the infiltration flow rate in air changes
             per hour (ACH).
+        vent_flow_: A numerical value for the abolute of flow of outdoor air ventilation
+            for the room in cubic meters per second (m3/s). Note that inputting
+            a value here will overwrite all specification of outdoor air ventilation
+            currently on the room (per_floor, per_person, ach).
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -39,7 +48,7 @@ varies over the simulation, the "Always On" schedule will be used as a default.
 
 ghenv.Component.Name = 'HB Apply Abolute Load Values'
 ghenv.Component.NickName = 'AbsoluteLoadVals'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -90,3 +99,8 @@ if all_required_inputs(ghenv.Component):
         for i, room in enumerate(rooms):
             room.properties.energy.abolute_infiltration_ach(
                 longest_list(infiltration_ach_, i), conversion)
+
+    # assign the vent_flow_
+    if len(vent_flow_) != 0:
+        for i, room in enumerate(rooms):
+            room.properties.energy.abolute_ventilation(longest_list(vent_flow_, i))

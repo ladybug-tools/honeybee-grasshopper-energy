@@ -20,31 +20,35 @@ in the simulation.
         _name_: Text to set the name for the Ventilation and to be incorporated
             into a unique Ventilation identifier. If None, a unique name will
             be generated.
-        _flow_per_person_: A numerical value for the intensity of ventilation
-            in m3/s per person. Note that setting this value here does not mean
+        _flow_per_person_: A numerical value for the intensity of outdoor air ventilation
+            in m3/s per person. This will be added to the _flow_per_area_,
+            _flow_per_zone_ and _ach_ to produce the final minimum outdoor
+            air specification. Note that setting this value here does not mean
             that ventilation is varied based on real-time occupancy but rather
-            that the design level of ventilation is determined using this value
-            and the People object of the zone. To vary ventilation in real time,
-            the ventilation schedule should be used. Most ventilation standards
-            support that a value of 0.01 m3/s (10 L/s or ~20 cfm) per person is
-            sufficient to remove odors. Accordingly, setting this value to 0.01
-            and using 0 for the following ventilation terms will often be suitable
-            for many applications. Default: 0.
-        _flow_per_area_: A numerical value for the intensity of ventilation in m3/s
-            per square meter of floor area. Default: 0.
-        _flow_per_zone_: A numerical value for the design level of ventilation
-            in m3/s for the entire zone. Default: 0.
-        _ach_: A numberical value for the design level of ventilation
-            in air changes per hour (ACH) for the entire zone. This is particularly
-            helpful for hospitals, where ventilation standards are often given
-            in ACH. Default: 0.
-        _schedule_: An optional fractional schedule for the ventilation over the
-            course of the year. The fractional values will get multiplied by
-            the total design flow rate (determined from the fields above and the
+            that the minimum level of ventilation is determined using this value
+            and the People object of the Room. To vary ventilation on a timestep
+            basis, a ventilation schedule should be used or the dcv_ option
+            should be selected on the HVAC system if it is available. (Default: 0).
+        _flow_per_area_: A numerical value for the intensity of ventilation in m3/s per square
+            meter of floor area. This will be added to the _flow_per_person_,
+            _flow_per_zone_ and _ach_ to produce the final minimum outdoor
+            air specification. (Default: 0).
+        _flow_per_zone_: A numerical value for the design level of ventilation in m3/s for
+            the entire zone. This will be added to the _flow_per_person_,
+            _flow_per_area_ and _ach_ to produce the final minimum outdoor
+            air specification. (Default: 0).
+        _ach_: A numberical value for the design level of ventilation in air changes per hour
+            (ACH) for the entire zone. This will be added to the _flow_per_person_,
+            _flow_per_area_ and _flow_per_zone_ to produce the final minimum outdoor
+            air specification. (Default: 0).
+        _schedule_: An optional fractional schedule for the ventilation over the course
+            of the year. The fractional values will get multiplied by the
+            total design flow rate (determined from the fields above and the
             calculation_method) to yield a complete ventilation profile. Setting
-            this schedule to be the occupancy schedule of the zone will mimic demand
-            controlled ventilation. If None, the design level of ventilation will
-            be used throughout all timesteps of the simulation. Default: None.
+            this schedule to be the occupancy schedule of the zone will mimic
+            demand controlled ventilation. If None, a constant design level of
+            ventilation will be used throughout all timesteps of the
+            simulation. (Default: None).
 
     Returns:
         vent: An Ventilation object that can be used to create a ProgramType or
@@ -53,7 +57,7 @@ in the simulation.
 
 ghenv.Component.Name = 'HB Ventilation'
 ghenv.Component.NickName = 'Ventilation'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.2.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
