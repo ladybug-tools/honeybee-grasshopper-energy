@@ -8,7 +8,7 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Apply load values to a Room or ProgramType.
+Apply or edit load values on a Room or ProgramType.
 _
 This component will not edit any of the schedule objects associated with each load
 value. If no schedule currently exists to describe how the load varies over the
@@ -36,18 +36,23 @@ simulation, the "Always On" schedule will be used as a default.
                 * 0.0001 (m3/s per m2 facade) - Tight building
                 * 0.0003 (m3/s per m2 facade) - Average building
                 * 0.0006 (m3/s per m2 facade) - Leaky building
-        vent_per_floor_: A numerical value for the intensity of ventilation in m3/s
-            per square meter of floor area.
-        vent_per_person_: A numerical value for the intensity of ventilation
-            in m3/s per person. Note that setting this value here does not mean
+        vent_per_floor_: A numerical value for the intensity of outdoor air ventilation
+            in m3/s per square meter of floor area. This will be added to the
+            vent_per_person_ and vent_ach_ to produce the final minimum outdoor
+            air specification.
+        vent_per_person_: A numerical value for the intensity of outdoor air ventilation
+            in m3/s per person. This will be added to the vent_per_floor_,
+            and vent_ach_ to produce the final minimum outdoor air
+            specification. Note that setting this value does not mean
             that ventilation is varied based on real-time occupancy but rather
-            that the design level of ventilation is determined using this value
-            and the People object of the zone. To vary ventilation in real time,
-            the ventilation schedule should be used. Most ventilation standards
-            support that a value of 0.01 m3/s (10 L/s or ~20 cfm) per person is
-            sufficient to remove odors. Accordingly, setting this value to 0.01
-            and using 0 for the following ventilation terms will often be suitable
-            for many applications.
+            that the minimum level of ventilation is determined using this value
+            and the People object of the zone. To vary ventilation on a timestep
+            basis, a ventilation schedule should be used or the dcv_ option
+            should be selected on the HVAC system if it is available.
+        vent_ach_: A numerical value for the intensity of outdoor air ventilation in air
+            changes er hour (ACH). This will be added to the vent_per_floor_
+            and vent_per_person_ to produce the final minimum outdoor air
+            specification.
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -56,7 +61,7 @@ simulation, the "Always On" schedule will be used as a default.
 
 ghenv.Component.Name = "HB Apply Load Values"
 ghenv.Component.NickName = 'ApplyLoadVals'
-ghenv.Component.Message = '1.2.2'
+ghenv.Component.Message = '1.2.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -200,4 +205,11 @@ if all_required_inputs(ghenv.Component):
         for i, obj in enumerate(mod_obj):
             vent = dup_load(obj, 'ventilation', Ventilation)
             vent.flow_per_person = longest_list(vent_per_person_, i)
+            assign_load(obj, vent, 'ventilation')
+
+    # assign the vent_ach_
+    if len(vent_ach_) != 0:
+        for i, obj in enumerate(mod_obj):
+            vent = dup_load(obj, 'ventilation', Ventilation)
+            vent.air_changes_per_hour = longest_list(vent_ach_, i)
             assign_load(obj, vent, 'ventilation')
