@@ -52,7 +52,7 @@ through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run OSM'
 ghenv.Component.NickName = 'RunOSM'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'

@@ -1,5 +1,5 @@
 {
-  "version": "1.2.1", 
+  "version": "1.3.0", 
   "nickname": "RunOSM", 
   "outputs": [
     [
@@ -64,7 +64,7 @@
     }, 
     {
       "access": "item", 
-      "name": "parallel_", 
+      "name": "_cpu_count_", 
       "description": "An integer to set the number of CPUs used in the execution of each\nconnected OSM file. If unspecified, it will automatically default\nto one less than the number of CPUs currently available on the\nmachine (or 1 if only one processor is available).", 
       "type": "int", 
       "default": null

@@ -27,7 +27,7 @@ ConstructionSet object.
 
 ghenv.Component.Name = "HB Ground Construction Subset"
 ghenv.Component.NickName = 'GroundSubset'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"

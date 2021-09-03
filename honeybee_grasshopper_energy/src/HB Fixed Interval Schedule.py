@@ -57,7 +57,7 @@ running over the entirety of the simulation period.
 
 ghenv.Component.Name = 'HB Fixed Interval Schedule'
 ghenv.Component.NickName = 'FixedIntervalSchedule'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

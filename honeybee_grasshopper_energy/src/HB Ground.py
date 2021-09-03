@@ -53,7 +53,7 @@ Soil Heat Capacity - http://www.engineeringtoolbox.com/specific-heat-capacity-d_
 
 ghenv.Component.Name = 'HB Ground'
 ghenv.Component.NickName = 'Ground'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

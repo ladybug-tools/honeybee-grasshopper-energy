@@ -37,7 +37,7 @@ directly to a Room.
 
 ghenv.Component.Name = 'HB Setpoint'
 ghenv.Component.NickName = 'Setpoint'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

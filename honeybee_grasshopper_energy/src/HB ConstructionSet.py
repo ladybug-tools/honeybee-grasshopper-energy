@@ -43,7 +43,7 @@ specify all default constructions on the Room.
 
 ghenv.Component.Name = "HB ConstructionSet"
 ghenv.Component.NickName = 'ConstructionSet'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
