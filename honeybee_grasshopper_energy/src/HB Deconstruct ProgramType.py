@@ -39,7 +39,7 @@ Deconstruct a ProgramType object into its component load objects.
 
 ghenv.Component.Name = "HB Deconstruct ProgramType"
 ghenv.Component.NickName = 'DeconstrProgram'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"

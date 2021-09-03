@@ -48,7 +48,7 @@ certain threshold.
 
 ghenv.Component.Name = "HB Schedule to Data"
 ghenv.Component.NickName = 'SchToData'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"

@@ -83,7 +83,7 @@ Create settings for the EnergyPlus Shadow Calculation.
 
 ghenv.Component.Name = 'HB Shadow Calculation'
 ghenv.Component.NickName = 'ShadowCalc'
-ghenv.Component.Message = '1.2.2'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

@@ -107,7 +107,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB Adaptive Comfort Map'
 ghenv.Component.NickName = 'AdaptiveMap'
-ghenv.Component.Message = '1.2.3'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

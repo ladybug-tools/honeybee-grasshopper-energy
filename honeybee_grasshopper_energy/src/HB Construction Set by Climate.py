@@ -38,7 +38,7 @@ vintage and construction type.
 
 ghenv.Component.Name = 'HB Construction Set by Climate'
 ghenv.Component.NickName = 'ConstrSetClimate'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

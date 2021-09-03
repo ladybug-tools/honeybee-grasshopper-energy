@@ -51,7 +51,7 @@ Apply a customized IdealAirSystem to Honeybee Rooms.
 
 ghenv.Component.Name = "HB IdealAir"
 ghenv.Component.NickName = 'IdealAir'
-ghenv.Component.Message = '1.2.0'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

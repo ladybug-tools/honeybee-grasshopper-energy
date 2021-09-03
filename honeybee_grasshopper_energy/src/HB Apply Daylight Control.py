@@ -61,7 +61,7 @@ Schedule" component under HB-Radiance should be used.
 
 ghenv.Component.Name = 'HB Apply Daylight Control'
 ghenv.Component.NickName = 'DaylightControl'
-ghenv.Component.Message = '1.2.1'
+ghenv.Component.Message = '1.3.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
