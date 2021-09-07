@@ -114,10 +114,16 @@ dictate when the operable Apertures of the Room open.
 
 ghenv.Component.Name = 'HB Airflow Newtwork'
 ghenv.Component.NickName = 'AFN'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
+
+import math
+try:
+    from ladybug_geometry.geometry3d.pointvector import Vector3D
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_geometry:\n\t{}'.format(e))
 
 try:
     from honeybee_energy.ventcool.afn import generate
@@ -125,8 +131,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs, give_warning, \
-        longest_list
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -151,6 +156,21 @@ if all_required_inputs(ghenv.Component):
     use_room_infiltration = True if leakage_template_ is None else False
     pressure = _ref_pressure_ if _ref_pressure_ is not None else 101325
     delta_pressure = _delta_pressure_ if _delta_pressure_ is not None else 4
+
+    # check for operable exterior apertures that are horizontal as E+ cannot simulate these
+    up_vec, horiz_aps = Vector3D(0, 0, 1), []
+    for ap in model.apertures:
+        if ap.is_operable:
+            ang = math.degrees(ap.normal.angle(up_vec))
+            if ang < 10 or ang > 170:
+                ap.is_operable = False
+                horiz_aps.append(ap.identifier)
+    if len(horiz_aps) != 0:
+        msg = 'The following exterior operable apertures are within 10 degrees of ' \
+            'being horizontal.\nThese cannot be simulated in EnergyPlus and so they ' \
+            'have been set to be inoperable:\n{}'.format('\n'.join(horiz_aps))
+        print(msg)
+        give_warning(ghenv.Component, msg)
 
     # generate the AFN leakage for all of the surfaces of the Model
     generate(model.rooms, leakage, use_room_infiltration, pressure, delta_pressure)
