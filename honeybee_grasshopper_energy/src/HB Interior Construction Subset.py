@@ -36,7 +36,7 @@ ConstructionSet object.
 
 ghenv.Component.Name = 'HB Interior Construction Subset'
 ghenv.Component.NickName = 'InteriorSubset'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -44,6 +44,7 @@ ghenv.Component.AdditionalHelpFromDocStrings = '4'
 try:  # import honeybee_energy dependencies
     from honeybee_energy.construction.opaque import OpaqueConstruction
     from honeybee_energy.construction.window import WindowConstruction
+    from honeybee_energy.construction.dynamic import WindowConstructionDynamic
     from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \
         window_construction_by_identifier
 except ImportError as e:
@@ -70,7 +71,8 @@ def window_constr(construction, input_name):
     if isinstance(construction, str):
         return window_construction_by_identifier(construction)
     else:
-        assert isinstance(construction, WindowConstruction), \
+        win_cls = (WindowConstruction, WindowConstructionDynamic)
+        assert isinstance(construction, win_cls), \
             'Expected WindowConstruction for {}. Got {}'.format(
                 input_name, type(construction))
     return construction
