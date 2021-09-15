@@ -34,7 +34,7 @@ used to edit or create a ConstructionSet object.
         _glass_door_: A construction object for all glass doors with an Outdoors
             boundary condition. This can also be text for the identifier of the
             construction within the library.
-    
+
     Returns:
         subface_set: A list of exterior subface constructions that can be used
             to edit or create a ConstructionSet object.
@@ -42,7 +42,7 @@ used to edit or create a ConstructionSet object.
 
 ghenv.Component.Name = 'HB Subface Subset'
 ghenv.Component.NickName = 'SubfaceSubset'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -51,6 +51,7 @@ try:  # import honeybee_energy dependencies
     from honeybee_energy.construction.opaque import OpaqueConstruction
     from honeybee_energy.construction.window import WindowConstruction
     from honeybee_energy.construction.windowshade import WindowConstructionShade
+    from honeybee_energy.construction.dynamic import WindowConstructionDynamic
     from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \
         window_construction_by_identifier
 except ImportError as e:
@@ -73,7 +74,7 @@ def window_constr(construction, input_name):
     if isinstance(construction, str):
         return window_construction_by_identifier(construction)
     else:
-        win_cls = (WindowConstruction, WindowConstructionShade)
+        win_cls = (WindowConstruction, WindowConstructionShade, WindowConstructionDynamic)
         assert isinstance(construction, win_cls), 'Expected WindowConstruction ' \
             'for {}. Got {}'.format(input_name, type(construction))
     return construction
