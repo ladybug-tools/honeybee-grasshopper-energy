@@ -51,7 +51,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -210,23 +210,34 @@ if all_required_inputs(ghenv.Component):
         nat_vent_loss = serialize_data(data_coll_dicts[15])
 
     # do arithmetic with any of the gain/loss data collections
-    if len(infil_gain) == len(infil_loss):
-        infiltration_load = subtract_loss_from_gain(infil_gain, infil_loss)
-    if len(vent_gain) == len(vent_loss) == len(cooling) == len(heating):
-        mech_vent_loss = subtract_loss_from_gain(heating, vent_loss)
-        mech_vent_gain = subtract_loss_from_gain(cooling, vent_gain)
-        mech_vent_load = [data.duplicate() for data in
-                          subtract_loss_from_gain(mech_vent_gain, mech_vent_loss)]
-        for load in mech_vent_load:
-            load.header.metadata['type'] = \
-                'Zone Ideal Loads Ventilation Heat Energy'
-    if len(nat_vent_gain) == len(nat_vent_loss):
-        nat_vent_load = subtract_loss_from_gain(nat_vent_gain, nat_vent_loss)
+    if len(infil_gain) == len(infil_loss) != 0:
+        if not isinstance(infil_gain[0], float):
+            infiltration_load = subtract_loss_from_gain(infil_gain, infil_loss)
+        else:
+            infiltration_load = [g - l for g, l in zip(infil_gain, infil_loss)]
+    if len(vent_gain) == len(vent_loss) == len(cooling) == len(heating) != 0:
+        if not isinstance(vent_gain[0], float):
+            mech_vent_loss = subtract_loss_from_gain(heating, vent_loss)
+            mech_vent_gain = subtract_loss_from_gain(cooling, vent_gain)
+            mech_vent_load = [data.duplicate() for data in
+                              subtract_loss_from_gain(mech_vent_gain, mech_vent_loss)]
+            for load in mech_vent_load:
+                load.header.metadata['type'] = \
+                    'Zone Ideal Loads Ventilation Heat Energy'
+        else:
+            mech_vent_loss = [g - l for g, l in zip(heating, vent_loss)]
+            mech_vent_gain = [g - l for g, l in zip(cooling, vent_gain)]
+            mech_vent_load = [g - l for g, l in zip(mech_vent_gain, mech_vent_loss)]
+    if len(nat_vent_gain) == len(nat_vent_loss) != 0:
+        if not isinstance(nat_vent_gain[0], float):
+            nat_vent_load = subtract_loss_from_gain(nat_vent_gain, nat_vent_loss)
+        else:
+            nat_vent_load = [g - l for g, l in zip(nat_vent_gain, nat_vent_loss)]
 
     # remove the district hot water system used for service hot water from space heating
     for i, heat in enumerate(heating):
         try:
             if heat.header.metadata['System'] == 'SERVICE HOT WATER DISTRICT HEAT':
                 heating.pop(i)
-        except KeyError:
+        except Exception:
             pass
