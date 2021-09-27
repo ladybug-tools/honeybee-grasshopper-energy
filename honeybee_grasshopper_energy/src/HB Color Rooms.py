@@ -58,7 +58,7 @@ Visualize Room-level energy simulation results as colored Room geometry.
 
 ghenv.Component.Name = "HB Color Rooms"
 ghenv.Component.NickName = 'ColorRooms'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -92,7 +92,7 @@ def split_solar_enclosure_data(data_to_split, rooms):
     """Split solar enclosure data according to exterior aperture area."""
     # figure out the ratios of exterior aperture area in each room
     enclosures = Room.group_by_air_boundary_adjacency(rooms)
-    encl_ratios = []
+    encl_ratios = {}
     for encl in enclosures:
         if len(encl) != 1:
             ap_areas = [rm.exterior_aperture_area for rm in encl]
@@ -102,7 +102,8 @@ def split_solar_enclosure_data(data_to_split, rooms):
                             for rm, ap in zip(encl, ap_areas)}
             else:
                 rat_dict = {rm.identifier: 0 for rm in encl}
-            encl_ratios.append(rat_dict)
+            encl_ratios[encl[0].identifier] = rat_dict
+    encl_ratios = [x for _, x in sorted(zip(encl_ratios.keys(), encl_ratios.values()))]
 
     # create the list of split data collections
     split_data, enc_count = [], 0
