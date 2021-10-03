@@ -27,7 +27,7 @@ file that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Face Result'
 ghenv.Component.NickName = 'FaceResult'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -88,7 +88,10 @@ all_output = [face_indoor_temp_output, face_outdoor_temp_output,
 
 
 if all_required_inputs(ghenv.Component):
-    if os.name == 'nt':  # we are on windows; use IronPython like usual
+    # check the size of the SQL file to see if we should use the CLI
+    assert os.path.isfile(_sql), 'No sql file found at: {}.'.format(_sql)
+    if os.name == 'nt' and os.path.getsize(_sql) < 1e8:
+        # small file on windows; use IronPython like usual
         sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object
         # get all of the results
         face_indoor_temp = sql_obj.data_collections_by_output_name(face_indoor_temp_output)
@@ -97,11 +100,14 @@ if all_required_inputs(ghenv.Component):
         window_loss = sql_obj.data_collections_by_output_name(window_loss_output)
         window_gain = sql_obj.data_collections_by_output_name(window_gain_output)
 
-    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
+    else:  # use the honeybee_energy CLI
+        # sqlite3 module doesn't work in Mac IronPython
+        # or the file's big and we know that the Python3 version scales better
         # Execute the honybee CLI to obtain the results via CPython
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                 'data-by-outputs', _sql] + all_output
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        use_shell = True if os.name == 'nt' else False
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
         stdout = process.communicate()
         data_coll_dicts = json.loads(stdout[0])
         # get all of the results

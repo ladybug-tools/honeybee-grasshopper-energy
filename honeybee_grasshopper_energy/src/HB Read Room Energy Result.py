@@ -51,7 +51,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.3.1'
+ghenv.Component.Message = '1.3.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -154,7 +154,10 @@ all_output = \
 
 
 if all_required_inputs(ghenv.Component):
-    if os.name == 'nt':  # we are on windows; use IronPython like usual
+    # check the size of the SQL file to see if we should use the CLI
+    assert os.path.isfile(_sql), 'No sql file found at: {}.'.format(_sql)
+    if os.name == 'nt' and os.path.getsize(_sql) < 1e8:
+        # small file on windows; use IronPython like usual
         # create the SQL result parsing object
         sql_obj = SQLiteResult(_sql)
 
@@ -178,14 +181,17 @@ if all_required_inputs(ghenv.Component):
         nat_vent_gain = sql_obj.data_collections_by_output_name(nat_vent_gain_outputs)
         nat_vent_loss = sql_obj.data_collections_by_output_name(nat_vent_loss_outputs)
 
-    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
+    else:  # use the honeybee_energy CLI
+        # sqlite3 module doesn't work in Mac IronPython
+        # or the file's big and we know that the Python3 version scales better
         # Execute the honybee CLI to obtain the results via CPython
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                 'data-by-outputs', _sql]
         for outp in all_output:
             out_str = json.dumps(outp) if isinstance(outp, tuple) else '["{}"]'.format(outp)
             cmds.append(out_str)
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        use_shell = True if os.name == 'nt' else False
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
         stdout = process.communicate()
         data_coll_dicts = json.loads(stdout[0])
 
