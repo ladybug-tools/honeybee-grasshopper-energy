@@ -51,7 +51,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.3.2'
+ghenv.Component.Message = '1.3.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -128,7 +128,11 @@ heating_outputs = LoadBalance.HEATING + (
     'Chiller Heater System Heating Electricity Energy',
     'District Heating Hot Water Energy',
     'Baseboard Electricity Energy',
-    'Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption')
+    'Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption',
+    'Boiler Electricity Energy',
+    'Water Heater NaturalGas Energy',
+    'Water Heater Electricity Energy',
+    'Heating Coil Water Heating Electricity Energy')
 lighting_outputs = LoadBalance.LIGHTING
 electric_equip_outputs = LoadBalance.ELECTRIC_EQUIP
 gas_equip_outputs = LoadBalance.GAS_EQUIP
@@ -181,9 +185,7 @@ if all_required_inputs(ghenv.Component):
         nat_vent_gain = sql_obj.data_collections_by_output_name(nat_vent_gain_outputs)
         nat_vent_loss = sql_obj.data_collections_by_output_name(nat_vent_loss_outputs)
 
-    else:  # use the honeybee_energy CLI
-        # sqlite3 module doesn't work in Mac IronPython
-        # or the file's big and we know that the Python3 version scales better
+    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
         # Execute the honybee CLI to obtain the results via CPython
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                 'data-by-outputs', _sql]
@@ -216,34 +218,32 @@ if all_required_inputs(ghenv.Component):
         nat_vent_loss = serialize_data(data_coll_dicts[15])
 
     # do arithmetic with any of the gain/loss data collections
-    if len(infil_gain) == len(infil_loss) != 0:
-        if not isinstance(infil_gain[0], float):
-            infiltration_load = subtract_loss_from_gain(infil_gain, infil_loss)
-        else:
-            infiltration_load = [g - l for g, l in zip(infil_gain, infil_loss)]
-    if len(vent_gain) == len(vent_loss) == len(cooling) == len(heating) != 0:
-        if not isinstance(vent_gain[0], float):
-            mech_vent_loss = subtract_loss_from_gain(heating, vent_loss)
-            mech_vent_gain = subtract_loss_from_gain(cooling, vent_gain)
-            mech_vent_load = [data.duplicate() for data in
-                              subtract_loss_from_gain(mech_vent_gain, mech_vent_loss)]
-            for load in mech_vent_load:
-                load.header.metadata['type'] = \
-                    'Zone Ideal Loads Ventilation Heat Energy'
-        else:
-            mech_vent_loss = [g - l for g, l in zip(heating, vent_loss)]
-            mech_vent_gain = [g - l for g, l in zip(cooling, vent_gain)]
-            mech_vent_load = [g - l for g, l in zip(mech_vent_gain, mech_vent_loss)]
-    if len(nat_vent_gain) == len(nat_vent_loss) != 0:
-        if not isinstance(nat_vent_gain[0], float):
-            nat_vent_load = subtract_loss_from_gain(nat_vent_gain, nat_vent_loss)
-        else:
-            nat_vent_load = [g - l for g, l in zip(nat_vent_gain, nat_vent_loss)]
+    if len(infil_gain) == len(infil_loss):
+        infiltration_load = subtract_loss_from_gain(infil_gain, infil_loss)
+    if len(vent_gain) == len(vent_loss) == len(cooling) == len(heating):
+        mech_vent_loss = subtract_loss_from_gain(heating, vent_loss)
+        mech_vent_gain = subtract_loss_from_gain(cooling, vent_gain)
+        mech_vent_load = [data.duplicate() for data in
+                          subtract_loss_from_gain(mech_vent_gain, mech_vent_loss)]
+        for load in mech_vent_load:
+            load.header.metadata['type'] = \
+                'Zone Ideal Loads Ventilation Heat Energy'
+    if len(nat_vent_gain) == len(nat_vent_loss):
+        nat_vent_load = subtract_loss_from_gain(nat_vent_gain, nat_vent_loss)
 
     # remove the district hot water system used for service hot water from space heating
+    shw_equip, distr_i = [], None
     for i, heat in enumerate(heating):
         try:
-            if heat.header.metadata['System'] == 'SERVICE HOT WATER DISTRICT HEAT':
-                heating.pop(i)
-        except Exception:
+            heat_equip = heat.header.metadata['System']
+            if heat_equip.startswith('SHW'):
+                shw_equip.append(i)
+            elif heat_equip == 'SERVICE HOT WATER DISTRICT HEAT':
+                distr_i = i
+        except KeyError:
             pass
+    if len(shw_equip) != 0 and distr_i is None:
+        hot_water = [heating.pop(i) for i in reversed(shw_equip)]
+    elif distr_i is not None:
+        for i in reversed(shw_equip + [distr_i]):
+            heating.pop(i)
