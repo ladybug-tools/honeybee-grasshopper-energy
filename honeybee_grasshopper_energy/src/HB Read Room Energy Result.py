@@ -51,7 +51,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.3.3'
+ghenv.Component.Message = '1.3.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -132,7 +132,7 @@ heating_outputs = LoadBalance.HEATING + (
     'Boiler Electricity Energy',
     'Water Heater NaturalGas Energy',
     'Water Heater Electricity Energy',
-    'Heating Coil Water Heating Electricity Energy')
+    'Cooling Coil Water Heating Electricity Energy')
 lighting_outputs = LoadBalance.LIGHTING
 electric_equip_outputs = LoadBalance.ELECTRIC_EQUIP
 gas_equip_outputs = LoadBalance.GAS_EQUIP
