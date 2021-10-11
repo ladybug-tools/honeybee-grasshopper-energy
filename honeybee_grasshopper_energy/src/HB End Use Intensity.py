@@ -38,7 +38,7 @@ Get information about end use intensity from an EnergyPlus SQL file.
 
 ghenv.Component.Name = 'HB End Use Intensity'
 ghenv.Component.NickName = 'EUI'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -72,14 +72,7 @@ except ImportError as e:
 def get_results_windows(sql_files):
     # set initial values that will be computed based on results
     total_floor_area, total_energy = 0, 0
-    all_uses = \
-        ('heating', 'cooling', 'interior_lighting', 'exterior_lighting',
-         'interior_equipment', 'exterior_equipment', 'fans', 'pumps',
-         'heat_rejection', 'humidification', 'heat_recovery', 'water_systems',
-          'refrigeration', 'generators')
     end_uses = OrderedDict()
-    for use in all_uses:
-        end_uses[use] = 0
 
     # loop through the sql files in the directory and add the energy use
     for result_file in sql_files:
@@ -90,31 +83,25 @@ def get_results_windows(sql_files):
         areas = tuple(area_dict.values())
         total_floor_area += areas[0][0]
         # get the energy use
-        eui_dict = sql_obj.tabular_data_by_name('End Uses')
-        euis = tuple(eui_dict.values())
-        total_energy += sum([val for val in euis[-2][:12]])
-        end_uses['heating'] += sum([val for val in euis[0][:12]])
-        end_uses['cooling'] += sum([val for val in euis[1][:12]])
-        end_uses['interior_lighting'] += sum([val for val in euis[2][:12]])
-        end_uses['exterior_lighting'] += sum([val for val in euis[3][:12]])
-        end_uses['interior_equipment'] += sum([val for val in euis[4][:12]])
-        end_uses['exterior_equipment'] += sum([val for val in euis[5][:12]])
-        end_uses['fans'] += sum([val for val in euis[6][:12]])
-        end_uses['pumps'] += sum([val for val in euis[7][:12]])
-        end_uses['heat_rejection'] += sum([val for val in euis[8][:12]])
-        end_uses['humidification'] += sum([val for val in euis[9][:12]])
-        end_uses['heat_recovery'] += sum([val for val in euis[10][:12]])
-        end_uses['water_systems'] += sum([val for val in euis[11][:12]])
-        end_uses['refrigeration'] += sum([val for val in euis[12][:12]])
-        end_uses['generators'] += sum([val for val in euis[13][:12]])
-    
+        eui_dict = sql_obj.tabular_data_by_name('End Uses By Subcategory')
+        for catgory, vals in eui_dict.items():
+            total_use = sum([val for val in vals[:12]])
+            if total_use != 0:
+                total_energy += total_use
+                cat, sub_cat = catgory.split(':')
+                eu_cat = cat if sub_cat == 'General' or sub_cat == 'Other' else sub_cat
+                try:
+                    end_uses[eu_cat] += total_use
+                except KeyError:
+                    end_uses[eu_cat] = total_use
+
     # assemble all of the results into a final dictionary
     eui = round(total_energy / total_floor_area, 3)
     gross_floor = round(total_floor_area, 3)
-    end_use_pairs = OrderedDict([(key, round(val / total_floor_area, 3))
-                     for key, val in end_uses.items() if val != 0])
+    end_use_pairs = OrderedDict(
+        [(key, round(val / total_floor_area, 3)) for key, val in end_uses.items()]
+    )
     return eui, gross_floor, end_use_pairs
-    
 
 # The SQLite3 module doesn't work in IronPython on Mac, so we must make a call
 # to the Honeybee CLI (which runs on CPython) to get the results.
