@@ -15,10 +15,7 @@ simulation settings and can be plugged into the "HB Model To OSM" component.
     Args:
         _north_: A number between -360 and 360 for the counterclockwise
             difference between the North and the positive Y-axis in degrees.
-            90 is West and 270 is East. Note that this is different than the
-            convention used in EnergyPlus, which uses clockwise difference
-            instead of counterclockwise difference. This can also be Vector
-            for the direction to North. (Default: 0)
+            90 is West and 270 is East. (Default: 0)
         _output_: A SimulationOutput that lists the desired outputs from the
             simulation and the format in which to report them. This can be
             created using the "HB Simulation Output" component. Default is to
@@ -71,7 +68,7 @@ simulation settings and can be plugged into the "HB Model To OSM" component.
 
 ghenv.Component.Name = 'HB Simulation Parameter'
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

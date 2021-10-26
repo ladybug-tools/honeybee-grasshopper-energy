@@ -29,6 +29,9 @@ room-level peak cooling and heating on summer and winter design days.
             summer or winter design days are found, they will be filtered according
             to their name in order to identify the 0.4% and 99.6% design conditions
             for the sensible (dry bulb temperature) design days.
+        _north_: A number between -360 and 360 for the counterclockwise difference
+            between the North and the positive Y-axis in degrees.
+            90 is West and 270 is East. (Default: 0).
         _timestep_: An integer for the number of timesteps per hour at which the energy
             simulation will be run and results reported. It is recommended that
             this be at least 6 but it can be increased to better capture
@@ -84,7 +87,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -128,6 +131,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import lbt_recipes:\n\t{}'.format(e))
 
 try:
+    from ladybug_rhino.togeometry import to_vector2d
     from ladybug_rhino.config import tolerance, angle_tolerance
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
@@ -207,9 +211,9 @@ def all_data_load_balance(rooms, data):
     """Get a LoadBalance object from a list of all relavant data collections."""
     return LoadBalance(
         rooms, lighting_data=data[0], electric_equip_data=data[1],
-        gas_equip_data=c_data[2], service_hot_water_data=data[3],
-        people_data=data[4], solar_data=data[5], infiltration_data=data[6],
-        surface_flow_data=data[7], use_all_solar=True
+        gas_equip_data=c_data[2], process_data=data[3], service_hot_water_data=data[4],
+        people_data=data[5], solar_data=data[6], infiltration_data=data[7],
+        surface_flow_data=data[8], use_all_solar=True
     )
 
 
@@ -230,12 +234,13 @@ window_loss_output = 'Surface Window Heat Loss Energy'
 window_gain_output = 'Surface Window Heat Gain Energy'
 all_output = \
     [LoadBalance.LIGHTING, LoadBalance.ELECTRIC_EQUIP, LoadBalance.GAS_EQUIP,
-     LoadBalance.HOT_WATER, LoadBalance.PEOPLE_GAIN, LoadBalance.SOLAR_GAIN,
+     LoadBalance.PROCESS, LoadBalance.HOT_WATER,
+     LoadBalance.PEOPLE_GAIN, LoadBalance.SOLAR_GAIN,
      LoadBalance.INFIL_GAIN, LoadBalance.INFIL_LOSS, opaque_energy_flow_output,
      window_loss_output, window_gain_output]
 term_order = \
-    ['Solar', 'Window Conduction', 'Opaque Conduction', 'Infiltration', 'People',
-     'Lighting', 'Electric Equipment', 'Gas Equipment', 'Service Hot Water']
+    ['Solar', 'Window Conduction', 'Opaque Conduction', 'Infiltration', 'People', 'Lighting',
+     'Electric Equipment', 'Gas Equipment', 'Process Equipment', 'Service Hot Water']
 
 
 if all_required_inputs(ghenv.Component) and _run:
@@ -261,6 +266,12 @@ if all_required_inputs(ghenv.Component) and _run:
         _sim_par_.output.add_zone_energy_use('Sensible')
         _sim_par_.output.add_gains_and_losses('Sensible')
         _sim_par_.output.add_surface_energy_flow()
+    # set the north if it is not defaulted
+    if _north_ is not None:
+        try:
+            _sim_par_.north_vector = to_vector2d(_north_)
+        except AttributeError:  # north angle instead of vector
+            _sim_par_.north_angle = float(_north_)
 
     # load design days to the simulation parameters
     if _ddy_file.lower().endswith('.epw'):  # load design days from EPW
@@ -345,6 +356,7 @@ if all_required_inputs(ghenv.Component) and _run:
             light = sql_obj.data_collections_by_output_name(LoadBalance.LIGHTING)
             ele_equip = sql_obj.data_collections_by_output_name(LoadBalance.ELECTRIC_EQUIP)
             gas_equip = sql_obj.data_collections_by_output_name(LoadBalance.GAS_EQUIP)
+            process = sql_obj.data_collections_by_output_name(LoadBalance.PROCESS)
             hot_water = sql_obj.data_collections_by_output_name(LoadBalance.HOT_WATER)
             people = sql_obj.data_collections_by_output_name(LoadBalance.PEOPLE_GAIN)
             solar = sql_obj.data_collections_by_output_name(LoadBalance.SOLAR_GAIN)
@@ -366,14 +378,15 @@ if all_required_inputs(ghenv.Component) and _run:
             light = serialize_data(data_coll_dicts[0])
             ele_equip = serialize_data(data_coll_dicts[1])
             gas_equip = serialize_data(data_coll_dicts[2])
-            hot_water = serialize_data(data_coll_dicts[3])
-            people = serialize_data(data_coll_dicts[4])
-            solar = serialize_data(data_coll_dicts[5])
-            infil_gain = serialize_data(data_coll_dicts[6])
-            infil_loss = serialize_data(data_coll_dicts[7])
-            opaque_flow = serialize_data(data_coll_dicts[8])
-            window_loss = serialize_data(data_coll_dicts[9])
-            window_gain = serialize_data(data_coll_dicts[10])
+            process = serialize_data(data_coll_dicts[3])
+            hot_water = serialize_data(data_coll_dicts[4])
+            people = serialize_data(data_coll_dicts[5])
+            solar = serialize_data(data_coll_dicts[6])
+            infil_gain = serialize_data(data_coll_dicts[7])
+            infil_loss = serialize_data(data_coll_dicts[8])
+            opaque_flow = serialize_data(data_coll_dicts[9])
+            window_loss = serialize_data(data_coll_dicts[10])
+            window_gain = serialize_data(data_coll_dicts[11])
             for dat in opaque_flow + window_loss + window_gain:
                 dat.header.metadata['Surface'] = dat.header.metadata['Zone']
 
@@ -381,7 +394,7 @@ if all_required_inputs(ghenv.Component) and _run:
         window_flow = []
         window_flow = LoadBalance.subtract_loss_from_gain(window_gain, window_loss)
         face_flow = opaque_flow + window_flow
-        all_data = [light, ele_equip, gas_equip, hot_water, people, solar, infil, face_flow]
+        all_data = [light, ele_equip, gas_equip, process, hot_water, people, solar, infil, face_flow]
 
         # construct the cooling design day balance
         c_data = filter_data_by_date(c_dt, all_data)
