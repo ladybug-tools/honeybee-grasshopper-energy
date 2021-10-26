@@ -1,0 +1,85 @@
+{
+  "version": "1.3.0", 
+  "nickname": "Process", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "rooms", 
+        "description": "The input Rooms with process loads assigned to them.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms", 
+      "description": "Honeybee Rooms to which process loads should be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_name_", 
+      "description": "Script variable Process", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_watts", 
+      "description": "A number for the process load power in Watts.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_schedule", 
+      "description": "A fractional schedule for the use of the process over the course of\nthe year. The fractional values will get multiplied by the _watts\nto yield a complete process load profile.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_fuel_type", 
+      "description": "Text to denote the type of fuel consumed by the process. Using the\n\"None\" type indicates that no end uses will be associated with the\nprocess, only the zone gains. Choose from the following.\n* Electricity\n* NaturalGas\n* Propane\n* FuelOilNo1\n* FuelOilNo2\n* Diesel\n* Gasoline\n* Coal\n* Steam\n* DistrictHeating\n* DistrictCooling\n* OtherFuel1\n* OtherFuel2\n* None", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "use_category_", 
+      "description": "Text to indicate the end-use subcategory, which will identify\nthe process load in the EUI output. For example, \u201cCooking\u201d,\n\u201cClothes Drying\u201d, etc. (Default: General).", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "radiant_fract_", 
+      "description": "A number between 0 and 1 for the fraction of the total\nprocess load given off as long wave radiant heat. (Default: 0).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "latent_fract_", 
+      "description": "A number between 0 and 1 for the fraction of the total\nprocess load that is latent (as opposed to sensible). (Default: 0).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "lost_fract_", 
+      "description": "A number between 0 and 1 for the fraction of the total\nprocess load that is lost outside of the zone and the HVAC system.\nTypically, this is used to represent heat that is exhausted directly\nout of a zone (as you would for a stove). (Default: 0).", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:  # import the honeybee extension\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy extension\n    from honeybee_energy.load.process import Process\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, longest_list\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    rooms = [room.duplicate() for room in _rooms]\n\n    # set default values and check the inputs\n    use_category_ = ['Process'] if len(use_category_) == 0 else use_category_\n    radiant_fract_ = [0.0] if len(radiant_fract_) == 0 else radiant_fract_\n    latent_fract_ = [0.0] if len(latent_fract_) == 0 else latent_fract_\n    lost_fract_ = [0.0] if len(lost_fract_) == 0 else lost_fract_\n    for i, sched in enumerate(_schedule):\n        if isinstance(sched, str):\n            _schedule[i] = schedule_by_identifier(sched)\n\n    # loop through the rooms and assign process loads\n    for i, room in enumerate(rooms):\n        load_watts = longest_list(_watts, i)\n        if load_watts != 0:\n            name = clean_and_id_ep_string('Process') if len(_name_) == 0 else \\\n                clean_ep_string(longest_list(_name_, i))\n            process = Process(\n                '{}..{}'.format(name, room.identifier), load_watts,\n                longest_list(_schedule, i), longest_list(_fuel_type, i),\n                longest_list(use_category_, i), longest_list(radiant_fract_, i),\n                longest_list(latent_fract_, i), longest_list(lost_fract_, i)\n            )\n            room.properties.energy.add_process_load(process)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Process Load", 
+  "description": "Apply process loads to Rooms.\n_\nExamples of process loads include kilns, manufacturing equipment, and various\nindustrial processes. They can also be used to represent wood burning fireplaces\nor certain pieces of equipment to be separated from the other end uses.\n-"
+}

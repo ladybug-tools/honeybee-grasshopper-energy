@@ -26,6 +26,8 @@ honeybee Rooms or a Model.
         electric_equip_: Array of data collections for 'Zone Electric Equipment
             Heating Energy'.
         gas_equip_: Array of data collections for 'Zone Gas Equipment Heating Energy'.
+        process_: Array of data collections for 'Zone Other Equipment Total
+            Heating Energy'.
         hot_water_: Array of data collections for 'Water Use Equipment Zone Heat
             Gain Energy' that correspond to the input rooms.
         people_gain_: Array of data collections for 'Zone People Heating Energy'.
@@ -47,7 +49,7 @@ honeybee Rooms or a Model.
             load balance term. This can then be plugged into the "LB Hourly Plot"
             or "LB Monthly Chart" to give a visualization of the load balance
             over all connected Rooms.
-        balance_storage:  The balance output plus an additional term to represent
+        balance_stor:  The balance output plus an additional term to represent
             the remainder of the load balance. This term is labeled "Storage" since
             it typically represents the energy being stored in the building's mass. 
             If this term is particularly large, it can indicate that not all of
@@ -56,7 +58,7 @@ honeybee Rooms or a Model.
             load balance term that has bee normalized by the Room floor area.
             This can then be plugged into the "LB Hourly Plot" or "LB Monthly Chart"
             to give a visualization of the load balance over all connected Rooms.
-        norm_bal_storage:  The norm_bal output plus an additional term to represent
+        norm_bal_stor:  The norm_bal output plus an additional term to represent
             the remainder of the load balance. This term is labeled "Storage" since
             it typically represents the energy being stored in the building's mass. 
             If this term is particularly large, it can indicate that not all of
@@ -65,7 +67,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -129,12 +131,12 @@ if all_required_inputs(ghenv.Component):
 
     # construct the load balance object and output the results
     load_bal_obj = LoadBalance(
-        rooms, cooling_, heating_, lighting_, electric_equip_, gas_equip_, hot_water_,
-        people_gain_, solar_gain_, infiltration_load_, mech_vent_load_,
+        rooms, cooling_, heating_, lighting_, electric_equip_, gas_equip_, process_,
+        hot_water_, people_gain_, solar_gain_, infiltration_load_, mech_vent_load_,
         nat_vent_load_, face_energy_flow_, units_system(), use_all_solar=is_model)
 
     balance = load_bal_obj.load_balance_terms(False, False)
     if len(balance) != 0:
-        balance_storage = balance + [load_bal_obj.storage]
+        balance_stor = balance + [load_bal_obj.storage]
         norm_bal = load_bal_obj.load_balance_terms(True, False)
-        norm_bal_storage = load_bal_obj.load_balance_terms(True, True)
+        norm_bal_stor = load_bal_obj.load_balance_terms(True, True)
