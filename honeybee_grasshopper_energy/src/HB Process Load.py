@@ -10,13 +10,17 @@
 """
 Apply process loads to Rooms.
 _
-Examples of process loads include kilns, manufacturing equipment, and various
-industrial processes. They can also be used to represent wood burning fireplaces
-or certain pieces of equipment to be separated from the other end uses.
+Examples of process loads include wood burning fireplaces, kilns, manufacturing
+equipment, and various industrial processes. They can also be used to represent 
+certain specialized pieces of equipment to be separated from the other end uses,
+such as MRI machines, theatrical lighting, elevators, etc.
 -
 
     Args:
         _rooms: Honeybee Rooms to which process loads should be assigned.
+        _name_: Text to set the name for the Process load and to be incorporated into a
+            unique Process load identifier. If None, a unique name will be
+            generated.
         _watts: A number for the process load power in Watts.
         _schedule: A fractional schedule for the use of the process over the course of
             the year. The fractional values will get multiplied by the _watts
@@ -57,7 +61,7 @@ or certain pieces of equipment to be separated from the other end uses.
 
 ghenv.Component.Name = 'HB Process Load'
 ghenv.Component.NickName = 'Process'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
