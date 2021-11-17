@@ -34,8 +34,6 @@ the comfort mapping occurs.
             also be Vector for the direction to North. (Default: 0).
         run_period_: An AnalysisPeriod to set the start and end dates of the simulation.
             If None, the simulation will be annual.
-        sensor_count_: Integer for the maximum number of sensor grid points per
-            parallel execution. (Default: 200).
         _wind_speed_: A single number for meteorological wind speed in m/s or an hourly
             data collection of wind speeds that align with the input run_period_.
             This will be used for all indoor comfort evaluation. Note that the
@@ -114,7 +112,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -138,7 +136,6 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('ddy', _ddy)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('run-period', run_period_)
-    recipe.input_value_by_name('sensor-count', sensor_count_)
     recipe.input_value_by_name('wind-speed', _wind_speed_)
     recipe.input_value_by_name('solarcal-parameters', solar_body_par_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
