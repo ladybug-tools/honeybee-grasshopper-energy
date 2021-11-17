@@ -35,8 +35,6 @@ the comfort mapping occurs.
             also be Vector for the direction to North. (Default: 0).
         run_period_: An AnalysisPeriod to set the start and end dates of the simulation.
             If None, the simulation will be annual.
-        sensor_count_: Integer for the maximum number of sensor grid points per
-            parallel execution. (Default: 200).
         write_set_map_: A boolean to note whether the output temperature CSV should
             record Operative Temperature or Standard Effective Temperature (SET).
             SET is relatively intense to compute and so only recording Operative
@@ -121,7 +119,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB PMV Comfort Map'
 ghenv.Component.NickName = 'PMVMap'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -145,7 +143,6 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('ddy', _ddy)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('run-period', run_period_)
-    recipe.input_value_by_name('sensor-count', sensor_count_)
     recipe.input_value_by_name('write-set-map', write_set_map_)
     recipe.input_value_by_name('air-speed', _air_speed_)
     recipe.input_value_by_name('met-rate', _met_rate_)
