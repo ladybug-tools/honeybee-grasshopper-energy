@@ -67,7 +67,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.3.1'
+ghenv.Component.Message = '1.3.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -128,6 +128,16 @@ if all_required_inputs(ghenv.Component):
     mech_vent_load_ = check_input(mech_vent_load_)
     nat_vent_load_ = check_input(nat_vent_load_)
     face_energy_flow_ = check_input(face_energy_flow_)
+
+    # process hot water to ensure it's the correct type
+    hw_type = 'Water Use Equipment Heating Energy'
+    if hot_water_ is not None and hot_water_[0].header.metadata['type'] == hw_type:
+        new_hw = [hw * 0.25 for hw in hot_water_]
+        for hw in new_hw:
+            hw.header.metadata = {
+                'type': 'Water Use Equipment Zone Sensible Heat Gain Energy',
+                'System': hw.header.metadata['System']
+            }
 
     # construct the load balance object and output the results
     load_bal_obj = LoadBalance(
