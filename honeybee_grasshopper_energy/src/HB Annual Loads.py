@@ -96,7 +96,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.3.1'
+ghenv.Component.Message = '1.3.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -139,7 +139,8 @@ except ImportError as e:
 
 try:
     from ladybug_rhino.togeometry import to_vector2d
-    from ladybug_rhino.config import conversion_to_meters, tolerance, angle_tolerance
+    from ladybug_rhino.config import conversion_to_meters, units_system, \
+        tolerance, angle_tolerance
     from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
@@ -209,7 +210,7 @@ if all_required_inputs(ghenv.Component) and _run:
     _cool_cop_ = 1 if _cool_cop_ is None else _cool_cop_
 
     # create the Model from the _rooms and shades_
-    _model = Model('Annual_Loads', _rooms, orphaned_shades=shades_,
+    _model = Model('Annual_Loads', _rooms, orphaned_shades=shades_, units=units_system(),
                    tolerance=tolerance, angle_tolerance=angle_tolerance)
     floor_area = _model.floor_area
     assert floor_area != 0, 'Connected _rooms have no floors with which to compute EUI.'
