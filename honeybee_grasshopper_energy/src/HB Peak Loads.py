@@ -87,7 +87,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.3.1'
+ghenv.Component.Message = '1.3.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -132,7 +132,7 @@ except ImportError as e:
 
 try:
     from ladybug_rhino.togeometry import to_vector2d
-    from ladybug_rhino.config import tolerance, angle_tolerance
+    from ladybug_rhino.config import tolerance, angle_tolerance, units_system
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
@@ -248,7 +248,7 @@ if all_required_inputs(ghenv.Component) and _run:
     check_energyplus_version()
 
     # create the Model from the _rooms and shades_
-    _model = Model('Peak_Loads', _rooms, orphaned_shades=shades_,
+    _model = Model('Peak_Loads', _rooms, orphaned_shades=shades_, units=units_system(),
                    tolerance=tolerance, angle_tolerance=angle_tolerance)
 
     # process the simulation folder name and the directory
