@@ -75,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.3.5'
+ghenv.Component.Message = '1.3.6'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -115,14 +115,6 @@ try:
     from ladybug_rhino.config import units_system
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
-
-
-def orphaned_warning(object_type):
-    """Generate an error message for orphaned Faces, Apertures, or Doors."""
-    return 'Input _model contains orphaned {}s. These are not permitted in ' \
-        'Models for energy simulation.\nIf you have geometry that is not a ' \
-        'part of a Room boundary that you want included in the energy simulation, ' \
-        'it should be added as shades.'.format(object_type)
 
 
 if all_required_inputs(ghenv.Component) and _write:
@@ -166,11 +158,6 @@ if all_required_inputs(ghenv.Component) and _write:
     _folder_ = hb_config.folders.default_simulation_folder if _folder_ is None else _folder_
     clean_name = re.sub(r'[^.A-Za-z0-9_-]', '_', _model.display_name)
     directory = os.path.join(_folder_, clean_name, 'openstudio')
-
-    # check the model to be sure there are no orphaned faces, apertures, or doors
-    assert len(_model.orphaned_faces) == 0, orphaned_warning('Face')
-    assert len(_model.orphaned_apertures) == 0, orphaned_warning('Aperture')
-    assert len(_model.orphaned_doors) == 0, orphaned_warning('Door')
 
     # duplicate model to avoid mutating it as we edit it for energy simulation
     _model = _model.duplicate()
