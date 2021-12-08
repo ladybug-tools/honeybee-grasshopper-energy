@@ -25,7 +25,7 @@ file that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Comfort Result'
 ghenv.Component.NickName = 'RoomComfortResult'
-ghenv.Component.Message = '1.3.1'
+ghenv.Component.Message = '1.3.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -56,11 +56,11 @@ def serialize_data(data_dicts):
     """Reserialize a list of collection dictionaries."""
     if len(data_dicts) == 0:
         return []
-    elif data_dicts[0]['type'] == 'HourlyContinuousCollection':
+    elif data_dicts[0]['type'] == 'HourlyContinuous':
         return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]
-    elif data_dicts[0]['type'] == 'MonthlyCollection':
+    elif data_dicts[0]['type'] == 'Monthly':
         return [MonthlyCollection.from_dict(data) for data in data_dicts]
-    elif data_dicts[0]['type'] == 'DailyCollection':
+    elif data_dicts[0]['type'] == 'Daily':
         return [DailyCollection.from_dict(data) for data in data_dicts]
 
 
