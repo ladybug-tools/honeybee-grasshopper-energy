@@ -37,7 +37,7 @@ pmv, utci category, or adaptive comfort degrees from neutral temperature.
 
 ghenv.Component.Name = 'HB Read Thermal Matrix'
 ghenv.Component.NickName = 'ThermalMtx'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -75,7 +75,7 @@ if all_required_inputs(ghenv.Component) and _load:
     # loop through the grid CSV files, parse their results, and build data collections
     comf_matrix = []
     for grid in grid_list:
-        grid_name = grid['id']
+        grid_name = grid['full_id'] if 'full_id' in grid else 'id'
         metadata = {'grid': grid_name}
         grid_file = os.path.join(_comf_result, '{}.csv'.format(grid_name))
         data_matrix = csv_to_num_matrix(grid_file)
