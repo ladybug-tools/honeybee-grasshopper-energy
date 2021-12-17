@@ -8,19 +8,27 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 
 """
-Compute spatially-resolved operative temperature and PMV thermal comfort from
-a Honeybee model. This recipe can also (optionally) compute Standard Effective
-Temperature (SET).
+Compute spatially-resolved operative temperature and Predicted Mean Vote (PMV)
+thermal comfort from a Honeybee model. This recipe can also (optionally)
+compute Standard Effective Temperature (SET).
 _
-This recipe uses EnergyPlus to obtain longwave radiant temperatures and indoor air
-temperatures. The outdoor air temperature and air speed are taken directly from
-the EPW. A Radiance-based, enhanced 2-phase method is used for shortwave MRT
-calculations, which uses an accurate direct sun calculation with precise solar
-positions.
+This recipe uses EnergyPlus to obtain surface temperatures and indoor air
+temperatures + humidities. Outdoor air temperatures, relative humidities, and
+air speeds are taken directly from the EPW. The energy properties of the model
+geometry are what determine the outcome of the simulation, though the model's
+Radiance sensor grids are what determine where the comfort mapping occurs.
 _
-The energy properties of the model geometry are what determine the outcome of the
-simulation, though the model's Radiance sensor grids are what determine where
-the comfort mapping occurs.
+Longwave radiant temperatures are obtained by computing spherical view factors
+from each sensor to the Room surfaces of the model using Radiance. These view factors
+are then multiplied by the surface temperatures output by EnergyPlus to yield
+longwave MRT at each sensor. All indoor shades (eg. those representing furniture)
+are assumed to be at the room-average MRT.
+_
+A Radiance-based enhanced 2-phase method is used for all shortwave MRT calculations,
+which precisely represents direct sun by tracing a ray from each sensor to the
+solar position. To determine Thermal Comfort Percent (TCP), the occupancy schedules
+of the energy model are used. Any hour of the occupancy schedule that is 0.1 or
+greater will be considered occupied. All hours of the outdoors are considered occupied.
 -
 
     Args:
@@ -119,7 +127,7 @@ the comfort mapping occurs.
 
 ghenv.Component.Name = 'HB PMV Comfort Map'
 ghenv.Component.NickName = 'PMVMap'
-ghenv.Component.Message = '1.3.1'
+ghenv.Component.Message = '1.3.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
