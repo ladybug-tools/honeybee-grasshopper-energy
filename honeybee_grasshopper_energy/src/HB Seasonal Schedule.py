@@ -57,10 +57,15 @@ each schedule should be applied.
 
 ghenv.Component.Name = "HB Seasonal Schedule"
 ghenv.Component.NickName = 'SeasonalSchedule'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.3.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
+
+try:  # import the core honeybee dependencies
+    from ladybug.dt import Date
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the core honeybee dependencies
     from honeybee.typing import clean_and_id_ep_string, clean_ep_string
@@ -99,8 +104,12 @@ if all_required_inputs(ghenv.Component):
     for season_sch, a_period in zip(_season_scheds, _analysis_periods):
         if isinstance(season_sch, str):
             season_sch = schedule_by_identifier(season_sch)
-        season_rules = season_sch.to_rules(
-            a_period.st_time.date, a_period.end_time.date)
+        if a_period.is_reversed:
+            season_rules = season_sch.to_rules(Date(1, 1), a_period.end_time.date) + \
+                season_sch.to_rules(a_period.st_time.date, Date(12, 31))
+        else:
+            season_rules = season_sch.to_rules(
+                a_period.st_time.date, a_period.end_time.date)
         for rule in reversed(season_rules):  # preserve priority order of rules
             schedule.add_rule(rule)
 
