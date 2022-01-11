@@ -1,11 +1,11 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2021, Ladybug Tools.
-# You should have received a copy of the GNU General Public License
+# Copyright (c) 2022, Ladybug Tools.
+# You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
-# @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
+# @license AGPL-3.0-or-later <https://spdx.org/licenses/AGPL-3.0-or-later>
 
 """
 Compute spatially-resolved Universal Thermal Climate Index (UTCI) and heat/cold
@@ -122,7 +122,7 @@ greater will be considered occupied. All hours of the outdoors are considered oc
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.3.2'
+ghenv.Component.Message = '1.4.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
