@@ -1,11 +1,11 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2021, Ladybug Tools.
-# You should have received a copy of the GNU General Public License
+# Copyright (c) 2022, Ladybug Tools.
+# You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
-# @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
+# @license AGPL-3.0-or-later <https://spdx.org/licenses/AGPL-3.0-or-later>
 
 """
 Apply ProgramType objects to Rooms.
@@ -22,7 +22,7 @@ Apply ProgramType objects to Rooms.
 
 ghenv.Component.Name = "HB Apply ProgramType"
 ghenv.Component.NickName = 'ApplyProgram'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.4.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"

@@ -1,11 +1,11 @@
 # Ladybug: A Plugin for Environmental Analysis (GPL)
 # This file is part of Ladybug.
 #
-# Copyright (c) 2021, Ladybug Tools.
-# You should have received a copy of the GNU General Public License
+# Copyright (c) 2022, Ladybug Tools.
+# You should have received a copy of the GNU Affero General Public License
 # along with Ladybug; If not, see <http://www.gnu.org/licenses/>.
 # 
-# @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
+# @license AGPL-3.0-or-later <https://spdx.org/licenses/AGPL-3.0-or-later>
 
 """
 Parse an .rdd file from an energy simulation to show all possible outputs that
@@ -33,7 +33,7 @@ can be requested from the simulation.
 
 ghenv.Component.Name = 'HB Read Result Dictionary'
 ghenv.Component.NickName = 'ReadRDD'
-ghenv.Component.Message = '1.3.0'
+ghenv.Component.Message = '1.4.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
