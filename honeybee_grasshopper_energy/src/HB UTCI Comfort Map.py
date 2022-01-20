@@ -28,8 +28,10 @@ _
 A Radiance-based enhanced 2-phase method is used for all shortwave MRT calculations,
 which precisely represents direct sun by tracing a ray from each sensor to the
 solar position. To determine Thermal Comfort Percent (TCP), the occupancy schedules
-of the energy model are used. Any hour of the occupancy schedule that is 0.1 or
-greater will be considered occupied. All hours of the outdoors are considered occupied.
+of the energy model are used for indoor sensors if no schedule_ is input. Any
+hour of the energy model occupancy schedule that is 0.1 or greater will be
+considered occupied. If no schedule_ is input, all hours of the outdoors are
+considered occupied.
 -
 
     Args:
@@ -46,8 +48,17 @@ greater will be considered occupied. All hours of the outdoors are considered oc
             If None, the simulation will be annual.
         _wind_speed_: A single number for meteorological wind speed in m/s or an hourly
             data collection of wind speeds that align with the input run_period_.
-            This will be used for all indoor comfort evaluation. Note that the
-            EPW wind speed will be used for any outdoor sensors. (Default: 0.5).
+            This will be used for all outdoor comfort evaluation. Note that all
+            sensors on the indoors will always use a wind speed of 0.5 m/s,
+            which is the lowest acceptable value for the UTCI model. If
+            unspecified, the EPW wind speed will be used for all outdoor sensors.
+        schedule_: A schedule to specify the relevant times during which comfort
+            should be evaluated. This must either be a Ladybug Hourly Data
+            Collection that aligns with the input run_period_ or the path to a
+            CSV file with a number of rows equal to the length of the run_period_.
+            If unspecified, it will be assumed that all times are relevant for
+            outdoor sensors and the energy model occupancy schedules will be
+            used for indoor sensors.
         solar_body_par_: Optional solar body parameters from the "LB Solar Body Parameters"
             object to specify the properties of the human geometry assumed in the
             shortwave MRT calculation. The default assumes average skin/clothing
@@ -122,7 +133,7 @@ greater will be considered occupied. All hours of the outdoors are considered oc
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -147,6 +158,7 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('run-period', run_period_)
     recipe.input_value_by_name('wind-speed', _wind_speed_)
+    recipe.input_value_by_name('schedule', schedule_)
     recipe.input_value_by_name('solarcal-parameters', solar_body_par_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
 
