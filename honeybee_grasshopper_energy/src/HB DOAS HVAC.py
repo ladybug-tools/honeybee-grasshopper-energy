@@ -61,7 +61,7 @@ like auditoriums, kitchens, laundromats, etc.
 
 ghenv.Component.Name = "HB DOAS HVAC"
 ghenv.Component.NickName = 'DOASHVAC'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -84,7 +84,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -157,6 +157,15 @@ if all_required_inputs(ghenv.Component):
         hvac.display_name = _name_
 
     # apply the HVAC system to the rooms
+    vent_scheds = set()
     for room in rooms:
         if room.properties.energy.is_conditioned:
             room.properties.energy.hvac = hvac
+            vent_scheds.add(room.properties.energy.ventilation.schedule)
+
+    # give a warning if all of the ventilation schedules are not the same
+    if len(vent_scheds) > 1:
+        msg = 'The system type uses a central air loop but not all of the ' \
+            'rooms have the same ventilation schedule.\n' \
+            'All ventilation schedules will be ignored.'
+        give_warning(ghenv.Component, msg)

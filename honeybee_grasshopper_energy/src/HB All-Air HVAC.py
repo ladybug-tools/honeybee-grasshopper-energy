@@ -61,7 +61,7 @@ than systems that separate ventilation from the meeting of thermal loads.
 
 ghenv.Component.Name = "HB All-Air HVAC"
 ghenv.Component.NickName = 'AllAirHVAC'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -84,7 +84,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -161,6 +161,19 @@ if all_required_inputs(ghenv.Component):
         hvac.display_name = _name_
 
     # apply the HVAC system to the rooms
+    rel_rooms = []
     for room in rooms:
         if room.properties.energy.is_conditioned:
             room.properties.energy.hvac = hvac
+            rel_rooms.append(room)
+
+    # give a warning if all of the ventilation schedules are not the same
+    if 'PTAC' not in _sys_name and 'PTHP' not in _sys_name:
+        vent_scheds = set()
+        for rm in rel_rooms:
+            vent_scheds.add(rm.properties.energy.ventilation.schedule)
+        if len(vent_scheds) > 1:
+            msg = 'The system type uses a central air loop but not all of the ' \
+                'rooms have the same ventilation schedule.\n' \
+                'All ventilation schedules will be ignored.'
+            give_warning(ghenv.Component, msg)
