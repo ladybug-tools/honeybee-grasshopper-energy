@@ -52,7 +52,7 @@ through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run OSM'
 ghenv.Component.NickName = 'RunOSM'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
@@ -63,6 +63,7 @@ import json
 try:
     from honeybee_energy.run import run_osw, run_idf
     from honeybee_energy.result.err import Err
+    from honeybee_energy.result.osw import OSW
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -85,7 +86,17 @@ def run_osm_and_report_errors(i):
     with open(osw, 'w') as fp:
         json.dump(osw_dict, fp, indent=4)
 
+    # get an IDF from the OSM using the OpenStudio CLI
     osm_i, idf_i = run_osw(osw, silent=silent)
+    if idf_i is None:
+        log_osw = OSW(os.path.join(osw_directory, 'out.osw'))
+        errors = []
+        print(log_osw.stdout)
+        for error, tb in zip(log_osw.errors, log_osw.error_tracebacks):
+            print(tb)
+            errors.append(error)
+        raise Exception('Failed to run OpenStudio CLI:\n{}'.format('\n'.join(errors)))
+
     # process the additional strings
     if add_str_ != [] and add_str_[0] is not None and idf is not None:
         a_str = '/n'.join(add_str_)
@@ -130,7 +141,10 @@ if all_required_inputs(ghenv.Component) and _translate:
 
     # run the OSW files through OpenStudio CLI
     silent = True if run_ == 2 else False
-    workers = _cpu_count_ if _cpu_count_ is not None else recommended_processor_count()
+    if _cpu_count_ is not None:
+        workers = _cpu_count_
+    else:
+        workers = recommended_processor_count() if iter_count != 1 else 1
     run_function_in_parallel(run_osm_and_report_errors, iter_count, workers)
 
     # print out error report if it's only one file

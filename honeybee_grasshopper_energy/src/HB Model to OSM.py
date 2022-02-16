@@ -31,8 +31,7 @@ to an IDF file and then run through EnergyPlus.
             be used to write objects into the IDF that are not currently supported
             by Honeybee.
         _folder_: An optional folder on this computer, into which the IDF and result
-            files will be written.  NOTE THAT DIRECTORIES INPUT HERE SHOULD NOT HAVE
-            ANY SPACES OR UNDERSCORES IN THE FILE PATH.
+            files will be written.
         _write: Set to "True" to write out the honeybee jsons (containing the Honeybee
             Model and Simulation Parameters) and write the OpenStudio Workflow
             (.osw) file with instructions for executing the simulation.
