@@ -42,7 +42,7 @@ Run an IDF file through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run IDF'
 ghenv.Component.NickName = 'RunIDF'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
@@ -116,7 +116,10 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # run the IDF files through E+
     silent = True if _run == 2 else False
-    workers = _cpu_count_ if _cpu_count_ is not None else recommended_processor_count()
+    if _cpu_count_ is not None:
+        workers = _cpu_count_
+    else:
+        workers = recommended_processor_count() if iter_count != 1 else 1
     run_function_in_parallel(run_idf_and_report_errors, iter_count, workers)
 
     # print out error report if it's only one

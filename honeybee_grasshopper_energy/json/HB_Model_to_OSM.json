@@ -100,7 +100,7 @@
     {
       "access": "item", 
       "name": "_folder_", 
-      "description": "An optional folder on this computer, into which the IDF and result\nfiles will be written.  NOTE THAT DIRECTORIES INPUT HERE SHOULD NOT HAVE\nANY SPACES OR UNDERSCORES IN THE FILE PATH.", 
+      "description": "An optional folder on this computer, into which the IDF and result\nfiles will be written.", 
       "type": "string", 
       "default": null
     }, 
