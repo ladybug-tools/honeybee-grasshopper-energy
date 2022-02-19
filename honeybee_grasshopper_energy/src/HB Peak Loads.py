@@ -20,15 +20,26 @@ room-level peak cooling and heating on summer and winter design days.
             design day conditions for the peak load analysis. This can also
             be the path to an .epw file, in which case design days will be
             determined by statitically analysing the annual data to approximate
-            0.4% and 99.6% design conditions. Note that .ddy files can also be
-            created using the "DF Construct Design Day" and "DF Write DDY"
-            components.
+            0.4% and 99.6% design conditions.
             _
-            When constructing custom design days, it is recommended that the .ddy
-            file contain only one summer and one winter design day. If mutliple
-            summer or winter design days are found, they will be filtered according
-            to their name in order to identify the 0.4% and 99.6% design conditions
-            for the sensible (dry bulb temperature) design days.
+            Note that custom .ddy files can be crafted from EPW or STAT data
+            using the "LB EPW to DDY" component. They can also also be created
+            from raw sets of outdoor conditions using the "DF Construct Design
+            Day" and "DF Write DDY" components.
+            _
+            When constructing custom DDY files, it is recommended that the .ddy
+            file contain only one summer and one winter design day. Alternatively,
+            if you wish to specify multiple cooling design day conditions for
+            each month of the year (to evaluate solar load in each month),
+            each of these cooling design days should contain "0.4%" in the
+            design day name along with " DB=>MWB". This convention will
+            automatically be followed when using the "monthly_cool_" option
+            on the "LB EPW to DDY" component.
+            _
+            In this situation of multiple monthly cooling design days, this
+            component will report peak_cool zone sizes that correspond to the
+            highest month for each zone and the output cooling data collection
+            will be for the month with the highest coincident peak cooling.
         _north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees.
             90 is West and 270 is East. (Default: 0).
@@ -87,7 +98,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -149,24 +160,59 @@ def check_for_filter_failure(des_days):
         )
 
 
-def check_and_filter_des_days(sim_par, des_days, day_type):
+def find_max_cooling_des_day(des_days, sim_par, base_strs):
+    """Find the cooling design day with the highest coincident peak load."""
+    # create sizing parameters with all of the design days
+    sim_par_dup = sim_par.duplicate()
+    sim_par_dup.output.outputs = None
+    for dy in des_days:
+        sim_par_dup.sizing_parameter.add_design_day(dy)
+    # write the IDF and run the sizing calculation
+    idf_str_init = '\n\n'.join([sim_par_dup.to_idf()] + base_strs)
+    idf = os.path.join(directory, 'in.idf')
+    write_to_file_by_name(directory, 'in.idf', idf_str_init, True)
+    sql, zsz, rdd, html, err = run_idf(idf, silent=True)
+    # determine the design day with the highest peak using the sizing results
+    sql_obj = SQLiteResult(sql)
+    d_day_dict = {d_day.name.upper(): [0, d_day] for d_day in des_days}
+    peak_cool_dict = {}
+    for zs in sql_obj.zone_cooling_sizes:
+        d_day_dict[zs.design_day_name][0] += zs.calculated_design_load
+        peak_cool_dict[zs.zone_name] = zs.calculated_design_load
+    day_loads = list(d_day_dict.values())
+    day_loads.sort(key=lambda y: y[0])
+    
+    return [day_loads[-1][1]], peak_cool_dict
+
+
+def check_and_filter_des_days(sim_par, des_days, day_type, base_strs=None):
     """Filter design days to get the most appropriate one and assing it to sim_par."""
     if len(des_days) == 0:
         raise ValueError('No {}s were found in the connected .ddy file.'.format(day_type))
     elif len(des_days) == 1:  # just assign the one design day
         _sim_par_.sizing_parameter.add_design_day(des_days[0])
     else:  # find the most appropriate design day by percent
-        key_wrd = '99.6%' if day_type == 'WinterDesignDay' else '.4%'
-        des_days = [dday for dday in des_days if key_wrd in dday.name]
+        if day_type == 'WinterDesignDay':
+            des_days = [dday for dday in des_days if '99.6%' in dday.name]
+        else:
+            des_days = [dday for dday in des_days if '.4%' in dday.name or '.2%' in dday.name]
         check_for_filter_failure(des_days)
         if len(des_days) == 1:
             _sim_par_.sizing_parameter.add_design_day(des_days[0])
         else:  # find the most appropriate design day bu type
-            key_wrd = ' DB' if day_type == 'WinterDesignDay' else ' DB=>MWB'
-            des_days = [dday for dday in des_days if key_wrd in dday.name]
+            peak_cool_dict = None
+            if day_type == 'WinterDesignDay':
+                des_days = [dday for dday in des_days if ' DB' in dday.name]
+            else:
+                des_days = [dday for dday in des_days if ' DB=>MCWB' in dday.name or
+                            ' DB=>MWB' in dday.name]
+                if len(des_days) > 1:
+                    des_days, peak_cool_dict = find_max_cooling_des_day(
+                        des_days, sim_par, base_strs)
             check_for_filter_failure(des_days)
             if len(des_days) == 1:
                 _sim_par_.sizing_parameter.add_design_day(des_days[0])
+                return peak_cool_dict
             else:
                 check_for_filter_failure([])
 
@@ -273,31 +319,36 @@ if all_required_inputs(ghenv.Component) and _run:
         except AttributeError:  # north angle instead of vector
             _sim_par_.north_angle = float(_north_)
 
-    # load design days to the simulation parameters
-    if _ddy_file.lower().endswith('.epw'):  # load design days from EPW
-        epw_obj = EPW(_ddy_file)
-        des_days = epw_obj.best_available_design_days()
-        _sim_par_.sizing_parameter.design_days = des_days
-        location = epw_obj.location
-    else:  # load design days from DDY
-        ddy_obj = DDY.from_ddy_file(_ddy_file)
-        w_days = [day for day in ddy_obj.design_days if day.day_type == 'WinterDesignDay']
-        s_days = [day for day in ddy_obj.design_days if day.day_type == 'SummerDesignDay']
-        check_and_filter_des_days(_sim_par_, w_days, 'WinterDesignDay')
-        check_and_filter_des_days(_sim_par_, s_days, 'SummerDesignDay')
-        location = ddy_obj.location
-
-    # get the dates of the heating and cooling design days
-    h_dt = _sim_par_.sizing_parameter.design_days[0].sky_condition.date
-    c_dt = _sim_par_.sizing_parameter.design_days[1].sky_condition.date
-    tst = _sim_par_.timestep
-    heat_ap = AnalysisPeriod(h_dt.month, h_dt.day, 0, h_dt.month, h_dt.day, 23, tst)
-    cool_ap = AnalysisPeriod(c_dt.month, c_dt.day, 0, c_dt.month, c_dt.day, 23, tst)
-
     # create the strings for simulation paramters and model
     ver_str = energyplus_idf_version() if energy_folders.energyplus_version \
         is not None else energyplus_idf_version(compatibe_ep_version)
     model_str = _model.to.idf(_model, schedule_directory=sch_directory)
+
+    # load design days to the simulation parameters
+    peak_cool_dict = None
+    if _ddy_file.lower().endswith('.epw'):  # load design days from EPW
+        epw_obj = EPW(_ddy_file)
+        location = epw_obj.location
+        des_days = epw_obj.best_available_design_days()
+        _sim_par_.sizing_parameter.design_days = reversed(des_days)
+    else:  # load design days from DDY
+        ddy_obj = DDY.from_ddy_file(_ddy_file)
+        location = ddy_obj.location
+        s_days = [day for day in ddy_obj.design_days if day.day_type == 'SummerDesignDay']
+        base_strs = [ver_str, location.to_idf(), model_str]
+        peak_cool_dict = check_and_filter_des_days(
+            _sim_par_, s_days, 'SummerDesignDay', base_strs)
+        w_days = [day for day in ddy_obj.design_days if day.day_type == 'WinterDesignDay']
+        check_and_filter_des_days(_sim_par_, w_days, 'WinterDesignDay')
+
+    # get the dates of the heating and cooling design days
+    h_dt = _sim_par_.sizing_parameter.design_days[1].sky_condition.date
+    c_dt = _sim_par_.sizing_parameter.design_days[0].sky_condition.date
+    tst = _sim_par_.timestep
+    heat_ap = AnalysisPeriod(h_dt.month, h_dt.day, 0, h_dt.month, h_dt.day, 23, tst)
+    cool_ap = AnalysisPeriod(c_dt.month, c_dt.day, 0, c_dt.month, c_dt.day, 23, tst)
+
+    # bring all of the IDF strings together
     idf_str = '\n\n'.join([ver_str, location.to_idf(), _sim_par_.to_idf(), model_str])
 
     # write the final string into an IDF
@@ -323,8 +374,9 @@ if all_required_inputs(ghenv.Component) and _run:
     # parse the result sql and get the timestep data collections
     if os.name == 'nt':  # we are on windows; use IronPython like usual
         sql_obj = SQLiteResult(sql)
-        peak_cool_dict = {zs.zone_name: zs.calculated_design_load
-                          for zs in sql_obj.zone_cooling_sizes}
+        if peak_cool_dict is None:
+            peak_cool_dict = {zs.zone_name: zs.calculated_design_load
+                              for zs in sql_obj.zone_cooling_sizes}
         peak_heat_dict = {zs.zone_name: zs.calculated_design_load
                           for zs in sql_obj.zone_heating_sizes}
     else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
@@ -334,8 +386,9 @@ if all_required_inputs(ghenv.Component) and _run:
         process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
         stdout = process.communicate()
         peak_dicts = json.loads(stdout[0])
-        peak_cool_dict = {zs['zone_name']: zs['calculated_design_load']
-                          for zs in peak_dicts['cooling']}
+        if peak_cool_dict is None:
+            peak_cool_dict = {zs['zone_name']: zs['calculated_design_load']
+                              for zs in peak_dicts['cooling']}
         peak_heat_dict = {zs['zone_name']: zs['calculated_design_load']
                           for zs in peak_dicts['heating']}
     peak_cool, peak_heat = [], []
