@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0", 
+  "version": "1.4.1", 
   "nickname": "ReadHVAC", 
   "outputs": [
     [
@@ -13,14 +13,14 @@
       {
         "access": "None", 
         "name": "zone_peak_cool", 
-        "description": "A list of numbers for the peak cooling load of each zone\non the summer design day. These correspond to the zone_names above.", 
+        "description": "A list of numbers for the peak cooling load of each zone\non the summer design day. These correspond to the zone_names above.\nAll values are in Watts.", 
         "type": null, 
         "default": null
       }, 
       {
         "access": "None", 
         "name": "zone_peak_heat", 
-        "description": "A list of numbers for the peak heating load of each zone\non the winter design day. These correspond to the zone_names above.", 
+        "description": "A list of numbers for the peak heating load of each zone\non the winter design day. These correspond to the zone_names above.\nAll values are in Watts.", 
         "type": null, 
         "default": null
       }, 
@@ -41,7 +41,7 @@
       {
         "access": "None", 
         "name": "comp_values", 
-        "description": "Values denoting the size of various zone HVAC components \n(eg. zone terminal sizes, boiler/chiller sizes, lengths of chilled\nbeams, etc.). These correspond to the comp_properties above.", 
+        "description": "Values denoting the size of various zone HVAC components \n(eg. zone terminal sizes, boiler/chiller sizes, lengths of chilled\nbeams, etc.). These correspond to the comp_properties above.\nValues may be in different units (eg. W, m/s, etc.) depending\non the property of the component being observed.", 
         "type": null, 
         "default": null
       }
