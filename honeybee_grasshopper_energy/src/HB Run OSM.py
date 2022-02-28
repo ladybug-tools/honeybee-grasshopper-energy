@@ -52,7 +52,7 @@ through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run OSM'
 ghenv.Component.NickName = 'RunOSM'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
@@ -82,6 +82,12 @@ def run_osm_and_report_errors(i):
         'weather_file': _epw_file
         }
     osw_directory = os.path.dirname(_osm[i])
+    sch_directory1 = os.path.join(os.path.dirname(osw_directory), 'schedules')
+    sch_directory2 = os.path.join(osw_directory, 'schedules')
+    if os.path.isdir(sch_directory1):
+        osw_dict['file_paths'] = [sch_directory1]
+    elif os.path.isdir(sch_directory2):
+        osw_dict['file_paths'] = [sch_directory2]
     osw = os.path.join(osw_directory, 'workflow.osw')
     with open(osw, 'w') as fp:
         json.dump(osw_dict, fp, indent=4)
