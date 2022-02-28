@@ -98,7 +98,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -322,7 +322,8 @@ if all_required_inputs(ghenv.Component) and _run:
     # create the strings for simulation paramters and model
     ver_str = energyplus_idf_version() if energy_folders.energyplus_version \
         is not None else energyplus_idf_version(compatibe_ep_version)
-    model_str = _model.to.idf(_model, schedule_directory=sch_directory)
+    model_str = _model.to.idf(
+        _model, schedule_directory=sch_directory, patch_missing_adjacencies=True)
 
     # load design days to the simulation parameters
     peak_cool_dict = None

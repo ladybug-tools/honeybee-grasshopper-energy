@@ -96,7 +96,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -272,7 +272,8 @@ if all_required_inputs(ghenv.Component) and _run:
     ver_str = energyplus_idf_version() if energy_folders.energyplus_version \
         is not None else energyplus_idf_version(compatibe_ep_version)
     sim_par_str = _sim_par_.to_idf()
-    model_str = _model.to.idf(_model, schedule_directory=sch_directory)
+    model_str = _model.to.idf(
+        _model, schedule_directory=sch_directory, patch_missing_adjacencies=True)
     idf_str = '\n\n'.join([ver_str, sim_par_str, model_str])
 
     # write the final string into an IDF
