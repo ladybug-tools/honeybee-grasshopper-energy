@@ -42,6 +42,11 @@ greater will be considered occupied. All hours of the outdoors are considered oc
             also be Vector for the direction to North. (Default: 0).
         run_period_: An AnalysisPeriod to set the start and end dates of the simulation.
             If None, the simulation will be annual.
+        add_str_: THIS OPTION IS FOR ADVANCED USERS OF ENERGYPLUS. You can
+            input additional text strings here to be appended to the IDF before
+            energy simulation.  The input should be complete EnergyPlus objects
+            following the IDF format. This input can be used to write objects
+            into the IDF that are not currently supported by Honeybee.
         _air_speed_: A single number for air speed in m/s or an hourly data collection
             of air speeds that align with the input run_period_. This will be
             used for all indoor comfort evaluation. Note that the EPW wind speed
@@ -65,6 +70,13 @@ greater will be considered occupied. All hours of the outdoors are considered oc
 
     Returns:
         report: Reports, errors, warnings, etc.
+        env_conds: A folder containing CSV matrices with all of the environmental conditions
+            that were input to the comfort model. These can be loaded into Grasshopper
+            using the "HB Read Environment Matrix" component. This includes the following.
+                * MRT
+                * Air Temperature
+                * Longwave MRT
+                * Shortwave MRT Delta
         op_temp: A folder containing CSV maps of Operative Temperature for each sensor
             grid at each time step of the analysis. This can be connected to the
             "HB Read Thermal Matrix" component to parse detailed results into
@@ -113,7 +125,7 @@ greater will be considered occupied. All hours of the outdoors are considered oc
 
 ghenv.Component.Name = 'HB Adaptive Comfort Map'
 ghenv.Component.NickName = 'AdaptiveMap'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -137,6 +149,7 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('ddy', _ddy)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('run-period', run_period_)
+    recipe.input_value_by_name('additional-idf', add_str_)
     recipe.input_value_by_name('air-speed', _air_speed_)
     recipe.input_value_by_name('comfort-parameters', comfort_par_)
     recipe.input_value_by_name('solarcal-parameters', solar_body_par_)
@@ -149,6 +162,7 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # load the results
     try:
+        env_conds = recipe_result(recipe.output_value_by_name('environmental-conditions', project_folder))
         op_temp = recipe_result(recipe.output_value_by_name('temperature', project_folder))
         condition = recipe_result(recipe.output_value_by_name('condition', project_folder))
         deg_neut = recipe_result(recipe.output_value_by_name('degrees-from-neutral', project_folder))
