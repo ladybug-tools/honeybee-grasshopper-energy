@@ -43,6 +43,11 @@ greater will be considered occupied. All hours of the outdoors are considered oc
             also be Vector for the direction to North. (Default: 0).
         run_period_: An AnalysisPeriod to set the start and end dates of the simulation.
             If None, the simulation will be annual.
+        add_str_: THIS OPTION IS FOR ADVANCED USERS OF ENERGYPLUS. You can
+            input additional text strings here to be appended to the IDF before
+            energy simulation.  The input should be complete EnergyPlus objects
+            following the IDF format. This input can be used to write objects
+            into the IDF that are not currently supported by Honeybee.
         write_set_map_: A boolean to note whether the output temperature CSV should
             record Operative Temperature or Standard Effective Temperature (SET).
             SET is relatively intense to compute and so only recording Operative
@@ -78,6 +83,14 @@ greater will be considered occupied. All hours of the outdoors are considered oc
 
     Returns:
         report: Reports, errors, warnings, etc.
+        env_conds: A folder containing CSV matrices with all of the environmental conditions
+            that were input to the comfort model. These can be loaded into Grasshopper
+            using the "HB Read Environment Matrix" component. This includes the following.
+                * MRT
+                * Air Temperature
+                * Relative Humidity
+                * Longwave MRT
+                * Shortwave MRT Delta
         temperature: A folder containing CSV maps of Operative Temperature for each sensor
             grid at each time step of the analysis. Alternatively, if the
             write_set_map_ option is used, the CSV maps here will contain
@@ -127,7 +140,7 @@ greater will be considered occupied. All hours of the outdoors are considered oc
 
 ghenv.Component.Name = 'HB PMV Comfort Map'
 ghenv.Component.NickName = 'PMVMap'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -151,6 +164,7 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('ddy', _ddy)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('run-period', run_period_)
+    recipe.input_value_by_name('additional-idf', add_str_)
     recipe.input_value_by_name('write-set-map', write_set_map_)
     recipe.input_value_by_name('air-speed', _air_speed_)
     recipe.input_value_by_name('met-rate', _met_rate_)
@@ -166,6 +180,7 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # load the results
     try:
+        env_conds = recipe_result(recipe.output_value_by_name('environmental-conditions', project_folder))
         temperature = recipe_result(recipe.output_value_by_name('temperature', project_folder))
         condition = recipe_result(recipe.output_value_by_name('condition', project_folder))
         pmv = recipe_result(recipe.output_value_by_name('pmv', project_folder))

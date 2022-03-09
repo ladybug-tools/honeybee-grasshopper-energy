@@ -74,6 +74,14 @@ considered occupied.
 
     Returns:
         report: Reports, errors, warnings, etc.
+        env_conds: A folder containing CSV matrices with all of the environmental conditions
+            that were input to the comfort model. These can be loaded into Grasshopper
+            using the "HB Read Environment Matrix" component. This includes the following.
+                * MRT
+                * Air Temperature
+                * Relative Humidity
+                * Longwave MRT
+                * Shortwave MRT Delta
         utci: A folder containing CSV maps of Universal Thermal Climate Index (UTCI)
             temperatures for each sensor grid at each time step of the analysis.
             This can be connected to the "HB Read Thermal Matrix" component to
@@ -133,7 +141,7 @@ considered occupied.
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -169,6 +177,7 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # load the results
     try:
+        env_conds = recipe_result(recipe.output_value_by_name('environmental-conditions', project_folder))
         utci = recipe_result(recipe.output_value_by_name('utci', project_folder))
         condition = recipe_result(recipe.output_value_by_name('condition', project_folder))
         category = recipe_result(recipe.output_value_by_name('category', project_folder))
