@@ -24,8 +24,14 @@ and drop ceilings.
         conditioned_: Boolean to indicate whether the plenum is conditioned with a
             heating/cooling system. If True, the setpoints of the Room will also
             be kept in addition to the heating/cooling system (Default: False).
-        remove_infilt_: Boolean to indicate whether infiltration should be removed
-            from the Rooms. (Default: False).
+        remove_infilt_: Boolean to indicate whether infiltration should be removed from
+            the Rooms. If False, infiltration will be preserved and will be the
+            only load assinged to the plenum. (Default: False).
+        include_floor_: Boolean to indicate whether the floor area of the plenum contributes
+            to the Model it is a part of. Note that this will not affect the
+            floor_area property of this Room but it will ensure the Room's
+            floor area is excluded from any calculations when the Room is part
+            of a Model and when it is simulated in EnergyPlus.
 
     Returns:
         rooms: Rooms that have had their interinal loads removed to reflect a
@@ -34,7 +40,7 @@ and drop ceilings.
 
 ghenv.Component.Name = 'HB Plenum'
 ghenv.Component.NickName = 'Plenum'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
@@ -49,4 +55,4 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     rooms = [room.duplicate() for room in _rooms]  # duplicate to avoid editing input
     for room in rooms:
-        room.properties.energy.make_plenum(conditioned_, remove_infilt_)
+        room.properties.energy.make_plenum(conditioned_, remove_infilt_, include_floor_)
