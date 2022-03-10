@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0", 
+  "version": "1.4.1", 
   "nickname": "Plenum", 
   "outputs": [
     [
@@ -30,13 +30,20 @@
     {
       "access": "item", 
       "name": "remove_infilt_", 
-      "description": "Boolean to indicate whether infiltration should be removed\nfrom the Rooms. (Default: False).", 
+      "description": "Boolean to indicate whether infiltration should be removed from\nthe Rooms. If False, infiltration will be preserved and will be the\nonly load assinged to the plenum. (Default: False).", 
+      "type": "bool", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "include_floor_", 
+      "description": "Boolean to indicate whether the floor area of the plenum contributes\nto the Model it is a part of. Note that this will not affect the\nfloor_area property of this Room but it will ensure the Room's\nfloor area is excluded from any calculations when the Room is part\nof a Model and when it is simulated in EnergyPlus.", 
       "type": "bool", 
       "default": null
     }
   ], 
   "subcategory": "0 :: Basic Properties", 
-  "code": "\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    rooms = [room.duplicate() for room in _rooms]  # duplicate to avoid editing input\n    for room in rooms:\n        room.properties.energy.make_plenum(conditioned_, remove_infilt_)\n", 
+  "code": "\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    rooms = [room.duplicate() for room in _rooms]  # duplicate to avoid editing input\n    for room in rooms:\n        room.properties.energy.make_plenum(conditioned_, remove_infilt_, include_floor_)\n", 
   "category": "HB-Energy", 
   "name": "HB Plenum", 
   "description": "Turn Honeybee Rooms into Plenums with no internal loads.\n_\nThis includes removing all people, lighting, equipment, hot water, and mechanical\nventilation. By default, the heating/cooling system and setpoints will also be\nremoved but they can optionally be kept. Infiltration is kept by default but\ncan optionally be removed as well.\n_\nThis is useful to appropriately assign properties for closets, underfloor spaces,\nand drop ceilings.\n-"
