@@ -37,7 +37,7 @@ comfort matrix.
 
 ghenv.Component.Name = 'HB Visualize Thermal Map'
 ghenv.Component.NickName = 'VizThermalMap'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -51,8 +51,9 @@ try:
     from ladybug.graphic import GraphicContainer
     from ladybug.legend import LegendParameters
     from ladybug.color import Colorset
+    from ladybug.datatype.fraction import RelativeHumidity
     from ladybug.datatype.temperature import Temperature
-    from ladybug.datatype.temperaturedelta import TemperatureDelta
+    from ladybug.datatype.temperaturedelta import TemperatureDelta, RadiantTemperatureDelta
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
@@ -73,7 +74,7 @@ def colors_from_data_type(data_type):
     Args:
         data_type: A data type object that will be used to determine default colors.
     """
-    if isinstance(data_type, Temperature):
+    if isinstance(data_type, (Temperature, RadiantTemperatureDelta, RelativeHumidity)):
         return Colorset.original()
     else:  # it is some type of thermal condition or delta temperature
         return Colorset.thermal_comfort()
@@ -106,8 +107,9 @@ if all_required_inputs(ghenv.Component):
     # set titles and set default colors and color ranges
     if graphic.legend_parameters.are_colors_default:
         graphic.legend_parameters.colors = colors_from_data_type(header.data_type)
-    if isinstance(header.data_type, TemperatureDelta) and graphic.legend.is_min_default \
-            and graphic.legend.is_max_default:
+    if isinstance(header.data_type, TemperatureDelta) and not \
+            isinstance(header.data_type, RadiantTemperatureDelta) and \
+            graphic.legend.is_min_default and graphic.legend.is_max_default:
         graphic.legend_parameters.min = -5
         graphic.legend_parameters.max = 5
     graphic.legend_parameters.title = header.unit
