@@ -98,7 +98,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.4.2'
+ghenv.Component.Message = '1.4.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -144,7 +144,7 @@ except ImportError as e:
 try:
     from ladybug_rhino.togeometry import to_vector2d
     from ladybug_rhino.config import tolerance, angle_tolerance, units_system
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -366,11 +366,17 @@ if all_required_inputs(ghenv.Component) and _run:
             raise Exception(error)
 
     # parse the result ZSZ and get the timestep data collections
-    zsz_obj = ZSZ(zsz)
-    cool_init = zsz_obj.cooling_load_data
-    heat_init = zsz_obj.heating_load_data
-    cooling = data_to_load(cool_init, 'Cooling', cool_ap)
-    heating = data_to_load(heat_init, 'Heating', heat_ap)
+    if zsz is not None:
+        zsz_obj = ZSZ(zsz)
+        cool_init = zsz_obj.cooling_load_data
+        heat_init = zsz_obj.heating_load_data
+        cooling = data_to_load(cool_init, 'Cooling', cool_ap)
+        heating = data_to_load(heat_init, 'Heating', heat_ap)
+    else:
+        msg = 'None of the rooms in the model are conditioned.\nAll rooms will ' \
+            'have a peak load of zero and no cooling data collection will be output.'
+        print(msg)
+        give_warning(ghenv.Component, msg)
 
     # parse the result sql and get the timestep data collections
     if os.name == 'nt':  # we are on windows; use IronPython like usual
