@@ -48,10 +48,18 @@ considered occupied.
             If None, the simulation will be annual.
         _wind_speed_: A single number for meteorological wind speed in m/s or an hourly
             data collection of wind speeds that align with the input run_period_.
-            This will be used for all outdoor comfort evaluation. Note that all
-            sensors on the indoors will always use a wind speed of 0.5 m/s,
-            which is the lowest acceptable value for the UTCI model. If
-            unspecified, the EPW wind speed will be used for all outdoor sensors.
+            This will be used for all outdoor comfort evaluation.
+            _
+            This can also be the path to a folder with csv files that align with
+            the model sensor grids. Each csv file should have the same name as
+            the sensor grid. Each csv file should contain a matrix of air speed
+            values in m/s with one row per sensor and one column per timestep
+            of the run period. Note that, when using this type of matrix input,
+            these values are not meteorological and should be AT HUMAN SUBJECT LEVEL.
+            _
+            If unspecified, the EPW wind speed will be used for all outdoor sensors
+            and all sensors on the indoors will use a wind speed of 0.5 m/s,
+            which is the lowest acceptable value for the UTCI model.
         schedule_: A schedule to specify the relevant times during which comfort
             should be evaluated. This must either be a Ladybug Hourly Data
             Collection that aligns with the input run_period_ or the path to a
@@ -141,10 +149,12 @@ considered occupied.
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.4.2'
+ghenv.Component.Message = '1.4.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
+
+import os
 
 try:
     from lbt_recipes.recipe import Recipe
@@ -165,7 +175,10 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('ddy', _ddy)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('run-period', run_period_)
-    recipe.input_value_by_name('wind-speed', _wind_speed_)
+    if _wind_speed_ is not None and os.path.isdir(_wind_speed_):
+        recipe.input_value_by_name('air-speed-matrices', _wind_speed_)
+    else:
+        recipe.input_value_by_name('wind-speed', _wind_speed_)
     recipe.input_value_by_name('schedule', schedule_)
     recipe.input_value_by_name('solarcal-parameters', solar_body_par_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
