@@ -61,7 +61,7 @@ than systems that separate ventilation from the meeting of thermal loads.
 
 ghenv.Component.Name = "HB All-Air HVAC"
 ghenv.Component.NickName = 'AllAirHVAC'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -162,10 +162,19 @@ if all_required_inputs(ghenv.Component):
 
     # apply the HVAC system to the rooms
     rel_rooms = []
+    hvac_count = 0
     for room in rooms:
         if room.properties.energy.is_conditioned:
             room.properties.energy.hvac = hvac
             rel_rooms.append(room)
+            hvac_count += 1
+
+    # give a warning if no rooms were conditioned
+    if hvac_count == 0:
+        msg = 'None of the connected Rooms are conditioned.\n' \
+            'Set rooms to be conditioned using the "HB Set Conditioned" component.'
+        print(msg)
+        give_warning(ghenv.Component, msg)
 
     # give a warning if all of the ventilation schedules are not the same
     if 'PTAC' not in _sys_name and 'PTHP' not in _sys_name:

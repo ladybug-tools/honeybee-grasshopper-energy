@@ -61,7 +61,7 @@ like auditoriums, kitchens, laundromats, etc.
 
 ghenv.Component.Name = "HB DOAS HVAC"
 ghenv.Component.NickName = 'DOASHVAC'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -158,14 +158,22 @@ if all_required_inputs(ghenv.Component):
 
     # apply the HVAC system to the rooms
     vent_scheds = set()
+    hvac_count = 0
     for room in rooms:
         if room.properties.energy.is_conditioned:
             room.properties.energy.hvac = hvac
             vent_scheds.add(room.properties.energy.ventilation.schedule)
+            hvac_count += 1
 
-    # give a warning if all of the ventilation schedules are not the same
+    # give a warning if no rooms were conditioned or ventilation schedules are unequal
+    if hvac_count == 0:
+        msg = 'None of the connected Rooms are conditioned.\n' \
+            'Set rooms to be conditioned using the "HB Set Conditioned" component.'
+        print(msg)
+        give_warning(ghenv.Component, msg)
     if len(vent_scheds) > 1:
         msg = 'The system type uses a central air loop but not all of the ' \
             'rooms have the same ventilation schedule.\n' \
             'All ventilation schedules will be ignored.'
+        print(msg)
         give_warning(ghenv.Component, msg)

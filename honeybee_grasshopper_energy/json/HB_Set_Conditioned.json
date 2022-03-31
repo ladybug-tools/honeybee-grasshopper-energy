@@ -1,0 +1,36 @@
+{
+  "version": "1.4.0", 
+  "nickname": "Conditioned", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "rooms", 
+        "description": "Rooms that have had their interinal loads removed to reflect a\nplenum space.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms", 
+      "description": "Honeybee Rooms to have their conditioned property set.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_conditioned", 
+      "description": "Boolean to indicate whether the rooms are conditioned with a\nheating/cooling system.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "4 :: HVAC", 
+  "code": "\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    rooms = [room.duplicate() for room in _rooms]  # duplicate to avoid editing input\n    if _conditioned:\n        for room in rooms:\n            if not room.properties.energy.is_conditioned:\n                room.properties.energy.add_default_ideal_air()\n    else:\n        for room in rooms:\n            room.properties.energy.hvac = None\n", 
+  "category": "HB-Energy", 
+  "name": "HB Set Conditioned", 
+  "description": "Set Honeybee Rooms to be conditioned or unconditioned with a heating/cooling system.\n_\nIf _conditioned is True and the connected rooms are not currently conditioned,\nan Ideal Air System will be assigned to them. Otherwise, if they are already\nconditioned, the existing HVAC system will be left as it is.\n-"
+}
