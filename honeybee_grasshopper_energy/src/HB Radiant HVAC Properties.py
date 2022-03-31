@@ -38,7 +38,7 @@ often requires
 
 ghenv.Component.Name = 'HB Radiant HVAC Properties'
 ghenv.Component.NickName = 'RadiantHVAC'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -100,4 +100,5 @@ if all_required_inputs(ghenv.Component):
         msg = 'No Rooms with a Radiant HVAC were found among the connected _rooms.\n' \
             'Make sure that a Radiant HVAC has been assigned with either the\n' \
             '"HB DOAS HVAC" or "HB HeatCool HVAC" component.'
+        print(msg)
         give_warning(ghenv.Component, msg)

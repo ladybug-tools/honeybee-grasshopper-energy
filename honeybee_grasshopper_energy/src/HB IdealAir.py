@@ -51,7 +51,7 @@ Apply a customized IdealAirSystem to Honeybee Rooms.
 
 ghenv.Component.Name = "HB IdealAir"
 ghenv.Component.NickName = 'IdealAir'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -69,7 +69,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -91,12 +91,14 @@ if all_required_inputs(ghenv.Component):
         else:
             rooms.append(hb_obj.duplicate())
 
+    # loop through the rooms and adjust their properties
+    hvac_count = 0
     for room in rooms:
         if room.properties.energy.is_conditioned:
             # check to be sure the assigned HVAC system is an IdealAirSystem
             if not isinstance(room.properties.energy.hvac, IdealAirSystem):
                 room.properties.energy.add_default_ideal_air()
-            
+
             # create the customized ideal air system
             new_ideal_air = room.properties.energy.hvac.duplicate()
             if _economizer_ is not None:
@@ -119,6 +121,14 @@ if all_required_inputs(ghenv.Component):
                 new_ideal_air.cooling_limit = alt_numbers[_cool_limit_]
             except KeyError:
                 new_ideal_air.cooling_limit = _cool_limit_
-            
+
             # assign the HVAC to the Room
             room.properties.energy.hvac = new_ideal_air
+            hvac_count += 1
+
+    # give a warning if no rooms were conditioned
+    if hvac_count == 0:
+        msg = 'None of the connected Rooms are conditioned.\n' \
+            'Set rooms to be conditioned using the "HB Set Conditioned" component.'
+        print(msg)
+        give_warning(ghenv.Component, msg)
