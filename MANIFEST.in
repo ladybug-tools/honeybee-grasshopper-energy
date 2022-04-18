@@ -1,3 +1,8 @@
 recursive-include honeybee_grasshopper_energy/user_objects *.ghuser
 recursive-exclude honeybee_grasshopper_energy/json *.json
 recursive-exclude honeybee_grasshopper_energy/icon *.png
+recursive-exclude samples *
+recursive-exclude .github *
+exclude .gitignore
+exclude .releaserc.json
+exclude deploy.sh
