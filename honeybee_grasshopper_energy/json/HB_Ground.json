@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0", 
+  "version": "1.4.1", 
   "nickname": "Ground", 
   "outputs": [
     [
@@ -23,7 +23,7 @@
     {
       "access": "item", 
       "name": "_soil_constr_", 
-      "description": "An OpaqueConstruction that reflects the soil type of the ground.\nThis can also be text for a construction to be looked up in the opaque\nconstruction library. If a multi-layered construction is input, the multiple\nlayers will only be used for the roof Face of the Room and all other\nFaces will get a construction with the inner-most layer assigned. Some\ncommon types of soil constructions contained in the default honeybee\nstandards library are listed below. (Default: Concrete Pavement).\n_\nDry Sand\nDry Dust\nMoist Soil\nMud\nConcrete Pavement\nAsphalt Pavement\nSolid Rock", 
+      "description": "An OpaqueConstruction that reflects the soil type of the ground.\nThis can also be text for a construction to be looked up in the opaque\nconstruction library. If a multi-layered construction is input, the multiple\nlayers will only be used for the roof Face of the Room and all other\nFaces will get a construction with the inner-most layer assigned. Some\ncommon types of soil constructions contained in the default honeybee\nstandards library are listed below. (Default: Concrete Pavement).\n_\nGrassy Lawn\nDry Sand\nDry Dust\nMoist Soil\nMud\nConcrete Pavement\nAsphalt Pavement\nSolid Rock", 
       "type": "System.Object", 
       "default": null
     }

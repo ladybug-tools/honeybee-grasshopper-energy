@@ -38,6 +38,7 @@ Soil Heat Capacity - http://www.engineeringtoolbox.com/specific-heat-capacity-d_
             common types of soil constructions contained in the default honeybee
             standards library are listed below. (Default: Concrete Pavement).
             _
+            Grassy Lawn
             Dry Sand
             Dry Dust
             Moist Soil
@@ -53,7 +54,7 @@ Soil Heat Capacity - http://www.engineeringtoolbox.com/specific-heat-capacity-d_
 
 ghenv.Component.Name = 'HB Ground'
 ghenv.Component.NickName = 'Ground'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
