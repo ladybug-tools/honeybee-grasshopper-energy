@@ -14,7 +14,12 @@ Run an IDF file through EnergyPlus.
     Args:
         _idf: Path to an IDF file as a text string. This can also be a list of
             IDF files.
-        _epw_ile: Path to an .epw file as a text string.
+        _epw_file: Path to an .epw file as a text string.
+        add_str_: THIS OPTION IS JUST FOR ADVANCED USERS OF ENERGYPLUS.
+            You can input additional text strings here that you would like
+            written into the IDF.  The strings input here should be complete
+            EnergyPlus objects that are correctly formatted. This input can be used to
+            write objects into the IDF that are not currently supported by Honeybee.
         _cpu_count_: An integer to set the number of CPUs used in the execution of each
             connected IDF file. If unspecified, it will automatically default
             to one less than the number of CPUs currently available on the
@@ -42,7 +47,7 @@ Run an IDF file through EnergyPlus.
 
 ghenv.Component.Name = 'HB Run IDF'
 ghenv.Component.NickName = 'RunIDF'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
@@ -70,8 +75,13 @@ except ImportError as e:
 
 def run_idf_and_report_errors(i):
     """Run an IDF file through EnergyPlus and report errors/warnings on this component."""
-    idf = idfs[i]
-    sql_i, zsz_i, rdd_i, html_i, err_i = run_idf(idf, _epw_file, silent=silent)
+    # process the additional strings
+    idf_i = idfs[i]
+    if add_str_ != [] and add_str_[0] is not None:
+        a_str = '/n'.join(add_str_)
+        with open(idf_i, "a") as idf_file:
+            idf_file.write(a_str)
+    sql_i, zsz_i, rdd_i, html_i, err_i = run_idf(idf_i, _epw_file, silent=silent)
 
     # report any errors on this component
     if err_i is not None:
