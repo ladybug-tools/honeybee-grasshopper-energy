@@ -39,8 +39,13 @@ considered occupied.
             this model should have radiance grids assigned to it in order
             to produce meaningful results.
         _epw: Path to an EPW weather file to be used for the comfort map simulation.
-        _ddy: Path to a DDY file with design days to be used for the initial sizing
-            calculation of the energy simulation.
+        ddy_: Path to a DDY file with design days to be used for the initial sizing
+            calculation of the energy simulation. Providing this input is important
+            when there are conditioned Room geometries in the model, in which
+            case the sizing of the building heating/cooling systems is important
+            for modeling the heat exchange between indoors and outdoors.
+            Otherwise, it can be ignored with little consequence for
+            the simulation.
         north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees. This can
             also be Vector for the direction to North. (Default: 0).
@@ -149,7 +154,7 @@ considered occupied.
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.4.3'
+ghenv.Component.Message = '1.4.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -172,7 +177,7 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe = Recipe('utci_comfort_map')
     recipe.input_value_by_name('model', _model)
     recipe.input_value_by_name('epw', _epw)
-    recipe.input_value_by_name('ddy', _ddy)
+    recipe.input_value_by_name('ddy', ddy_)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('run-period', run_period_)
     if _wind_speed_ is not None and os.path.isdir(_wind_speed_):
