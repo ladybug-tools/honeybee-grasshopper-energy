@@ -27,6 +27,7 @@ often requires
                 * Ceiling
                 * FloorWithCarpet
                 * CeilingMetalPanel
+                * FloorWithHardwood
         min_op_time_: A number for the minimum number of hours of operation
             for the radiant system before it shuts off. (Default: 1).
         switch_time_: A number for the minimum number of hours for when the system
@@ -38,7 +39,7 @@ often requires
 
 ghenv.Component.Name = 'HB Radiant HVAC Properties'
 ghenv.Component.NickName = 'RadiantHVAC'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.4.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
