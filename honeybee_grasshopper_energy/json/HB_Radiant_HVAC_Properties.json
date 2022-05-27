@@ -1,5 +1,5 @@
 {
-  "version": "1.4.1", 
+  "version": "1.4.2", 
   "nickname": "RadiantHVAC", 
   "outputs": [
     [
@@ -23,7 +23,7 @@
     {
       "access": "item", 
       "name": "radiant_type_", 
-      "description": "Text to indicate which faces are thermally active by default.\nNote that systems are assumed to be embedded in concrete slabs\nwith no insulation within the slab unless otherwise specified.\nChoose from the following. (Default: Floor).\n* Floor\n* Ceiling\n* FloorWithCarpet\n* CeilingMetalPanel", 
+      "description": "Text to indicate which faces are thermally active by default.\nNote that systems are assumed to be embedded in concrete slabs\nwith no insulation within the slab unless otherwise specified.\nChoose from the following. (Default: Floor).\n* Floor\n* Ceiling\n* FloorWithCarpet\n* CeilingMetalPanel\n* FloorWithHardwood", 
       "type": "string", 
       "default": null
     }, 
