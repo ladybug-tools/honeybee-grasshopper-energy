@@ -1,0 +1,29 @@
+{
+  "version": "1.4.0", 
+  "nickname": "PatchAdj", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "rooms", 
+        "description": "Rooms that have had their missing adjacencies patched.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms", 
+      "description": "A list of Honeybee Rooms which will have its adjacencies patched\nwith Adiabatic boundary conditions. This can also be an entire\nhonyebee Model. Any adjacnecy not found across all of the rooms\nwill be replaced with an Adiabatic boundary.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\n    from ladybug_{{cad}}.config import tolerance, units_system\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # collect all rooms and duplicate them\n    rooms = []\n    for hb_obj in _rooms:\n        if isinstance(hb_obj, Model):\n            rooms.extend(hb_obj.rooms)\n        elif isinstance(hb_obj, Room):\n            rooms.append(hb_obj)\n        else:\n            raise ValueError('Expected Room or Model object. Got {}.'.format(type(hb_obj)))\n    rooms = [room.duplicate() for room in rooms]  # duplicate to avoid editing input\n\n    # patch adjacency across all of the Rooms\n    adj_model = Model('patch_adj_model', rooms=rooms, tolerance=tolerance,\n                      units=units_system())\n    adj_model.properties.energy.missing_adjacencies_to_adiabatic()\n    rooms = adj_model.rooms\n", 
+  "category": "HB-Energy", 
+  "name": "HB Patch Missing Adjacency", 
+  "description": "Set any Faces of Rooms with missing adjacencies to Adiabatic.\n_\nThis is useful when simulating a subset of Rooms from a larger Model.\n_\nIf any of the Faces with missing adjacencies have sub-faces, these will be removed\nin order to accommodate the adiabatic condition. Similarly, if the Face is an\nAirBoundary, the type will be set to a Wall.\n-"
+}
