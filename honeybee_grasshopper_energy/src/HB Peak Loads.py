@@ -98,7 +98,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.4.3'
+ghenv.Component.Message = '1.4.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -275,7 +275,7 @@ def reorder_balance(balance, order):
 
 
 # List of the output strings that will be requested
-opaque_energy_flow_output = 'Surface Average Face Conduction Heat Transfer Energy'
+opaque_energy_flow_output = 'Surface Inside Face Conduction Heat Transfer Energy'
 window_loss_output = 'Surface Window Heat Loss Energy'
 window_gain_output = 'Surface Window Heat Gain Energy'
 all_output = \
