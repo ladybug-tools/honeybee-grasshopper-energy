@@ -27,7 +27,7 @@ file that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Face Result'
 ghenv.Component.NickName = 'FaceResult'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.4.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -80,7 +80,7 @@ def serialize_data(data_dicts):
 # List of all the output strings that will be requested
 face_indoor_temp_output = 'Surface Inside Face Temperature'
 face_outdoor_temp_output = 'Surface Outside Face Temperature'
-opaque_energy_flow_output = 'Surface Average Face Conduction Heat Transfer Energy'
+opaque_energy_flow_output = 'Surface Inside Face Conduction Heat Transfer Energy'
 window_loss_output = 'Surface Window Heat Loss Energy'
 window_gain_output = 'Surface Window Heat Gain Energy'
 all_output = [face_indoor_temp_output, face_outdoor_temp_output,
