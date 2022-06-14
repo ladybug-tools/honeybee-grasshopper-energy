@@ -55,7 +55,7 @@ EnergyPlus.
 
 ghenv.Component.Name = 'HB Run OSW'
 ghenv.Component.NickName = 'RunOSW'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

@@ -61,7 +61,7 @@ like auditoriums, kitchens, laundromats, etc.
 
 ghenv.Component.Name = "HB DOAS HVAC"
 ghenv.Component.NickName = 'DOASHVAC'
-ghenv.Component.Message = '1.4.2'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

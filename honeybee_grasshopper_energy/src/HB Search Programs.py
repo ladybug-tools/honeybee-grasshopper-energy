@@ -37,7 +37,7 @@ space types within OpenStudio.
 
 ghenv.Component.Name = "HB Search Programs"
 ghenv.Component.NickName = 'SearchProg'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"

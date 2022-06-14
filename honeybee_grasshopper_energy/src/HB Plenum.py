@@ -40,7 +40,7 @@ and drop ceilings.
 
 ghenv.Component.Name = 'HB Plenum'
 ghenv.Component.NickName = 'Plenum'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'

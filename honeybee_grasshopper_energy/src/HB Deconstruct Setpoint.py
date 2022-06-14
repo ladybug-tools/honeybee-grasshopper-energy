@@ -33,7 +33,7 @@ Deconstruct a Setpoint object into its constituient properties.
 
 ghenv.Component.Name = "HB Deconstruct Setpoint"
 ghenv.Component.NickName = 'DecnstrSetpoint'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"

@@ -125,7 +125,7 @@ greater will be considered occupied. All hours of the outdoors are considered oc
 
 ghenv.Component.Name = 'HB Adaptive Comfort Map'
 ghenv.Component.NickName = 'AdaptiveMap'
-ghenv.Component.Message = '1.4.1'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

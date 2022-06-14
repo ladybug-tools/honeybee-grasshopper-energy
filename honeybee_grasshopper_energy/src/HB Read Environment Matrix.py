@@ -43,7 +43,7 @@ air temperature, MRT, longwave MRT, and shortwave MRT delta.
 
 ghenv.Component.Name = 'HB Read Environment Matrix'
 ghenv.Component.NickName = 'EnvMtx'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

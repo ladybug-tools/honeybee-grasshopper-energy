@@ -45,7 +45,7 @@ where:
 
 ghenv.Component.Name = 'HB Blower Pressure Converter'
 ghenv.Component.NickName = 'BlowerPresure'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
