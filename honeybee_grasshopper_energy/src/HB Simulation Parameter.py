@@ -68,7 +68,7 @@ simulation settings and can be plugged into the "HB Model To OSM" component.
 
 ghenv.Component.Name = 'HB Simulation Parameter'
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

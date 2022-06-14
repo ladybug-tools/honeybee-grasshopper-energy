@@ -1,5 +1,5 @@
 {
-  "version": "1.4.4", 
+  "version": "1.5.0", 
   "nickname": "UTCIMap", 
   "outputs": [
     [
@@ -71,8 +71,8 @@
     }, 
     {
       "access": "item", 
-      "name": "_ddy", 
-      "description": "Path to a DDY file with design days to be used for the initial sizing\ncalculation of the energy simulation.", 
+      "name": "ddy_", 
+      "description": "Path to a DDY file with design days to be used for the initial sizing\ncalculation of the energy simulation. Providing this input is important\nwhen there are conditioned Room geometries in the model, in which\ncase the sizing of the building heating/cooling systems is important\nfor modeling the heat exchange between indoors and outdoors.\nOtherwise, it can be ignored with little consequence for\nthe simulation.", 
       "type": "string", 
       "default": null
     }, 

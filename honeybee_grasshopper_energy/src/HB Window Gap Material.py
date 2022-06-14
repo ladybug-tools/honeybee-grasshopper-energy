@@ -31,7 +31,7 @@ This material can be plugged into the "HB Window Construction" component.
 
 ghenv.Component.Name = "HB Window Gap Material"
 ghenv.Component.NickName = 'GapMat'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "6"

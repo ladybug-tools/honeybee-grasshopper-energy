@@ -32,7 +32,7 @@ Deconstruct a ServiceHotWater object into its constituient properties.
 
 ghenv.Component.Name = 'HB Deconstruct Hot Water'
 ghenv.Component.NickName = 'DecnstrHotWater'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

@@ -31,7 +31,7 @@ Search for available Schedules within the honeybee energy standards library.
 
 ghenv.Component.Name = "HB Search Schedules"
 ghenv.Component.NickName = 'SearchSchs'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "2 :: Schedules"
 ghenv.Component.AdditionalHelpFromDocStrings = "1"

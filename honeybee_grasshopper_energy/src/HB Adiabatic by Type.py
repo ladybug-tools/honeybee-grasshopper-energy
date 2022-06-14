@@ -34,7 +34,7 @@ Make boundary conditions of Rooms or Faces adiabatic by face type.
 
 ghenv.Component.Name = "HB Adiabatic by Type"
 ghenv.Component.NickName = 'AdiabaticByType'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = "5"

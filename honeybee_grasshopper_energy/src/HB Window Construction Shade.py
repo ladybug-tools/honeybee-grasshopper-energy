@@ -64,7 +64,7 @@ WindowConstruction.
 
 ghenv.Component.Name = 'HB Window Construction Shade'
 ghenv.Component.NickName = 'WindowConstrShd'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

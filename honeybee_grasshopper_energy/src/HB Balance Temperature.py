@@ -55,7 +55,7 @@ tempertures averaged to produce the output balance temperture.
 
 ghenv.Component.Name = 'HB Balance Temperature'
 ghenv.Component.NickName = 'BalTemp'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

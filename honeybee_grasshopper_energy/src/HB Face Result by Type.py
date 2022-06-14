@@ -51,7 +51,7 @@ This component can also be used to normalize such data by area.
 
 ghenv.Component.Name = 'HB Face Result by Type'
 ghenv.Component.NickName = 'FaceResultByType'
-ghenv.Component.Message = '1.4.0'
+ghenv.Component.Message = '1.5.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
