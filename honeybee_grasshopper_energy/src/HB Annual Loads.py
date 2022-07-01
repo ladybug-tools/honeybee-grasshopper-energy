@@ -96,7 +96,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -168,7 +168,9 @@ def data_to_load_intensity(data_colls, floor_area, data_type, cop=1, mults=None)
     """
     if len(data_colls) != 0:
         if mults is not None:
-            data_colls = [dat * mul for dat, mul in zip(data_colls, mults)]
+            if 'Zone' in data_colls[0].header.metadata:
+                rel_mults = [mults[data.header.metadata['Zone']] for data in data_colls]
+                data_colls = [dat * mul for dat, mul in zip(data_colls, rel_mults)]
         total_vals = [sum(month_vals) / floor_area for month_vals in zip(*data_colls)]
         if cop != 1:
             total_vals = [val / cop for val in total_vals]
@@ -215,8 +217,8 @@ if all_required_inputs(ghenv.Component) and _run:
     floor_area = _model.floor_area
     assert floor_area != 0, 'Connected _rooms have no floors with which to compute EUI.'
     floor_area = floor_area * conversion_to_meters() ** 2
-    mults = [rm.multiplier for rm in _rooms]
-    mults = None if all(mul == 1 for mul in mults) else mults
+    mults = {rm.identifier.upper(): rm.multiplier for rm in _model.rooms}
+    mults = None if all(mul == 1 for mul in mults.values()) else mults
 
     # process the simulation folder name and the directory
     directory = os.path.join(folders.default_simulation_folder, _model.identifier)
