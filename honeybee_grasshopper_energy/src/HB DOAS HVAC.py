@@ -61,7 +61,7 @@ like auditoriums, kitchens, laundromats, etc.
 
 ghenv.Component.Name = "HB DOAS HVAC"
 ghenv.Component.NickName = 'DOASHVAC'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -162,7 +162,9 @@ if all_required_inputs(ghenv.Component):
     for room in rooms:
         if room.properties.energy.is_conditioned:
             room.properties.energy.hvac = hvac
-            vent_scheds.add(room.properties.energy.ventilation.schedule)
+            vent_obj = room.properties.energy.ventilation
+            if vent_obj is not None:
+                vent_scheds.add(vent_obj.schedule)
             hvac_count += 1
 
     # give a warning if no rooms were conditioned or ventilation schedules are unequal
