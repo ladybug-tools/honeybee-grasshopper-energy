@@ -61,7 +61,7 @@ than systems that separate ventilation from the meeting of thermal loads.
 
 ghenv.Component.Name = "HB All-Air HVAC"
 ghenv.Component.NickName = 'AllAirHVAC'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -180,7 +180,9 @@ if all_required_inputs(ghenv.Component):
     if 'PTAC' not in _sys_name and 'PTHP' not in _sys_name:
         vent_scheds = set()
         for rm in rel_rooms:
-            vent_scheds.add(rm.properties.energy.ventilation.schedule)
+            vent_obj = rm.properties.energy.ventilation
+            if vent_obj is not None:
+                vent_scheds.add(vent_obj.schedule)
         if len(vent_scheds) > 1:
             msg = 'The system type uses a central air loop but not all of the ' \
                 'rooms have the same ventilation schedule.\n' \
