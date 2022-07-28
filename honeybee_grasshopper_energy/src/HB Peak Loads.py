@@ -98,7 +98,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -257,7 +257,7 @@ def all_data_load_balance(rooms, data):
     """Get a LoadBalance object from a list of all relavant data collections."""
     return LoadBalance(
         rooms, lighting_data=data[0], electric_equip_data=data[1],
-        gas_equip_data=c_data[2], process_data=data[3], service_hot_water_data=data[4],
+        gas_equip_data=data[2], process_data=data[3], service_hot_water_data=data[4],
         people_data=data[5], solar_data=data[6], infiltration_data=data[7],
         surface_flow_data=data[8], use_all_solar=True
     )
