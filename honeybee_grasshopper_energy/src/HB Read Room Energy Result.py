@@ -53,7 +53,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -239,14 +239,15 @@ if all_required_inputs(ghenv.Component):
     # remove the district hot water system used for service hot water from space heating
     shw_equip, distr_i = [], None
     for i, heat in enumerate(heating):
-        try:
-            heat_equip = heat.header.metadata['System']
-            if heat_equip.startswith('SHW'):
-                shw_equip.append(i)
-            elif heat_equip == 'SERVICE HOT WATER DISTRICT HEAT':
-                distr_i = i
-        except KeyError:
-            pass
+        if not isinstance(heat, float):
+            try:
+                heat_equip = heat.header.metadata['System']
+                if heat_equip.startswith('SHW'):
+                    shw_equip.append(i)
+                elif heat_equip == 'SERVICE HOT WATER DISTRICT HEAT':
+                    distr_i = i
+            except KeyError:
+                pass
     if len(shw_equip) != 0 and distr_i is None:
         hot_water = [heating.pop(i) for i in reversed(shw_equip)]
     elif distr_i is not None:
