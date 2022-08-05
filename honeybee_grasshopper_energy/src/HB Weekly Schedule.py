@@ -42,14 +42,14 @@ Create a schedule from lists of daily values for each day of the week.
             values at each hour of the summer design day. This can also be a
             single constant value for the whole day. If None, the daily
             schedule with the highest average value will be used unless
-                the _type_limit_ is Temperature, in which case it will be
-                the daily schedule with the lowest average value.
+            the _type_limit_ is Temperature, in which case it will be
+            the daily schedule with the lowest average value.
         _winter_des_: An optional list of 24 values that represent the schedule
             values at each hour of the summer design day. This can also be a
             single constant value for the whole day. If None, the daily
             schedule with the lowest average value will be used unless
-                the _type_limit_ is Temperature, in which case it will be
-                the daily schedule with the highest average value.
+            the _type_limit_ is Temperature, in which case it will be
+            the daily schedule with the highest average value.
         _name_: Text to set the name for the Schedule and to be incorporated
             into a unique Schedule identifier.
         _type_limit_: A text string from the identifier of the ScheduleTypeLimit to
@@ -92,7 +92,7 @@ Create a schedule from lists of daily values for each day of the week.
 
 ghenv.Component.Name = 'HB Weekly Schedule'
 ghenv.Component.NickName = 'WeeklySchedule'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

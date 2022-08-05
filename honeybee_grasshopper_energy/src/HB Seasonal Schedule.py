@@ -31,6 +31,14 @@ each schedule should be applied.
             overlap with one another, then the schedules that come later in
             this list will overwrite those that come earlier in the list for
             the duration of the overlapping time period.
+        _summer_des_: An optional list of 24 values that represent the schedule
+            values at each hour of the summer design day. This can also be a
+            single constant value for the whole day. If None, the summer
+            design day schedule of the _base_schedule will be used.
+        _winter_des_: An optional list of 24 values that represent the schedule
+            values at each hour of the summer design day. This can also be a
+            single constant value for the whole day. If None, the summer
+            design day schedule of the _base_schedule will be used.
         _name_: Text to set the name for the Schedule and to be incorporated
             into a unique Schedule identifier.
 
@@ -57,7 +65,7 @@ each schedule should be applied.
 
 ghenv.Component.Name = "HB Seasonal Schedule"
 ghenv.Component.NickName = 'SeasonalSchedule'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
@@ -73,6 +81,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy dependencies
+    from honeybee_energy.schedule.day import ScheduleDay
     from honeybee_energy.schedule.ruleset import ScheduleRuleset
     from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:
@@ -112,6 +121,18 @@ if all_required_inputs(ghenv.Component):
                 a_period.st_time.date, a_period.end_time.date)
         for rule in reversed(season_rules):  # preserve priority order of rules
             schedule.add_rule(rule)
+
+    # apply the summer and winter design days if specified
+    if len(_summer_des_) != 0:
+        s_vals = [_summer_des_[0]] * 24 if len(_summer_des_) == 1 else _summer_des_
+        s_id = '{}_SmrDsn'.format(schedule.identifier)
+        s_day = ScheduleDay.from_values_at_timestep(s_id, s_vals)
+        schedule.summer_designday_schedule = s_day
+    if len(_winter_des_) != 0:
+        w_vals = [_winter_des_[0]] * 24 if len(_winter_des_) == 1 else _winter_des_
+        w_id = '{}_WntrDsn'.format(schedule.identifier)
+        w_day = ScheduleDay.from_values_at_timestep(s_id, s_vals)
+        schedule.winter_designday_schedule = w_day
 
     # get the idf strings of the schedule
     idf_year, idf_week = schedule.to_idf()
