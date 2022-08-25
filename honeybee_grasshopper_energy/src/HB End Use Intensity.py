@@ -38,7 +38,7 @@ Get information about end use intensity from an EnergyPlus SQL file.
 
 ghenv.Component.Name = 'HB End Use Intensity'
 ghenv.Component.NickName = 'EUI'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -47,10 +47,7 @@ import os
 import subprocess
 import json
 
-from collections import OrderedDict
-
 try:
-    from ladybug.sql import SQLiteResult
     from ladybug.datatype.area import Area
     from ladybug.datatype.energyintensity import EnergyIntensity
     from ladybug.datatype.energy import Energy
@@ -63,6 +60,11 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
+    from honeybee_energy.result.eui import eui_from_sql
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
+try:
     from ladybug_rhino.grasshopper import all_required_inputs
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
@@ -70,38 +72,9 @@ except ImportError as e:
 
 # Use the SQLiteResult class to parse the result files directly on Windows.
 def get_results_windows(sql_files):
-    # set initial values that will be computed based on results
-    total_floor_area, total_energy = 0, 0
-    end_uses = OrderedDict()
+    results = eui_from_sql(sql_files)
+    return results['eui'], results['total_floor_area'], results['end_uses']
 
-    # loop through the sql files in the directory and add the energy use
-    for result_file in sql_files:
-        # parse the SQL file
-        sql_obj = SQLiteResult(result_file)
-        # get the total floor area of the model
-        area_dict = sql_obj.tabular_data_by_name('Building Area')
-        areas = tuple(area_dict.values())
-        total_floor_area += areas[0][0]
-        # get the energy use
-        eui_dict = sql_obj.tabular_data_by_name('End Uses By Subcategory')
-        for catgory, vals in eui_dict.items():
-            total_use = sum([val for val in vals[:12]])
-            if total_use != 0:
-                total_energy += total_use
-                cat, sub_cat = catgory.split(':')
-                eu_cat = cat if sub_cat == 'General' or sub_cat == 'Other' else sub_cat
-                try:
-                    end_uses[eu_cat] += total_use
-                except KeyError:
-                    end_uses[eu_cat] = total_use
-
-    # assemble all of the results into a final dictionary
-    eui = round(total_energy / total_floor_area, 3)
-    gross_floor = round(total_floor_area, 3)
-    end_use_pairs = OrderedDict(
-        [(key, round(val / total_floor_area, 3)) for key, val in end_uses.items()]
-    )
-    return eui, gross_floor, end_use_pairs
 
 # The SQLite3 module doesn't work in IronPython on Mac, so we must make a call
 # to the Honeybee CLI (which runs on CPython) to get the results.
@@ -119,11 +92,11 @@ if all_required_inputs(ghenv.Component):
     # ensure that _sql is a list rather than a single string
     if isinstance(_sql, basestring):
         _sql = [_sql]
-    
-	# get the results
+
+    # get the results
     get_results = get_results_windows if os.name == 'nt' else get_results_mac
     eui, gross_floor, end_use_pairs = get_results(_sql)
-        
+
     # create separate lists for end use values and labels
     eui_end_use = end_use_pairs.values()
     end_uses = [use.replace('_', ' ').title() for use in end_use_pairs.keys()]
