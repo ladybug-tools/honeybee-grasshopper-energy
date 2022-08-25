@@ -10,7 +10,7 @@
 """
 Get information about carbon emission intensity (CEI) from an EnergyPlus SQL file.
 _
-This location and year (or input emissions of electricity intensity) will be used
+The location and year (or input emissions of electricity intensity) will be used
 to compute carbon intensity for both electricity and district heating/cooling.
 Fixed numbers will be used to convert the following on-site fuel sources:
 _
@@ -25,12 +25,14 @@ _
             in which case EUI will be computed across all files. Lastly, it can
             be a directory or list of directories containing results, in which
             case, EUI will be calculated form all files ending in .sql.
-        _location: A ladybug Location object in the USA, which will be used to determine the subregion.
-            Alternatively, it can be A number for the electric grid carbon emissions
-            in kg CO2 per MWh. The following rules of thumb may be used as a guide:
+        _loc_kgMWh: A ladybug Location object in the USA, which will be used to determine the
+            subregion of the electrical grid. Alternatively, it can be A number
+            for the electric grid carbon emissions in kg CO2/MWh. The following
+            rules of thumb may be used as a guide:
             _
-            * 800 kg/MWh - for an inefficient coal or oil-dominated grid
-            * 400 kg/MWh - for the US (energy mixed) grid around 2020
+            * 800 kg/MWh - an inefficient coal or oil-dominated grid (West Virgina in 2020)
+            * 400 kg/MWh - the average US (energy mixed) grid around 2020
+            * 200-400 kg/MWh - for grids in transition to renewables
             * 100-200 kg/MWh - for grids with majority renewable/nuclear composition
             * 0-100 kg/MWh - for grids with renewables and storage
         _year_: An integer for the future year for which carbon emissions will
@@ -55,7 +57,7 @@ _
 
 ghenv.Component.Name = 'HB Carbon Emission Intensity'
 ghenv.Component.NickName = 'CEI'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -113,15 +115,21 @@ if all_required_inputs(ghenv.Component):
         _sql = [_sql]
 
     # process the location and year or the electricity intensity
-    if isinstance(_location, Location):
+    if isinstance(_loc_kgMWh, Location):
         yr = 2030 if _year_ is None else int(_year_)
-        elec_emiss = future_electricity_emissions(_location, yr)
+        elec_emiss = future_electricity_emissions(_loc_kgMWh, yr)
+        if elec_emiss is None:
+            msg = 'Location must be inside the USA in order to be used for carbon ' \
+                'emissions estimation.\nPlug in a number for carbon intensity in ' \
+                'kg CO2/MWH for locations outside the USA.'
+            print(msg)
+            raise ValueError(msg)
     else:
         try:
-            elec_emiss = float(_location)
+            elec_emiss = float(_loc_kgMWh)
         except TypeError:
-            msg = 'Expected location object or number for _lovcation. ' \
-                'Got {}.'.format(type(_location))
+            msg = 'Expected location object or number for _loccation. ' \
+                'Got {}.'.format(type(_loc_kgMWh))
             raise ValueError(msg)
 
     # get the results
