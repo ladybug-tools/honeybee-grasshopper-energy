@@ -1,0 +1,64 @@
+{
+  "version": "1.5.0", 
+  "nickname": "CEI", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "cei", 
+        "description": "A number for the total annual carbon emission intensity (CEI). This is\nthe sum of all operational carbon emissions divided by the gross\nfloor area (including both conditioned and unconditioned spaces).\nUnits are kg CO2/m2.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "cei_end_use", 
+        "description": "The carbon emission intensity broken down by each end use. These\nvalues coorespond to the end_uses output below. Values are in kg CO2/m2 .", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "end_uses", 
+        "description": "A list of text for each of the end uses in the simulation (Heating,\nCooling, etc.). Thes outputs coorespond to the eui_end_use\noutput above.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "gross_floor", 
+        "description": "The total gross floor area of the energy model. This can be used\nto compute the total energy use from the intensity values above or\nit can be used to help with other result post-processing. The value\nwill be in m2 if ip_ is False or None and ft2 if True.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_sql", 
+      "description": "The file path of the SQL result file that has been generated from\nan energy simulation. This can also be a list of EnergyPlus files\nin which case EUI will be computed across all files. Lastly, it can\nbe a directory or list of directories containing results, in which\ncase, EUI will be calculated form all files ending in .sql.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_location", 
+      "description": "A ladybug Location object in the USA, which will be used to determine the subregion.\nAlternatively, it can be A number for the electric grid carbon emissions\nin kg CO2 per MWh. The following rules of thumb may be used as a guide:\n_\n* 800 kg/MWh - for an inefficient coal or oil-dominated grid\n* 400 kg/MWh - for the US (energy mixed) grid around 2020\n* 100-200 kg/MWh - for grids with majority renewable/nuclear composition\n* 0-100 kg/MWh - for grids with renewables and storage", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_year_", 
+      "description": "An integer for the future year for which carbon emissions will\nbe estimated. Values must be an even number and be between 2020\nand 2050. (Default: 2030).", 
+      "type": "int", 
+      "default": null
+    }
+  ], 
+  "subcategory": "6 :: Result", 
+  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.location import Location\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import location:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.emissions import future_electricity_emissions, \\\n        emissions_from_sql\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\n# Use the SQLiteResult class to parse the result files directly on Windows.\ndef get_results_windows(sql_files, elec_emiss):\n    results = emissions_from_sql(sql_files, elec_emiss)\n    return results['carbon_intensity'], results['total_floor_area'], \\\n        results['end_uses'], results['sources']\n\n\n# The SQLite3 module doesn't work in IronPython on Mac, so we must make a call\n# to the Honeybee CLI (which runs on CPython) to get the results.\ndef get_results_mac(sql_files, elec_emiss):\n    cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n            'carbon-emission-intensity']\n    cmds.extend(sql_files)\n    cmds.extend(['--electricity-emissions', str(elec_emiss)])\n    process = subprocess.Popen(cmds, stdout=subprocess.PIPE)\n    stdout = process.communicate()\n    results = json.loads(stdout[0], object_pairs_hook=OrderedDict)\n    return results['carbon_intensity'], results['total_floor_area'], \\\n        results['end_uses'], results['sources']\n\n\nif all_required_inputs(ghenv.Component):\n    # ensure that _sql is a list rather than a single string\n    if isinstance(_sql, basestring):\n        _sql = [_sql]\n\n    # process the location and year or the electricity intensity\n    if isinstance(_location, Location):\n        yr = 2030 if _year_ is None else int(_year_)\n        elec_emiss = future_electricity_emissions(_location, yr)\n    else:\n        try:\n            elec_emiss = float(_location)\n        except TypeError:\n            msg = 'Expected location object or number for _lovcation. ' \\\n                'Got {}.'.format(type(_location))\n            raise ValueError(msg)\n\n    # get the results\n    get_results = get_results_windows if os.name == 'nt' else get_results_mac\n    cei, gross_floor, end_use_pairs, sources = get_results(_sql, elec_emiss)\n\n    # create separate lists for end use values and labels\n    cei_end_use = end_use_pairs.values()\n    end_uses = [use.replace('_', ' ').title() for use in end_use_pairs.keys()]\n\n    # give a warning if the sources include district heating or cooling\n    if 'district_heat' in sources:\n        msg = 'District heating was found in the results and so carbon emissions ' \\\n            'cannot be accurately estimated.\\nTry using a different HVAC or SHW system.'\n        print(msg)\n        give_warning(ghenv.Component, msg)\n    if 'district_cool' in sources:\n        msg = 'District cooling was found in the results and so carbon emissions ' \\\n            'cannot be accurately estimated.\\nTry using a different HVAC system.'\n        print(msg)\n        give_warning(ghenv.Component, msg)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Carbon Emission Intensity", 
+  "description": "Get information about carbon emission intensity (CEI) from an EnergyPlus SQL file.\n_\nThis location and year (or input emissions of electricity intensity) will be used\nto compute carbon intensity for both electricity and district heating/cooling.\nFixed numbers will be used to convert the following on-site fuel sources:\n_\n* Natural Gas --  277.358 kg/MWh\n* Propane -- 323.897 kg/MWh\n* Fuel Oil -- 294.962 kg/MWh\n-"
+}
