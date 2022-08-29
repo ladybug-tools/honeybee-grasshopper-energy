@@ -154,7 +154,7 @@ considered occupied.
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -180,7 +180,7 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('ddy', ddy_)
     recipe.input_value_by_name('north', north_)
     recipe.input_value_by_name('run-period', run_period_)
-    if _wind_speed_ is not None and os.path.isdir(_wind_speed_):
+    if isinstance(_wind_speed_, str) and os.path.isdir(_wind_speed_):
         recipe.input_value_by_name('air-speed-matrices', _wind_speed_)
     else:
         recipe.input_value_by_name('wind-speed', _wind_speed_)
