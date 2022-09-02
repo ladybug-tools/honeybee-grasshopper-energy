@@ -1,0 +1,36 @@
+{
+  "version": "1.5.0", 
+  "nickname": "OtherTemp", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "bc", 
+        "description": "A BoundaryCondition object that can be assigned to any honeybee Face object (using\nthe \"HB Face\" component or the \"HB Properties by Guide Surface\").", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_temperature_", 
+      "description": "A temperature value in Celsius to note the temperature on the\nother side of the object. If unspecified, the outdoor air\ntemperature will be used.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "heat_coeff_", 
+      "description": "A value in W/m2-K to indicate the combined convective/radiative film\ncoefficient. If equal to 0, then the specified temperature above is\nequal to the exterior surface temperature. Otherwise, the temperature\nabove is considered the outside air temperature and this coefficient\nis used to determine the difference between this outside air\ntemperature and the exterior surface temperature. (Default: 0).", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.altnumber import autocalculate\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import honeybee_energy dependencies\n    from honeybee_energy.boundarycondition import OtherSideTemperature\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\n_temperature_ = _temperature_ if _temperature_ is not None else autocalculate\nheat_coeff_ = heat_coeff_ if heat_coeff_ is not None else 0\nbc = OtherSideTemperature(_temperature_, heat_coeff_)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Other Side Temperature", 
+  "description": "Create a boundary condition representing a custom temperature and/or heat transfer\ncoefficient on the other side of a face.\n-"
+}
