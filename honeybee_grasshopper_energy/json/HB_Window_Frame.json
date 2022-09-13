@@ -1,0 +1,85 @@
+{
+  "version": "1.5.0", 
+  "nickname": "WindowFrame", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "frame", 
+        "description": "A window frame material that can be assigned to a Honeybee\nWindow construction.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "Text to set the name for the material and to be incorporated into\na unique material identifier.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_width", 
+      "description": "Number for the width of frame in plane of window [m]. The frame\nwidth is assumed to be the same on all sides of window.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_conductance", 
+      "description": "Number for the thermal conductance of the frame material measured\nfrom inside to outside of the frame surface (no air films) and taking\n2D conduction effects into account [W/m2-K]. Values for typical frame\nmaterials are as follows.\n* Aluminum with Thermal Break - 56.4 W/m2-K\n* Aluminum One-Sided (Flush) - 10.7 W/m2-K\n* Wood - 3.5 W/m2-K\n* Vinyl - 2.3 W/m2-K", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_edge_to_cent_", 
+      "description": "Number between 0 and 4 for the ratio of the glass conductance near\nthe frame (excluding air films) divided by the glass conductance\nat the center of the glazing (excluding air films). This is used\nonly for multi-pane glazing constructions. This ratio should\nusually be greater than 1.0 since the spacer material that separates\nthe glass panes is usually more conductive than the gap between panes.\nA value of 1 effectively indicates no spacer. Values should usually be\nobtained from the LBNL WINDOW program so that the unique characteristics\nof the window construction can be accounted for. (Default: 1).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "outside_proj_", 
+      "description": "Number for the distance that the frame projects outward from the\noutside face of the glazing [m]. This is used to calculate shadowing\nof frame onto glass, solar absorbed by the frame, IR emitted and\nabsorbed by the frame, and convection from frame. (Default: 0).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "inside_proj_", 
+      "description": "Number for the distance that the frame projects inward from the\ninside face of the glazing [m]. This is used to calculate solar\nabsorbed by the frame, IR emitted and absorbed by the frame, and\nconvection from frame. (Default: 0).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_therm_absp_", 
+      "description": "A number between 0 and 1 for the fraction of incident long\nwavelength radiation that is absorbed by the material. (Default: 0.9).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_sol_absp_", 
+      "description": "A number between 0 and 1 for the fraction of incident solar\nradiation absorbed by the material. (Default: 0.7).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_vis_absp_", 
+      "description": "A number between 0 and 1 for the fraction of incident\nvisible wavelength radiation absorbed by the material.\nDefault value is the same as the _sol_absp_.", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.frame import EnergyWindowFrame\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set the default material properties\n    _edge_to_cent_ = 1 if _edge_to_cent_ is None else _edge_to_cent_\n    outside_proj_ = 0 if outside_proj_ is None else outside_proj_\n    inside_proj_ = 0 if inside_proj_ is None else inside_proj_\n    _therm_absp_ = 0.9 if _therm_absp_ is None else _therm_absp_\n    _sol_absp_ = 0.7 if _sol_absp_ is None else _sol_absp_\n    name = clean_and_id_ep_string('OpaqueNoMassMaterial') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # create the material\n    frame = EnergyWindowFrame(\n        name, _width, _conductance, _edge_to_cent_, outside_proj_, inside_proj_,\n        _therm_absp_, _sol_absp_, _vis_absp_)\n    if _name_ is not None:\n        frame.display_name = _name_\n", 
+  "category": "HB-Energy", 
+  "name": "HB Window Frame", 
+  "description": "Create a window frame matrial that can be assigned to a Window Construction by\nplugging it into the frame_ input of the \"HB Window Construction\" component.\n-"
+}

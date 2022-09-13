@@ -29,12 +29,12 @@ This material can be plugged into the "HB Window Construction" component.
             and can be assigned to a Honeybee Window construction.
 """
 
-ghenv.Component.Name = "HB Window Gap Material"
+ghenv.Component.Name = 'HB Window Gap Material'
 ghenv.Component.NickName = 'GapMat'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
-ghenv.Component.SubCategory = "1 :: Constructions"
-ghenv.Component.AdditionalHelpFromDocStrings = "6"
+ghenv.Component.SubCategory = '1 :: Constructions'
+ghenv.Component.AdditionalHelpFromDocStrings = '0'
 
 try:  # import the core honeybee dependencies
     from honeybee.typing import clean_and_id_ep_string, clean_ep_string
