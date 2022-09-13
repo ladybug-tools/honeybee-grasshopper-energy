@@ -25,6 +25,9 @@ innermost (interior) layer.
             looked up in the window material library. Note that a native Grasshopper
             "Merge" component can be used to help order the materials correctly
             for the input here.
+        frame_: An optional window frame material to denote the frame that surrounds
+            the window construction. Frame materials can be created using the
+            "HB Window Frame" component.
 
     Returns:
         constr: A window construction that can be assigned to Honeybee
@@ -33,7 +36,7 @@ innermost (interior) layer.
 
 ghenv.Component.Name = "HB Window Construction"
 ghenv.Component.NickName = 'WindowConstr'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
@@ -65,6 +68,6 @@ if all_required_inputs(ghenv.Component):
             material = window_material_by_identifier(material)
         material_objs.append(material)
 
-    constr = WindowConstruction(name, material_objs)
+    constr = WindowConstruction(name, material_objs, frame_)
     if _name_ is not None:
         constr.display_name = _name_
