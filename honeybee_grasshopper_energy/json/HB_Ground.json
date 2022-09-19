@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0", 
+  "version": "1.5.1", 
   "nickname": "Ground", 
   "outputs": [
     [
@@ -21,7 +21,7 @@
       "default": null
     }, 
     {
-      "access": "item", 
+      "access": "list", 
       "name": "_soil_constr_", 
       "description": "An OpaqueConstruction that reflects the soil type of the ground.\nThis can also be text for a construction to be looked up in the opaque\nconstruction library. If a multi-layered construction is input, the multiple\nlayers will only be used for the roof Face of the Room and all other\nFaces will get a construction with the inner-most layer assigned. Some\ncommon types of soil constructions contained in the default honeybee\nstandards library are listed below. (Default: Concrete Pavement).\n_\nGrassy Lawn\nDry Sand\nDry Dust\nMoist Soil\nMud\nConcrete Pavement\nAsphalt Pavement\nSolid Rock", 
       "type": "System.Object", 
@@ -29,7 +29,7 @@
     }
   ], 
   "subcategory": "0 :: Basic Properties", 
-  "code": "\ntry:  # import the honeybee-energy extension\n    from honeybee_energy.lib.constructions import opaque_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate rooms and process the construction\n    rooms = [room.duplicate() for room in _rooms]\n    _soil_constr_ = _soil_constr_ if _soil_constr_ is not None else 'Concrete Pavement'\n    if isinstance(_soil_constr_, str):\n        _soil_constr_ = opaque_construction_by_identifier(_soil_constr_)\n\n    # loop through the rooms and convert them into ground objects\n    for room in rooms:\n        room.properties.energy.make_ground(_soil_constr_)\n", 
+  "code": "\ntry:  # import the honeybee-energy extension\n    from honeybee_energy.lib.constructions import opaque_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, longest_list\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate rooms and process the construction\n    rooms = [room.duplicate() for room in _rooms]\n    _soil_constr_ = _soil_constr_ if len(_soil_constr_) != 0 else ['Concrete Pavement']\n\n    # loop through the rooms and convert them into ground objects\n    for i, room in enumerate(rooms):\n        soil_con = longest_list(_soil_constr_, i)\n        if isinstance(soil_con, str):\n            soil_con = opaque_construction_by_identifier(soil_con)\n        room.properties.energy.make_ground(soil_con)\n", 
   "category": "HB-Energy", 
   "name": "HB Ground", 
   "description": "Change the properties of Honeybee Rooms to reflect those of a ground surface.\n_\nThis is particularly useful for setting up outdoor thermal comfort maps that account\nfor the surface temperature of the ground. Modeling the ground as a room this way\nwill ensure that shadows other objects cast upon it are accounted for along with\nthe storage of heat in the ground surface.\n_\nThe turning of a Room into a ground entails:\n_\n* Setting all constructions to be indicative of a certain soil type.\n* Setting all Faces except the roof to have a Ground boundary condition.\n* Removing all loads and schedules assigned to the Room.\n_\nAll values for the typical soil_types are taken from the Engineering Toolbox,\nspecifically these pages:\nSoil Conductivity - http://www.engineeringtoolbox.com/thermal-conductivity-d_429.html\nSoil Density - http://www.engineeringtoolbox.com/dirt-mud-densities-d_1727.html\nSoil Heat Capacity - http://www.engineeringtoolbox.com/specific-heat-capacity-d_391.html\n-"
