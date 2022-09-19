@@ -54,7 +54,7 @@ Soil Heat Capacity - http://www.engineeringtoolbox.com/specific-heat-capacity-d_
 
 ghenv.Component.Name = 'HB Ground'
 ghenv.Component.NickName = 'Ground'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -65,7 +65,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, longest_list
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -73,10 +73,11 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component):
     # duplicate rooms and process the construction
     rooms = [room.duplicate() for room in _rooms]
-    _soil_constr_ = _soil_constr_ if _soil_constr_ is not None else 'Concrete Pavement'
-    if isinstance(_soil_constr_, str):
-        _soil_constr_ = opaque_construction_by_identifier(_soil_constr_)
+    _soil_constr_ = _soil_constr_ if len(_soil_constr_) != 0 else ['Concrete Pavement']
 
     # loop through the rooms and convert them into ground objects
-    for room in rooms:
-        room.properties.energy.make_ground(_soil_constr_)
+    for i, room in enumerate(rooms):
+        soil_con = longest_list(_soil_constr_, i)
+        if isinstance(soil_con, str):
+            soil_con = opaque_construction_by_identifier(soil_con)
+        room.properties.energy.make_ground(soil_con)
