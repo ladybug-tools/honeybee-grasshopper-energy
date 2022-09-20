@@ -67,7 +67,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -96,12 +96,13 @@ def check_input(input_list):
 
 if all_required_inputs(ghenv.Component):
     # extract any rooms from input Models
-    is_model = False
+    is_model, floor_area = False, 0
     rooms = []
     for hb_obj in _rooms_model:
         if isinstance(hb_obj, Model):
             rooms.extend(hb_obj.rooms)
             is_model = True
+            floor_area += hb_obj.floor_area
         else:
             rooms.append(hb_obj)
 
@@ -144,6 +145,8 @@ if all_required_inputs(ghenv.Component):
         rooms, cooling_, heating_, lighting_, electric_equip_, gas_equip_, process_,
         hot_water_, people_gain_, solar_gain_, infiltration_load_, mech_vent_load_,
         nat_vent_load_, face_energy_flow_, units_system(), use_all_solar=is_model)
+    if is_model:
+        load_bal_obj.floor_area = floor_area
 
     balance = load_bal_obj.load_balance_terms(False, False)
     if len(balance) != 0:
