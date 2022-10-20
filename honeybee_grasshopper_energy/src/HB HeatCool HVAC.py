@@ -35,12 +35,13 @@ of occupancy is so low that infiltration is enough to meet fresh air demand.
             provided, a random name will be assigned.
 
     Returns:
+        report: Reports, errors, warnings, etc.
         rooms: The input Rooms with a heating/cooling system applied.
 """
 
 ghenv.Component.Name = "HB HeatCool HVAC"
 ghenv.Component.NickName = 'HeatCoolHVAC'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

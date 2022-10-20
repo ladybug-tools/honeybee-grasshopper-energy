@@ -42,12 +42,13 @@ to be connected to the system.
             surrounding ambient conditions [W/K]. (Default: 6 W/K).
 
     Returns:
+        report: Reports, errors, warnings, etc.
         rooms: The input Rooms with a Service Hot Water system applied.
 """
 
 ghenv.Component.Name = "HB SHW System"
 ghenv.Component.NickName = 'SHW'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
