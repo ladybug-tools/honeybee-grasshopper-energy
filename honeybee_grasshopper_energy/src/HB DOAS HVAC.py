@@ -56,12 +56,13 @@ like auditoriums, kitchens, laundromats, etc.
             DOAS will be always on. (Default: None).
 
     Returns:
+        report: Reports, errors, warnings, etc.
         rooms: The input Rooms with a DOAS HVAC system applied.
 """
 
 ghenv.Component.Name = "HB DOAS HVAC"
 ghenv.Component.NickName = 'DOASHVAC'
-ghenv.Component.Message = '1.5.1'
+ghenv.Component.Message = '1.5.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

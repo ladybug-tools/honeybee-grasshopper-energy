@@ -1,12 +1,12 @@
 {
-  "version": "1.5.1", 
+  "version": "1.5.2", 
   "nickname": "AllAirHVAC", 
   "outputs": [
     [
       {
         "access": "None", 
         "name": "report", 
-        "description": "Script variable OSHVACSystems", 
+        "description": "Reports, errors, warnings, etc.", 
         "type": null, 
         "default": null
       }, 

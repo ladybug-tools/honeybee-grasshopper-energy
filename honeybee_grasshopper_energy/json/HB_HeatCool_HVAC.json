@@ -1,12 +1,12 @@
 {
-  "version": "1.5.0", 
+  "version": "1.5.1", 
   "nickname": "HeatCoolHVAC", 
   "outputs": [
     [
       {
         "access": "None", 
         "name": "report", 
-        "description": "Script variable OSHVACSystems", 
+        "description": "Reports, errors, warnings, etc.", 
         "type": null, 
         "default": null
       }, 
