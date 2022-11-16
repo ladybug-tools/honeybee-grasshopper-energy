@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0", 
+  "version": "1.5.1", 
   "nickname": "ColorFaces", 
   "outputs": [
     [
@@ -58,6 +58,13 @@
         "description": "A list of numbers for each of the faces, which are used to generate\nthe colors.", 
         "type": null, 
         "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "vis_set", 
+        "description": "An object containing VisualizationSet arguments for drawing a detailed\nversion of the ColorRoom in the Rhino scene. This can be connected to\nthe \"LB Preview Visualization Set\" component to display this version\nof the visualization in Rhino.", 
+        "type": null, 
+        "default": null
       }
     ]
   ], 
@@ -106,7 +113,7 @@
     }
   ], 
   "subcategory": "6 :: Result", 
-  "code": "\ntry:\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.colorobj import ColorFace\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.togeometry import to_point3d\n    from ladybug_{{cad}}.fromgeometry import from_face3ds_to_colored_mesh, \\\n        from_face3d_to_wireframe\n    from ladybug_{{cad}}.text import text_objects\n    from ladybug_{{cad}}.fromobjects import legend_objects\n    from ladybug_{{cad}}.color import color_to_color\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\n    from ladybug_{{cad}}.config import units_abbreviation\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # extract any faces from input Rooms or Models\n    faces = []\n    for hb_obj in _hb_objs:\n        if isinstance(hb_obj, Model):\n            for room in hb_obj.rooms:\n                faces.extend(room.faces)\n        elif isinstance(hb_obj, Room):\n            faces.extend(hb_obj.faces)\n        else:\n            faces.append(hb_obj)\n\n    # apply analysis period to the data if connected\n    if period_ is not None:\n        _data = [coll.filter_by_analysis_period(period_) for coll in _data]\n\n    # set default norm_by_floor value\n    normalize_ = True if normalize_ is None else normalize_\n\n    # create the ColorFace visualization object and output geometry\n    color_obj = ColorFace(_data, faces, legend_par_, sim_step_, normalize_,\n                          units_abbreviation())\n    graphic = color_obj.graphic_container\n    mesh = [from_face3ds_to_colored_mesh([fc], col) for fc, col in\n            zip(color_obj.matched_flat_geometry, graphic.value_colors)]\n    wire_frame = []\n    for face in color_obj.matched_flat_faces:\n        wire_frame.extend(from_face3d_to_wireframe(face.geometry))\n    legend = legend_objects(graphic.legend)\n    title = text_objects(color_obj.title_text, graphic.lower_title_location,\n                         graphic.legend_parameters.text_height,\n                         graphic.legend_parameters.font)\n    faces = color_obj.matched_flat_faces\n    colors = [color_to_color(col, 125) for col in graphic.value_colors]\n    values = graphic.values\n", 
+  "code": "\ntry:\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.colorobj import ColorFace\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.togeometry import to_point3d\n    from ladybug_{{cad}}.fromgeometry import from_face3ds_to_colored_mesh, \\\n        from_face3d_to_wireframe\n    from ladybug_{{cad}}.text import text_objects\n    from ladybug_{{cad}}.fromobjects import legend_objects\n    from ladybug_{{cad}}.color import color_to_color\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\n    from ladybug_{{cad}}.config import units_abbreviation\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # extract any faces from input Rooms or Models\n    faces = []\n    for hb_obj in _hb_objs:\n        if isinstance(hb_obj, Model):\n            for room in hb_obj.rooms:\n                faces.extend(room.faces)\n        elif isinstance(hb_obj, Room):\n            faces.extend(hb_obj.faces)\n        else:\n            faces.append(hb_obj)\n\n    # apply analysis period to the data if connected\n    if period_ is not None:\n        _data = [coll.filter_by_analysis_period(period_) for coll in _data]\n\n    # set default norm_by_floor value\n    normalize_ = True if normalize_ is None else normalize_\n\n    # create the ColorFace visualization object and output geometry\n    color_obj = ColorFace(_data, faces, legend_par_, sim_step_, normalize_,\n                          units_abbreviation())\n    graphic = color_obj.graphic_container\n    mesh = [from_face3ds_to_colored_mesh([fc], col) for fc, col in\n            zip(color_obj.matched_flat_geometry, graphic.value_colors)]\n    wire_frame = []\n    for face in color_obj.matched_flat_faces:\n        wire_frame.extend(from_face3d_to_wireframe(face.geometry))\n    legend = legend_objects(graphic.legend)\n    title = text_objects(color_obj.title_text, graphic.lower_title_location,\n                         graphic.legend_parameters.text_height,\n                         graphic.legend_parameters.font)\n    faces = color_obj.matched_flat_faces\n    colors = [color_to_color(col, 125) for col in graphic.value_colors]\n    values = graphic.values\n    vis_set = color_obj\n", 
   "category": "HB-Energy", 
   "name": "HB Color Faces", 
   "description": "Visualize face and sub-face level energy simulation results as colored geometry.\n-"

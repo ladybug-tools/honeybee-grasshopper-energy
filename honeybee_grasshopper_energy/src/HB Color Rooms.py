@@ -54,11 +54,15 @@ Visualize Room-level energy simulation results as colored Room geometry.
             in order to color room volumes with results.
         values: A list of numbers for each of the rooms, which are used to
             generate the colors.
+        vis_set: An object containing VisualizationSet arguments for drawing a detailed
+            version of the ColorRoom in the Rhino scene. This can be connected to
+            the "LB Preview Visualization Set" component to display this version
+            of the visualization in Rhino.
 """
 
 ghenv.Component.Name = "HB Color Rooms"
 ghenv.Component.NickName = 'ColorRooms'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -159,3 +163,4 @@ if all_required_inputs(ghenv.Component):
     rooms = color_obj.matched_rooms
     colors = [color_to_color(col, 125) for col in graphic.value_colors]
     values = graphic.values
+    vis_set = color_obj
