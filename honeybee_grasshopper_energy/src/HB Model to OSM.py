@@ -74,7 +74,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -221,7 +221,7 @@ if all_required_inputs(ghenv.Component) and _write:
     elif run_ > 0:  # no reporting measure; simulate separately from measure application
         osm, idf = run_osw(osw, silent=silent)
         # process the additional strings
-        if add_str_ != [] and add_str_[0] is not None and idf is not None:
+        if len(add_str_) != 0 and add_str_[0] is not None and idf is not None:
             add_str = '\n'.join(add_str_)
             with open(idf, "a") as idf_file:
                 idf_file.write(add_str)
