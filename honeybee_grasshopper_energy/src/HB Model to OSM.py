@@ -74,7 +74,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.5.1'
+ghenv.Component.Message = '1.5.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -163,17 +163,16 @@ if all_required_inputs(ghenv.Component) and _write:
     # scale the model if the units are not meters
     if _model.units != 'Meters':
         _model.convert_to_units('Meters')
-    # remove colinear vertices using the Model tolerance to avoid E+ tolerance issues
-    for room in _model.rooms:
-        try:
-            room.remove_colinear_vertices_envelope(tolerance=0.01, delete_degenerate=True)
-        except AssertionError as e:
-            error = 'Your Rhino Model units system is: {}. ' \
-                'Is this correct?\n{}'.format(units_system(), e)
-            print(error)
-            raise ValueError(error)
+    # remove degenerate geometry within native E+ tolerance of 0.01 meters
+    try:
+        _model.remove_degenerate_geometry(0.01)
+    except ValueError:
+        error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
+            'Is this correct?'.format(units_system())
+        raise ValueError(error)
+
     # auto-assign stories if there are none since most OpenStudio measures need these
-    if len(_model.stories) == 0:
+    if len(_model.stories) == 0 and len(_model.rooms) != 0:
         _model.assign_stories_by_floor_height()
 
     # delete any existing files in the directory and prepare it for simulation
