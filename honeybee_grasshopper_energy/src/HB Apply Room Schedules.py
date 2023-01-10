@@ -31,7 +31,28 @@ given load.
             by an individual person in the room. If None, it will a default constant
             schedule with 120 Watts per person will be used, which is typical of
             awake, adult humans who are seated.
-         heating_setpt_sch_: A temperature schedule for the heating setpoint.
+        lighting_sch_: A fractional schedule for the use of lights over the course of
+            the year. This can also be the identifier of a schedule to be looked
+            up in the schedule library.
+        electric_equip_sch_: A fractional schedule for the use of electric equipment over
+            the course of the year. This can also be the identifier of a schedule to
+            be looked up in the schedule library.
+        gas_equip_sch_: A fractional schedule for the use of gas equipment over the course of
+            the year. This can also be the identifier of a schedule to
+            be looked up in the schedule library.
+        hot_water_sch_: A fractional schedule for the use of service hot water over
+            the course of the year. This can also be the identifier of a
+            schedule to be looked up in the schedule library.
+        infiltration_sch_: A fractional schedule for the infiltration over the
+            course of the year. This can also be the identifier of a schedule to
+            be looked up in the schedule library.
+        ventilation_sch_: A fractional schedule for the ventilation over the course of
+            the year. This can also be the identifier of a schedule to be
+            looked up in the schedule library. The fractional values will get
+            multiplied by the total design flow rate to yield a complete ventilation
+            profile. Setting this schedule to be the occupancy schedule of the
+            zone will mimic demand controlled ventilation.
+        heating_setpt_sch_: A temperature schedule for the heating setpoint.
             This can also be a identifier of a schedule to be looked up in the
             schedule library. The type limit of this schedule should be
             temperature and the values should be the temperature setpoint in
@@ -41,25 +62,6 @@ given load.
             schedule library. The type limit of this schedule should be
             temperature and the values should be the temperature setpoint in
             degrees Celcius.
-        lighting_sch_: A fractional for the use of lights over the course of the year.
-            This can also be the identifier of a schedule to be looked up in the
-            schedule library.
-        electric_equip_sch_: A fractional for the use of electric equipment over
-            the course of the year. This can also be the identifier of a schedule to
-            be looked up in the schedule library.
-        gas_equip_sch_: A fractional for the use of gas equipment over
-            the course of the year. This can also be the identifier of a schedule to
-            be looked up in the schedule library.
-        infiltration_sch_: A fractional schedule for the infiltration over the
-            course of the year. This can also be the identifier of a schedule to
-            be looked up in the schedule library.
-        ventilation_sch_: An optional fractional schedule for the ventilation over the
-            course of the year. This can also be the identifier of a schedule to be
-            looked up in the schedule library. The fractional values will get
-            multiplied by the total design flow rate (determined from the fields
-            above and the calculation_method) to yield a complete ventilation
-            profile. Setting this schedule to be the occupancy schedule of the
-            zone will mimic demand controlled ventilation.
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -68,7 +70,7 @@ given load.
 
 ghenv.Component.Name = "HB Apply Room Schedules"
 ghenv.Component.NickName = 'ApplyRoomSch'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -189,6 +191,13 @@ if all_required_inputs(ghenv.Component):
             equip = dup_load(obj, 'gas_equipment', 'gas_equip_sch_')
             equip.schedule = schedule_object(longest_list(gas_equip_sch_, i))
             assign_load(obj, equip, 'gas_equipment')
+
+    # assign the hot water schedule
+    if len(hot_water_sch_) != 0:
+        for i, obj in enumerate(mod_obj):
+            shw = dup_load(obj, 'service_hot_water', 'hot_water_sch_')
+            shw.schedule = schedule_object(longest_list(hot_water_sch_, i))
+            assign_load(obj, shw, 'service_hot_water')
 
     # assign the infiltration schedule
     if len(infiltration_sch_) != 0:
