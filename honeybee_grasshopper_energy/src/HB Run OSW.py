@@ -55,7 +55,7 @@ EnergyPlus.
 
 ghenv.Component.Name = 'HB Run OSW'
 ghenv.Component.NickName = 'RunOSW'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -80,7 +80,7 @@ def run_osw_and_report_errors(i):
     # process the additional strings
     if add_str_ != [] and add_str_[0] is not None and idf is not None:
         add_str = '/n'.join(add_str_)
-        with open(idf, "a") as idf_file:
+        with open(idf_i, "a") as idf_file:
             idf_file.write(add_str)
     osm[i] = osm_i
     idf[i] = idf_i
