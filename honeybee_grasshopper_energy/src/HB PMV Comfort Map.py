@@ -140,17 +140,19 @@ greater will be considered occupied. All hours of the outdoors are considered oc
 
 ghenv.Component.Name = 'HB PMV Comfort Map'
 ghenv.Component.NickName = 'PMVMap'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.5.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
 try:
     from lbt_recipes.recipe import Recipe
+    from honeybee.model import Model
 except ImportError as e:
     raise ImportError('\nFailed to import lbt_recipes:\n\t{}'.format(e))
 
 try:
+    from ladybug_rhino.config import units_system
     from ladybug_rhino.grasshopper import all_required_inputs, recipe_result
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
@@ -172,6 +174,22 @@ if all_required_inputs(ghenv.Component) and _run:
     recipe.input_value_by_name('comfort-parameters', comfort_par_)
     recipe.input_value_by_name('solarcal-parameters', solar_body_par_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
+
+    # perform an extra check for units because many people forget to check them
+    if isinstance(_model, Model):
+        check_model = _model
+        if check_model.units != 'Meters':
+            check_model = _model.duplicate()
+            check_model.convert_to_units('Meters')
+        # remove degenerate geometry within native E+ tolerance of 0.01 meters
+        for room in check_model.rooms:
+            try:
+                room.remove_colinear_vertices_envelope(
+                    tolerance=0.01, delete_degenerate=True)
+            except AssertionError as e:  # room removed; likely wrong units
+                error = 'Your Model units system is: {}. ' \
+                    'Is this correct?\n{}'.format(_model.units, e)
+                raise ValueError(error)
 
     # run the recipe
     silent = True if _run > 1 else False
