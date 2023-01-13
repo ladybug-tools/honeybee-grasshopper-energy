@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2022, Ladybug Tools.
+# Copyright (c) 2023, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -42,7 +42,7 @@ timeseries over a day. Each slider runs from the _low_bound_ to _high_bound_.
 
 ghenv.Component.Name = "HB Gene Pool to Day Schedule"
 ghenv.Component.NickName = 'GenePoolToDaySch'
-ghenv.Component.Message = '1.5.0'
+ghenv.Component.Message = '1.6.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"

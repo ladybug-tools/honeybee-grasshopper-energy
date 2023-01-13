@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2022, Ladybug Tools.
+# Copyright (c) 2023, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -36,7 +36,7 @@ values over each unique day of the schedule using a component like the
 
 ghenv.Component.Name = "HB Deconstruct Schedule"
 ghenv.Component.NickName = 'DeconstrSch'
-ghenv.Component.Message = '1.5.1'
+ghenv.Component.Message = '1.6.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
