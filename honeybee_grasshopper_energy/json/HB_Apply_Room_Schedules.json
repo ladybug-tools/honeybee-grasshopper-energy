@@ -1,5 +1,5 @@
 {
-  "version": "1.5.1", 
+  "version": "1.6.0", 
   "nickname": "ApplyRoomSch", 
   "outputs": [
     [
@@ -57,7 +57,7 @@
     }, 
     {
       "access": "list", 
-      "name": "x", 
+      "name": "hot_water_sch_", 
       "description": "A fractional schedule for the use of service hot water over\nthe course of the year. This can also be the identifier of a\nschedule to be looked up in the schedule library.", 
       "type": "System.Object", 
       "default": null

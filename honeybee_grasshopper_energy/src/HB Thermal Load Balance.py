@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2022, Ladybug Tools.
+# Copyright (c) 2023, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -67,7 +67,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.5.2'
+ghenv.Component.Message = '1.6.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -133,7 +133,7 @@ if all_required_inputs(ghenv.Component):
     # process hot water to ensure it's the correct type
     hw_type = 'Water Use Equipment Heating Energy'
     if hot_water_ is not None and hot_water_[0].header.metadata['type'] == hw_type:
-        hot_water_ = [hw * 0.25 for hw in hot_water_]
+        hot_water_ = [hw.duplicate() * 0.25 for hw in hot_water_]
         for hw in hot_water_:
             hw.header.metadata = {
                 'type': 'Water Use Equipment Zone Sensible Heat Gain Energy',

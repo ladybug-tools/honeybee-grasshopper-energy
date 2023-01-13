@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2022, Ladybug Tools.
+# Copyright (c) 2023, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -74,7 +74,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.5.2'
+ghenv.Component.Message = '1.6.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
