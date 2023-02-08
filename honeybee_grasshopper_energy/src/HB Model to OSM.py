@@ -74,7 +74,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -165,6 +165,14 @@ if all_required_inputs(ghenv.Component) and _write:
         _model.convert_to_units('Meters')
     # remove degenerate geometry within native E+ tolerance of 0.01 meters
     try:
+        if _model.tolerance < 0.01:
+            for room in _model.rooms:
+                try:
+                    room.remove_colinear_vertices_envelope(
+                        tolerance=_model.tolerance, delete_degenerate=True)
+                except AssertionError as e:  # room removed; likely wrong units
+                    error = 'Failed to remove degenerate geometry.\n{}'.format(e)
+                    raise ValueError(error)
         _model.remove_degenerate_geometry(0.01)
     except ValueError:
         error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
