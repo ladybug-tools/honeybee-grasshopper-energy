@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0", 
+  "version": "1.6.1", 
   "nickname": "SizingPar", 
   "outputs": [
     [
@@ -30,20 +30,41 @@
     {
       "access": "item", 
       "name": "_heating_fac_", 
-      "description": "A number that will get multiplied by the peak heating load\nfor each zone in the model in order to size the heating system for\nthe model. Must be greater than 0. Default: 1.25.", 
+      "description": "A number that will get multiplied by the peak heating load\nfor each zone in the model in order to size the heating system for\nthe model. Must be greater than 0. (Default: 1.25).", 
       "type": "double", 
       "default": null
     }, 
     {
       "access": "item", 
       "name": "_cooling_fac_", 
-      "description": "A number that will get multiplied by the peak cooling load\nfor each zone in the model in order to size the cooling system for\nthe model. Must be greater than 0. Default: 1.15.", 
+      "description": "A number that will get multiplied by the peak cooling load\nfor each zone in the model in order to size the cooling system for\nthe model. Must be greater than 0. (Default: 1.15).", 
       "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "eff_standard_", 
+      "description": "Text to specify the efficiency standard, which will automatically\nset the efficiencies of all HVAC equipment when provided. Note that\nproviding a standard here will cause the OpenStudio translation\nprocess to perform an additional sizing calculation with EnergyPlus,\nwhich is needed since the default efficiencies of equipment vary\ndependingon their size. THIS WILL SIGNIFICANTLY INCREASE\nTRANSLATION TIME TO OPENSTUDIO. However, it is often\nworthwhile when the goal is to match the HVAC specification with a\nparticular standard. The \"HB Building Vintages\" component has a full\nlist of supported HVAC efficiency standards. You can also choose\nfrom the following.\n* DOE_Ref_Pre_1980\n* DOE_Ref_1980_2004\n* ASHRAE_2004\n* ASHRAE_2007\n* ASHRAE_2010\n* ASHRAE_2013\n* ASHRAE_2016\n* ASHRAE_2019", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "climate_zone_", 
+      "description": "Script variable SizingPar", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "bldg_type_", 
+      "description": "Script variable SizingPar", 
+      "type": "string", 
       "default": null
     }
   ], 
   "subcategory": "5 :: Simulate", 
-  "code": "\ntry:\n    from honeybee_energy.simulation.sizing import SizingParameter\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\n# set default sizing factors\nheating_fac = 1.25 if _heating_fac_ is None else _heating_fac_\ncooling_fac = 1.15 if _cooling_fac_ is None else _cooling_fac_\n\n# create the object\nsizing = SizingParameter(None, heating_fac, cooling_fac)\n\n# apply design days from ddy\nif ddy_file_ is not None:\n    if filter_ddays_ == 1:\n        sizing.add_from_ddy_996_004(ddy_file_)\n    elif filter_ddays_ == 2:\n        sizing.add_from_ddy_990_010(ddy_file_)\n    else:\n        sizing.add_from_ddy(ddy_file_)\n", 
+  "code": "\ntry:\n    from honeybee_energy.simulation.sizing import SizingParameter\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n# dictionary to get correct efficiency standards\nEFF_STANDARDS = {\n    'DOE_Ref_Pre_1980': 'DOE_Ref_Pre_1980',\n    'DOE_Ref_1980_2004': 'DOE_Ref_1980_2004',\n    'ASHRAE_2004': 'ASHRAE_2004',\n    'ASHRAE_2007': 'ASHRAE_2007',\n    'ASHRAE_2010': 'ASHRAE_2010',\n    'ASHRAE_2013': 'ASHRAE_2013',\n    'ASHRAE_2016': 'ASHRAE_2016',\n    'ASHRAE_2019': 'ASHRAE_2019',\n    'pre_1980': 'DOE_Ref_Pre_1980',\n    '1980_2004': 'DOE_Ref_1980_2004',\n    '2004': 'ASHRAE_2004',\n    '2007': 'ASHRAE_2007',\n    '2010': 'ASHRAE_2010',\n    '2013': 'ASHRAE_2013',\n    '2016': 'ASHRAE_2016',\n    '2019': 'ASHRAE_2019'\n}\n\n# set default sizing factors\nheating_fac = 1.25 if _heating_fac_ is None else _heating_fac_\ncooling_fac = 1.15 if _cooling_fac_ is None else _cooling_fac_\n\n# create the object\nsizing = SizingParameter(None, heating_fac, cooling_fac)\n\n# apply design days from ddy\nif ddy_file_ is not None:\n    if filter_ddays_ == 1:\n        sizing.add_from_ddy_996_004(ddy_file_)\n    elif filter_ddays_ == 2:\n        sizing.add_from_ddy_990_010(ddy_file_)\n    else:\n        sizing.add_from_ddy(ddy_file_)\n\n# set the efficiency standard if provided\nif eff_standard_ is not None:\n    sizing.efficiency_standard = EFF_STANDARDS[eff_standard_]\nif climate_zone_ is not None:\n    sizing.climate_zone = climate_zone_\nif bldg_type_ is not None:\n    sizing.building_type = bldg_type_\n", 
   "category": "HB-Energy", 
   "name": "HB Sizing Parameter", 
   "description": "Create parameters with criteria for sizing the heating and cooling system.\n-"

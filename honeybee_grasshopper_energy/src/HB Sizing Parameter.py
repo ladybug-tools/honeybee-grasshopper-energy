@@ -23,11 +23,61 @@ Create parameters with criteria for sizing the heating and cooling system.
             99.0% and 1.0% design days.
         _heating_fac_: A number that will get multiplied by the peak heating load
             for each zone in the model in order to size the heating system for
-            the model. Must be greater than 0. Default: 1.25.
+            the model. Must be greater than 0. (Default: 1.25).
         _cooling_fac_: A number that will get multiplied by the peak cooling load
             for each zone in the model in order to size the cooling system for
-            the model. Must be greater than 0. Default: 1.15.
-    
+            the model. Must be greater than 0. (Default: 1.15).
+        eff_standard_: Text to specify the efficiency standard, which will automatically
+            set the efficiencies of all HVAC equipment when provided. Note that
+            providing a standard here will cause the OpenStudio translation
+            process to perform an additional sizing calculation with EnergyPlus,
+            which is needed since the default efficiencies of equipment vary
+            dependingon their size. THIS WILL SIGNIFICANTLY INCREASE
+            TRANSLATION TIME TO OPENSTUDIO. However, it is often
+            worthwhile when the goal is to match the HVAC specification with a
+             particular standard. The "HB Building Vintages" component has a full
+            list of supported HVAC efficiency standards. You can also choose
+            from the following.
+                * DOE_Ref_Pre_1980
+                * DOE_Ref_1980_2004
+                * ASHRAE_2004
+                * ASHRAE_2007
+                * ASHRAE_2010
+                * ASHRAE_2013
+                * ASHRAE_2016
+                * ASHRAE_2019
+        climate_zone: Text indicating the ASHRAE climate zone to be used with the
+            efficiency_standard. When unspecified, the climate zone will be
+            inferred from the design days. This input can be a single
+            integer (in which case it is interpreted as A) or it can include the
+            A, B, or C qualifier (eg. 3C). Typically, the "LB Import STAT"
+            component can yield the climate zone for a particular location.
+        building_type: Text for the building type to be used in the efficiency_standard.
+            If the type is not recognized or is None, it will be assumed that the
+            building is a generic NonResidential. The following have meaning
+            for the standard.
+                * NonResidential
+                * Residential
+                * MidriseApartment
+                * HighriseApartment
+                * LargeOffice
+                * MediumOffice
+                * SmallOffice
+                * Retail
+                * StripMall
+                * PrimarySchool
+                * SecondarySchool
+                * SmallHotel
+                * LargeHotel
+                * Hospital
+                * Outpatient
+                * Warehouse
+                * SuperMarket
+                * FullServiceRestaurant
+                * QuickServiceRestaurant
+                * Laboratory
+                * Courthouse
+
     Returns:
         sizing: Parameters with criteria for sizing the heating and cooling system.
             These can be connected to the "HB Simulation Parameter" component in
@@ -36,7 +86,7 @@ Create parameters with criteria for sizing the heating and cooling system.
 
 ghenv.Component.Name = 'HB Sizing Parameter'
 ghenv.Component.NickName = 'SizingPar'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -46,6 +96,25 @@ try:
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
+# dictionary to get correct efficiency standards
+EFF_STANDARDS = {
+    'DOE_Ref_Pre_1980': 'DOE_Ref_Pre_1980',
+    'DOE_Ref_1980_2004': 'DOE_Ref_1980_2004',
+    'ASHRAE_2004': 'ASHRAE_2004',
+    'ASHRAE_2007': 'ASHRAE_2007',
+    'ASHRAE_2010': 'ASHRAE_2010',
+    'ASHRAE_2013': 'ASHRAE_2013',
+    'ASHRAE_2016': 'ASHRAE_2016',
+    'ASHRAE_2019': 'ASHRAE_2019',
+    'pre_1980': 'DOE_Ref_Pre_1980',
+    '1980_2004': 'DOE_Ref_1980_2004',
+    '2004': 'ASHRAE_2004',
+    '2007': 'ASHRAE_2007',
+    '2010': 'ASHRAE_2010',
+    '2013': 'ASHRAE_2013',
+    '2016': 'ASHRAE_2016',
+    '2019': 'ASHRAE_2019'
+}
 
 # set default sizing factors
 heating_fac = 1.25 if _heating_fac_ is None else _heating_fac_
@@ -62,3 +131,11 @@ if ddy_file_ is not None:
         sizing.add_from_ddy_990_010(ddy_file_)
     else:
         sizing.add_from_ddy(ddy_file_)
+
+# set the efficiency standard if provided
+if eff_standard_ is not None:
+    sizing.efficiency_standard = EFF_STANDARDS[eff_standard_]
+if climate_zone_ is not None:
+    sizing.climate_zone = climate_zone_
+if bldg_type_ is not None:
+    sizing.building_type = bldg_type_
