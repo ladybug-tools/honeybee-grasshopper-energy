@@ -74,7 +74,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.6.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -151,7 +151,7 @@ if all_required_inputs(ghenv.Component) and _write:
             msg = msg + '\nDesign days were generated from the input _epw_file but this ' \
                 '\nis not as accurate as design days from DDYs distributed with the EPW.'
             give_warning(ghenv.Component, msg)
-            print msg
+            print(msg)
 
     # process the simulation folder name and the directory
     _folder_ = hb_config.folders.default_simulation_folder if _folder_ is None else _folder_
@@ -223,8 +223,28 @@ if all_required_inputs(ghenv.Component) and _write:
     # run the measure to translate the model JSON to an openstudio measure
     silent = True if run_ == 3 else False
     if run_ > 0 and not no_report_meas:  # everything must run with OS CLI
-        osm, idf = run_osw(osw, measures_only=False, silent=silent)
-        sql, zsz, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
+        if run_ == 1:  # simulate everything at once
+            osm, idf = run_osw(osw, measures_only=False, silent=silent)
+            sql, zsz, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
+        else:  # remove reporting measure and give a warning
+            m_to_remove = [m.identifier for m in measures if m.type == 'ReportingMeasure']
+            with open(osw, 'r') as op:
+                osw_data = json.load(op)
+            s_to_remove = []
+            for i, step in enumerate(osw_data['steps']):
+                if step['measure_dir_name'] in m_to_remove:
+                    s_to_remove.append(i)
+            for i in reversed(s_to_remove):
+                osw_data['steps'].pop(i)
+            with open(osw, 'wb') as fp:
+                workflow_str = json.dumps(osw_data, indent=4, ensure_ascii=False)
+                fp.write(workflow_str.encode('utf-8'))
+            msg = 'The following were reporting measures and were not\n' \
+                'included in the OSW to avoid running the simulation:\n{}'.format(
+                    '\n'.join(m_to_remove))
+            give_warning(ghenv.Component, msg)
+            print(msg)
+            osm, idf = run_osw(osw, silent=silent)
     elif run_ > 0:  # no reporting measure; simulate separately from measure application
         osm, idf = run_osw(osw, silent=silent)
         # process the additional strings
