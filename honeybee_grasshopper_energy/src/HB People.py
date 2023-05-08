@@ -27,6 +27,14 @@ directly to a Room.
             by an individual person in the room. If None, it will a default constant
             schedule with 120 Watts per person will be used, which is typical of
             awake, adult humans who are seated.
+        latent_fraction_: An optional number between 0 and 1 for the fraction of the heat
+            given off by people that is latent (as opposed to sensible). when
+            unspecified, this will be autocalculated based on the activity level
+            and the conditions in the room at each timestep of the simulation.
+            The autocalculation therefore accounts for the change in heat loss
+            through respiration and sweating that occurs at warmer temperatures
+            and higher activity levels, which is generally truer to physics
+            compared to a fixed number.
 
     Returns:
         people: A People object that can be used to create a ProgramType or
@@ -35,13 +43,14 @@ directly to a Room.
 
 ghenv.Component.Name = "HB People"
 ghenv.Component.NickName = 'People'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
 
 try:  # import the core honeybee dependencies
     from honeybee.typing import clean_and_id_ep_string, clean_ep_string
+    from honeybee.altnumber import autocalculate
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -61,6 +70,7 @@ if all_required_inputs(ghenv.Component):
     # make a default People name if none is provided
     name = clean_and_id_ep_string('People') if _name_ is None else \
         clean_ep_string(_name_)
+    latent = autocalculate if latent_fraction_ is None else latent_fraction_
 
     # get the schedules
     if isinstance(_occupancy_sch, str):
@@ -69,6 +79,7 @@ if all_required_inputs(ghenv.Component):
         _activity_sch_ = schedule_by_identifier(_activity_sch_)
 
     # create the People object
-    people = People(name, _ppl_per_area, _occupancy_sch, _activity_sch_)
+    people = People(name, _ppl_per_area, _occupancy_sch, _activity_sch_,
+                    latent_fraction=latent)
     if _name_ is not None:
         people.display_name = _name_
