@@ -38,7 +38,7 @@ Get information about end use intensity from an EnergyPlus SQL file.
 
 ghenv.Component.Name = 'HB End Use Intensity'
 ghenv.Component.NickName = 'EUI'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -79,6 +79,7 @@ def get_results_windows(sql_files):
 # The SQLite3 module doesn't work in IronPython on Mac, so we must make a call
 # to the Honeybee CLI (which runs on CPython) to get the results.
 def get_results_mac(sql_files):
+    from collections import OrderedDict
     cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
             'energy-use-intensity']
     cmds.extend(sql_files)
