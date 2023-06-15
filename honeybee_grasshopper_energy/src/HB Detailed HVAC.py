@@ -28,7 +28,7 @@ Apply a detailed Ironbug HVAC to Honeybee Rooms or a Honeybee Model.
 
 ghenv.Component.Name = "HB Detailed HVAC"
 ghenv.Component.NickName = 'DetailedHVAC'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -59,12 +59,17 @@ if folders.ironbug_exe is None:
     print(msg)
     give_warning(ghenv.Component, msg)
 elif folders.ironbug_version is not None:
-    if folders.ironbug_version < (1, 5, 3):
+    if folders.ironbug_version < (1, 9, 1):
         msg = 'Ironbug version "{}" is not compatible with this component.\n' \
             'This component will not be usable.'.format(
                 '.'.join([str(i) for i in folders.ironbug_version]))
         print(msg)
         give_warning(ghenv.Component, msg)
+else:
+    msg = 'An installation of Ironbug was found at: {}\nbut it is not ' \
+        'accessible. Contact your adminstrator.'.format(folders.ironbug_exe)
+    print(msg)
+    give_warning(ghenv.Component, msg)
 
 
 if all_required_inputs(ghenv.Component):
