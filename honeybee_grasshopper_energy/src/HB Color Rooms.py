@@ -62,7 +62,7 @@ Visualize Room-level energy simulation results as colored Room geometry.
 
 ghenv.Component.Name = "HB Color Rooms"
 ghenv.Component.NickName = 'ColorRooms'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -142,14 +142,16 @@ if all_required_inputs(ghenv.Component):
     norm_by_flr_ = True if norm_by_flr_ is None else norm_by_flr_
 
     # sense if the conneccted data is for a solar enclosure and split the data if so
+    space_based = False
     zone_solar = 'Zone Windows Total Transmitted Solar Radiation Energy'
-    if isinstance(_rooms_model[0], Model) and 'type' in _data[0].header.metadata and \
-            _data[0].header.metadata['type'] == zone_solar:
-        _data = split_solar_enclosure_data(_data, rooms)
+    if 'type' in _data[0].header.metadata and _data[0].header.metadata['type'] == zone_solar:
+        space_based = True
+        if isinstance(_rooms_model[0], Model):
+            _data = split_solar_enclosure_data(_data, rooms)
 
     # create the ColorRoom visualization object and output geometry
     color_obj = ColorRoom(_data, rooms, legend_par_, sim_step_, norm_by_flr_,
-                          units_abbreviation())
+                          units_abbreviation(), space_based=space_based)
     graphic = color_obj.graphic_container
     mesh = [from_face3ds_to_colored_mesh(flrs, col) for flrs, col in
             zip(color_obj.matched_floor_faces, graphic.value_colors)]

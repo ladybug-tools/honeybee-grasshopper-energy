@@ -57,7 +57,7 @@ _
 
 ghenv.Component.Name = 'HB Carbon Emission Intensity'
 ghenv.Component.NickName = 'CEI'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -98,6 +98,7 @@ def get_results_windows(sql_files, elec_emiss):
 # The SQLite3 module doesn't work in IronPython on Mac, so we must make a call
 # to the Honeybee CLI (which runs on CPython) to get the results.
 def get_results_mac(sql_files, elec_emiss):
+    from collections import OrderedDict
     cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
             'carbon-emission-intensity']
     cmds.extend(sql_files)
