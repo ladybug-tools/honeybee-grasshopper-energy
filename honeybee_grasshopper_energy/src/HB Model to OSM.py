@@ -74,11 +74,12 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.6.3'
+ghenv.Component.Message = '1.6.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
 
+import sys
 import os
 import re
 import json
@@ -185,12 +186,13 @@ if all_required_inputs(ghenv.Component) and _write:
     model_dict = _model.to_dict(triangulate_sub_faces=True)
     _model.properties.energy.add_autocal_properties_to_dict(model_dict)
     model_json = os.path.join(directory, '{}.hbjson'.format(clean_name))
-    try:
-        with open(model_json, 'w') as fp:
-            json.dump(model_dict, fp)
-    except UnicodeDecodeError:  # non-unicode character in display_name
-        with open(model_json, 'w') as fp:
-            json.dump(model_dict, fp, ensure_ascii=False)
+    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+        with open(model_json, 'wb') as fp:
+            model_str = json.dumps(model_dict, indent=4, ensure_ascii=False)
+            fp.write(model_str.encode('utf-8'))
+    else:
+        with open(model_json, 'w', encoding='utf-8') as fp:
+            model_str = json.dump(model_dict, fp, indent=4, ensure_ascii=False)
 
     # write the simulation parameter JSONs
     sim_par_dict = _sim_par_.to_dict()
