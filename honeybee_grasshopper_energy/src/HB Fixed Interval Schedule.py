@@ -57,13 +57,14 @@ running over the entirety of the simulation period.
 
 ghenv.Component.Name = 'HB Fixed Interval Schedule'
 ghenv.Component.NickName = 'FixedIntervalSchedule'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
 
 try:  # import the ladybug dependencies
     from ladybug.dt import Date
+    from ladybug.analysisperiod import AnalysisPeriod
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
@@ -79,7 +80,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:  # import ladybug_rhino dependencies
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -91,6 +92,16 @@ if all_required_inputs(ghenv.Component):
         analysis_period_.st_time.date
     name = clean_and_id_ep_string('FixedIntervalSchedule') if _name_ is None else \
         clean_ep_string(_name_)
+
+    # perform a check to see if the input values align with the analysis period
+    a_per = AnalysisPeriod() if analysis_period_ is None else analysis_period_
+    if len(a_per) * _timestep_ != len(_values):
+        msg = 'The number of values implied by the analysis period [{}]\n' \
+            'is not the same as the number of values supplied [{}].\n' \
+            'This may result in unexpeted behavior.'.format(
+                len(a_per) * _timestep_, len(_values))
+        print(msg)
+        give_warning(ghenv.Component, msg)
 
     # get the ScheduleTypeLimit object
     if _type_limit_ is None:
