@@ -41,7 +41,7 @@ of occupancy is so low that infiltration is enough to meet fresh air demand.
 
 ghenv.Component.Name = "HB HeatCool HVAC"
 ghenv.Component.NickName = 'HeatCoolHVAC'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -132,11 +132,14 @@ if all_required_inputs(ghenv.Component):
         hvac.display_name = _name_
 
     # apply the HVAC system to the rooms
+    no_setp_rooms = []
     hvac_count = 0
     for room in rooms:
         if room.properties.energy.is_conditioned:
             room.properties.energy.hvac = hvac
             hvac_count += 1
+            if room.properties.energy.setpoint is None:
+                no_setp_rooms.append(room.full_id)
 
     # give a warning if no rooms were conditioned
     if hvac_count == 0:
@@ -144,3 +147,11 @@ if all_required_inputs(ghenv.Component):
             'Set rooms to be conditioned using the "HB Set Conditioned" component.'
         print(msg)
         give_warning(ghenv.Component, msg)
+
+    # print a message if some of the rooms lack a setpoint specification
+    if len(no_setp_rooms) != 0:
+        msg = 'The following Rooms have the HVAC system assigned to them '\
+        'but they lack a thermostat setpoint specification.\nThese Rooms ' \
+        'without setpoints will be treated as unconditioned in EnergyPlus '\
+        'simulation.\n{}'.format('\n'.join(no_setp_rooms))
+        print(msg)
