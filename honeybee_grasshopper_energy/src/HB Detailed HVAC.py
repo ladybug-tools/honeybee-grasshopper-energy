@@ -28,7 +28,7 @@ Apply a detailed Ironbug HVAC to Honeybee Rooms or a Honeybee Model.
 
 ghenv.Component.Name = "HB Detailed HVAC"
 ghenv.Component.NickName = 'DetailedHVAC'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.6.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -98,12 +98,14 @@ if all_required_inputs(ghenv.Component):
 
     # apply the HVAC system to the rooms
     hvac_rooms = set(hvac.thermal_zones)
-    hvac_count, rel_rooms = 0, []
+    hvac_count, rel_rooms, no_setp_rooms = 0, [], []
     for room in rooms:
         if room.identifier in hvac_rooms:
             room.properties.energy.hvac = hvac
             rel_rooms.append(room.identifier)
             hvac_count += 1
+            if room.properties.energy.setpoint is None:
+                no_setp_rooms.append(room.full_id)
 
     # give a warning if no rooms were assigned the HVAC or if there are missing rooms
     if hvac_count == 0:
@@ -119,5 +121,12 @@ if all_required_inputs(ghenv.Component):
                 missing_rooms.append(rm_id)
         msg = 'The Ironbug HVAC system contains the following rooms that are not ' \
             'in the connected _hb_objs.\n{}'.format('\n'.join(missing_rooms))
+        print(msg)
+        give_warning(ghenv.Component, msg)
+    if len(no_setp_rooms) != 0:
+        msg = 'The following Rooms have the HVAC system assigned to them '\
+        'but they lack a thermostat setpoint specification.\nSetpoints ' \
+        'must be assigned to these Rooms in order to be simulate-able.\n{}'.format(
+            '\n'.join(no_setp_rooms))
         print(msg)
         give_warning(ghenv.Component, msg)

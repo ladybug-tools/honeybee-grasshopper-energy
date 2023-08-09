@@ -62,7 +62,7 @@ than systems that separate ventilation from the meeting of thermal loads.
 
 ghenv.Component.Name = "HB All-Air HVAC"
 ghenv.Component.NickName = 'AllAirHVAC'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -162,13 +162,15 @@ if all_required_inputs(ghenv.Component):
         hvac.display_name = _name_
 
     # apply the HVAC system to the rooms
-    rel_rooms = []
+    rel_rooms, no_setp_rooms = [], []
     hvac_count = 0
     for room in rooms:
         if room.properties.energy.is_conditioned:
             room.properties.energy.hvac = hvac
             rel_rooms.append(room)
             hvac_count += 1
+            if room.properties.energy.setpoint is None:
+                no_setp_rooms.append(room.full_id)
 
     # give a warning if no rooms were conditioned
     if hvac_count == 0:
@@ -189,3 +191,11 @@ if all_required_inputs(ghenv.Component):
                 'rooms have the same ventilation schedule.\n' \
                 'All ventilation schedules will be ignored.'
             give_warning(ghenv.Component, msg)
+
+    # print a message if some of the rooms lack a setpoint specification
+    if len(no_setp_rooms) != 0:
+        msg = 'The following Rooms have the HVAC system assigned to them '\
+        'but they lack a thermostat setpoint specification.\nThese Rooms ' \
+        'without setpoints will be treated as unconditioned in EnergyPlus '\
+        'simulation.\n{}'.format('\n'.join(no_setp_rooms))
+        print(msg)
