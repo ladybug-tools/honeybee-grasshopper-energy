@@ -96,7 +96,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -153,7 +153,7 @@ def check_window_vent(rooms):
             msg = 'Window ventilation was detected but your timestep is too low ' \
                 'to model window opening correctly.\nIt is recommended that you ' \
                 'increase your timestep to at least 4 to get loads for this case.'
-            print msg
+            print(msg)
             give_warning(ghenv.Component, msg)
 
 
@@ -268,7 +268,7 @@ if all_required_inputs(ghenv.Component) and _run:
         msg = msg + '\nDesign days were generated from the input _epw_file but this ' \
             '\nis not as accurate as design days from DDYs distributed with the EPW.'
         give_warning(ghenv.Component, msg)
-        print msg
+        print(msg)
 
     # create the strings for simulation paramters and model
     ver_str = energyplus_idf_version() if energy_folders.energyplus_version \

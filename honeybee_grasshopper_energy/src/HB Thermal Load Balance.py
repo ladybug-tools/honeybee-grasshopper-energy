@@ -67,7 +67,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -113,7 +113,7 @@ if all_required_inputs(ghenv.Component):
             '_rooms_model to ensure correct representaiton of solar.'
         for coll in solar_gain_:
             if 'Solar Enclosure' in coll.header.metadata['Zone']:
-                print msg
+                print(msg)
                 give_warning(ghenv.Component, msg)
 
     # process all of the inputs
