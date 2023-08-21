@@ -55,7 +55,7 @@ tempertures averaged to produce the output balance temperture.
 
 ghenv.Component.Name = 'HB Balance Temperature'
 ghenv.Component.NickName = 'BalTemp'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -112,6 +112,5 @@ if all_required_inputs(ghenv.Component):
         load_sort.append(load)
 
     # return the average temperature and balance day load
-    print len(temp_sort)
     bal_day_load = sum(load_sort) / _day_count_
     bal_temp = sum(temp_sort) / _day_count_

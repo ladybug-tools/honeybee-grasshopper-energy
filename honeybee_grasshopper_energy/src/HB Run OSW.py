@@ -55,7 +55,7 @@ EnergyPlus.
 
 ghenv.Component.Name = 'HB Run OSW'
 ghenv.Component.NickName = 'RunOSW'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -96,7 +96,7 @@ def run_osw_and_report_errors(i):
             for warn in err_obj.severe_errors:
                 give_warning(ghenv.Component, warn)
             for error in err_obj.fatal_errors:
-                print err_obj.file_contents  # print before raising the error
+                print(err_obj.file_contents)  # print before raising the error
                 raise Exception(error)
 
         # append everything to the global lists
