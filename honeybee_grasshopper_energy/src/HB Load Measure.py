@@ -35,7 +35,7 @@ https://bcl.nrel.gov/nrel/types/measure
 
 ghenv.Component.Name = 'HB Load Measure'
 ghenv.Component.NickName = 'LoadMeasure'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -157,7 +157,12 @@ def update_measure_arguments(measure):
     """
     for i in range(1, ghenv.Component.Params.Input.Count):
         try:
-            value = ghenv.Component.Params.Input[i].VolatileData[0][0]
+            try:  # sense if there are multiple inputs
+                run_count = ghenv.Component.RunCount
+                value = ghenv.Component.Params.Input[i].VolatileData[0][run_count - 1]
+            except Exception:
+                vdc = ghenv.Component.Params.Input[i].VolatileDataCount
+                value = ghenv.Component.Params.Input[i].VolatileData[0][vdc -  1]
             if value is not None:
                 val = str(value)  # cast to string to avoid weird Grasshopper types
                 argument = measure.arguments[i - 1]
