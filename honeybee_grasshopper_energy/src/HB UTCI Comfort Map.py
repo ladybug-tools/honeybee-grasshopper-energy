@@ -72,6 +72,10 @@ considered occupied.
             If unspecified, it will be assumed that all times are relevant for
             outdoor sensors and the energy model occupancy schedules will be
             used for indoor sensors.
+        comfort_par_: Optional comfort parameters from the "LB UTCI Comfort Parameters"
+            component to specify the temperatures (in Celcius) that are
+            considered acceptable/comfortable. The default will assume a that 
+            the comfort range is between 9C and 26C.
         solar_body_par_: Optional solar body parameters from the "LB Solar Body Parameters"
             object to specify the properties of the human geometry assumed in the
             shortwave MRT calculation. The default assumes average skin/clothing
@@ -154,7 +158,7 @@ considered occupied.
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -187,6 +191,7 @@ if all_required_inputs(ghenv.Component) and _run:
     else:
         recipe.input_value_by_name('wind-speed', _wind_speed_)
     recipe.input_value_by_name('schedule', schedule_)
+    recipe.input_value_by_name('comfort-parameters', comfort_par_)
     recipe.input_value_by_name('solarcal-parameters', solar_body_par_)
     recipe.input_value_by_name('radiance-parameters', radiance_par_)
 
