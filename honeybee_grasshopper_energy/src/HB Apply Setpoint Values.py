@@ -14,7 +14,9 @@ Apply values for setpoints to a Room or ProgramType.
     Args:
         _room_or_program: Honeybee Rooms or ProgramType objects to which the input
             setpoints should be assigned. This can also be the identifier of a
-            ProgramType to be looked up in the program type library.
+            ProgramType to be looked up in the program type library. This can
+            also be a Honeybee Model for which all Rooms will be assigned
+            the setpoints.
         cooling_setpt_: A numerical value for a single constant temperature for
             the cooling setpoint [C].
         heating_setpt_: A numerical value for a single constant temperature for
@@ -31,7 +33,7 @@ Apply values for setpoints to a Room or ProgramType.
 
 ghenv.Component.Name = "HB Apply Setpoint Values"
 ghenv.Component.NickName = 'ApplySetpointVals'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -39,6 +41,7 @@ ghenv.Component.AdditionalHelpFromDocStrings = "2"
 import uuid
 
 try:
+    from honeybee.model import Model
     from honeybee.room import Room
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
@@ -96,46 +99,56 @@ def duplicate_and_id_program(program):
 
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
-    mod_obj = []
+    mod_obj, edit_objs = [], []
     for obj in _room_or_program:
         if isinstance(obj, Room):
-            mod_obj.append(obj.duplicate())
+            new_obj = obj.duplicate()
+            mod_obj.append(new_obj)
+            edit_objs.append(new_obj)
+        elif isinstance(obj, Model):
+            new_obj = obj.duplicate()
+            mod_obj.append(new_obj)
+            edit_objs.extend(new_obj.rooms)
         elif isinstance(obj, ProgramType):
-            mod_obj.append(duplicate_and_id_program(obj))
+            new_obj = duplicate_and_id_program(obj)
+            mod_obj.append(new_obj)
+            edit_objs.append(new_obj)
         elif isinstance(obj, str):
             try:
                 program = building_program_type_by_identifier(obj)
             except ValueError:
                 program = program_type_by_identifier(obj)
-            mod_obj.append(duplicate_and_id_program(program))
+            new_obj = duplicate_and_id_program(obj)
+            mod_obj.append(new_obj)
+            edit_objs.append(new_obj)
         else:
-            raise TypeError('Expected Honeybee Room or ProgramType. '
+            raise TypeError('Expected Honeybee Room, Model or ProgramType. '
                             'Got {}.'.format(type(obj)))
 
     # assign the cooling_setpt_
     if len(cooling_setpt_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             setpoint = dup_setpoint(obj)
             setpoint.cooling_setpoint = longest_list(cooling_setpt_, i)
             assign_setpoint(obj, setpoint)
 
     # assign the heating_setpt_
     if len(heating_setpt_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             setpoint = dup_setpoint(obj)
             setpoint.heating_setpoint = longest_list(heating_setpt_, i)
             assign_setpoint(obj, setpoint)
 
     # assign the humid_setpt_
     if len(humid_setpt_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             setpoint = dup_setpoint(obj)
             setpoint.humidifying_setpoint = longest_list(humid_setpt_, i)
             assign_setpoint(obj, setpoint)
 
     # assign the dehumid_setpt_
     if len(dehumid_setpt_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             setpoint = dup_setpoint(obj)
             setpoint.dehumidifying_setpoint = longest_list(dehumid_setpt_, i)
             assign_setpoint(obj, setpoint)

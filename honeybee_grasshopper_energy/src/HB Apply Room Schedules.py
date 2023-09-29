@@ -8,7 +8,7 @@
 # @license AGPL-3.0-or-later <https://spdx.org/licenses/AGPL-3.0-or-later>
 
 """
-Apply schedules to a Room or ProgramType.
+Apply schedules to a Room, Model or ProgramType.
 _
 Note that, if a schedule is assigned to a Room or ProgramType that posseses
 no value for a given load, an error will be raised. For example, assigning a
@@ -21,7 +21,9 @@ given load.
     Args:
         _room_or_program: Honeybee Rooms or Honeybee ProgramType objects for which
             schedules should be changed. This can also be the identifier of a
-            ProgramType to be looked up in the program type library.
+            ProgramType to be looked up in the program type library. This can
+            also be a Honeybee Model for which all Rooms will be assigned
+            the schedules.
         occupancy_sch_: A fractional schedule for the occupancy over the course
             of the year. This can also be the identifier of a schedule to be looked
             up in the schedule library.
@@ -70,7 +72,7 @@ given load.
 
 ghenv.Component.Name = "HB Apply Room Schedules"
 ghenv.Component.NickName = 'ApplyRoomSch'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -78,6 +80,7 @@ ghenv.Component.AdditionalHelpFromDocStrings = "3"
 import uuid
 
 try:
+    from honeybee.model import Model
     from honeybee.room import Room
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
@@ -141,88 +144,98 @@ def duplicate_and_id_program(program):
 
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
-    mod_obj = []
+    mod_obj, edit_objs = [], []
     for obj in _room_or_program:
         if isinstance(obj, Room):
-            mod_obj.append(obj.duplicate())
+            new_obj = obj.duplicate()
+            mod_obj.append(new_obj)
+            edit_objs.append(new_obj)
+        elif isinstance(obj, Model):
+            new_obj = obj.duplicate()
+            mod_obj.append(new_obj)
+            edit_objs.extend(new_obj.rooms)
         elif isinstance(obj, ProgramType):
-            mod_obj.append(duplicate_and_id_program(obj))
+            new_obj = duplicate_and_id_program(obj)
+            mod_obj.append(new_obj)
+            edit_objs.append(new_obj)
         elif isinstance(obj, str):
             try:
                 program = building_program_type_by_identifier(obj)
             except ValueError:
                 program = program_type_by_identifier(obj)
-            mod_obj.append(duplicate_and_id_program(program))
+            new_obj = duplicate_and_id_program(obj)
+            mod_obj.append(new_obj)
+            edit_objs.append(new_obj)
         else:
-            raise TypeError('Expected Honeybee Room or ProgramType. '
+            raise TypeError('Expected Honeybee Room, Model or ProgramType. '
                             'Got {}.'.format(type(obj)))
 
     # assign the occupancy schedule
     if len(occupancy_sch_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             people = dup_load(obj, 'people', 'occupancy_sch_')
             people.occupancy_schedule = schedule_object(longest_list(occupancy_sch_, i))
             assign_load(obj, people, 'people')
 
     # assign the activity schedule
     if len(activity_sch_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             people = dup_load(obj, 'people', 'activity_sch_')
             people.activity_schedule = schedule_object(longest_list(activity_sch_, i))
             assign_load(obj, people, 'people')
 
     # assign the lighting schedule
     if len(lighting_sch_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             lighting = dup_load(obj, 'lighting', 'lighting_sch_')
             lighting.schedule = schedule_object(longest_list(lighting_sch_, i))
             assign_load(obj, lighting, 'lighting')
 
     # assign the electric equipment schedule
     if len(electric_equip_sch_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             equip = dup_load(obj, 'electric_equipment', 'electric_equip_sch_')
             equip.schedule = schedule_object(longest_list(electric_equip_sch_, i))
             assign_load(obj, equip, 'electric_equipment')
 
     # assign the gas equipment schedule
     if len(gas_equip_sch_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             equip = dup_load(obj, 'gas_equipment', 'gas_equip_sch_')
             equip.schedule = schedule_object(longest_list(gas_equip_sch_, i))
             assign_load(obj, equip, 'gas_equipment')
 
     # assign the hot water schedule
     if len(hot_water_sch_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             shw = dup_load(obj, 'service_hot_water', 'hot_water_sch_')
             shw.schedule = schedule_object(longest_list(hot_water_sch_, i))
             assign_load(obj, shw, 'service_hot_water')
 
     # assign the infiltration schedule
     if len(infiltration_sch_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             infiltration = dup_load(obj, 'infiltration', 'infiltration_sch_')
             infiltration.schedule = schedule_object(longest_list(infiltration_sch_, i))
             assign_load(obj, infiltration, 'infiltration')
 
     # assign the ventilation schedule
     if len(ventilation_sch_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             ventilation = dup_load(obj, 'ventilation', 'ventilation_sch_')
             ventilation.schedule = schedule_object(longest_list(ventilation_sch_, i))
             assign_load(obj, ventilation, 'ventilation')
 
     # assign the heating setpoint schedule
     if len(heating_setpt_sch_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             setpoint = dup_load(obj, 'setpoint', 'heating_setpt_sch_')
             setpoint.heating_schedule = schedule_object(longest_list(heating_setpt_sch_, i))
             assign_load(obj, setpoint, 'setpoint')
 
     # assign the cooling setpoint schedule
     if len(cooling_setpt_sch_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             setpoint = dup_load(obj, 'setpoint', 'cooling_setpt_sch_')
             setpoint.cooling_schedule = schedule_object(longest_list(cooling_setpt_sch_, i))
             assign_load(obj, setpoint, 'setpoint')

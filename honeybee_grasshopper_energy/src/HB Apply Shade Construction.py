@@ -30,14 +30,14 @@ orientation, provided that a list of ShadeConstructions are input to the _constr
             construction library. If an array of text or construction objects
             are input here, different constructions will be assigned based on
             cardinal direction, starting with north and moving clockwise.
-    
+
     Returns:
         hb_objs: The input honeybee objects with their constructions edited.
 """
 
 ghenv.Component.Name = "HB Apply Shade Construction"
 ghenv.Component.NickName = 'ApplyShadeConstr'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -50,6 +50,7 @@ except ImportError as e:
 
 try:  # import the core honeybee dependencies
     from honeybee.shade import Shade
+    from honeybee.model import Model
     from honeybee.room import Room
     from honeybee.face import Face
     from honeybee.aperture import Aperture
@@ -84,6 +85,9 @@ if all_required_inputs(ghenv.Component):
             elif isinstance(obj, (Aperture, Face, Room, Door)):
                 for shd in obj.shades:
                     shd.properties.energy.construction = _constr[0]
+            elif isinstance(obj, Model):
+                for shd in obj.orphaned_shades:
+                    shd.properties.energy.construction = _constr[0]
             else:
                 raise TypeError(error_msg.format(type(obj)))
     else:  # assign constructions based on cardinal direction
@@ -98,6 +102,9 @@ if all_required_inputs(ghenv.Component):
                 obj.properties.energy.construction = _constr[0]
             elif isinstance(obj, Room):
                  for shd in obj.shades:
+                    shd.properties.energy.construction = _constr[0]
+            elif isinstance(obj, Model):
+                for shd in obj.orphaned_shades:
                     shd.properties.energy.construction = _constr[0]
             else:
                 raise TypeError(error_msg.format(type(obj)))

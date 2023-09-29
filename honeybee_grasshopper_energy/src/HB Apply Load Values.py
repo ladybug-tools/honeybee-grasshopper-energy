@@ -18,7 +18,9 @@ simulation, the "Always On" schedule will be used as a default.
     Args:
         _room_or_program: Honeybee Rooms or ProgramType objects to which the input
             load objects should be assigned. This can also be the identifier of a
-            ProgramType to be looked up in the program type library.
+            ProgramType to be looked up in the program type library. This can
+            also be a Honeybee Model for which all Rooms will be assigned
+            the loads.
         people_per_floor_: A numerical value for the number of people per square
             meter of floor area.
         lighting_per_floor_: A numerical value for the lighting power density in
@@ -61,7 +63,7 @@ simulation, the "Always On" schedule will be used as a default.
 
 ghenv.Component.Name = "HB Apply Load Values"
 ghenv.Component.NickName = 'ApplyLoadVals'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -69,6 +71,7 @@ ghenv.Component.AdditionalHelpFromDocStrings = "2"
 import uuid
 
 try:
+    from honeybee.model import Model
     from honeybee.room import Room
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
@@ -135,81 +138,91 @@ def duplicate_and_id_program(program):
 
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
-    mod_obj = []
+    mod_obj, edit_objs = [], []
     for obj in _room_or_program:
         if isinstance(obj, Room):
-            mod_obj.append(obj.duplicate())
+            new_obj = obj.duplicate()
+            mod_obj.append(new_obj)
+            edit_objs.append(new_obj)
+        elif isinstance(obj, Model):
+            new_obj = obj.duplicate()
+            mod_obj.append(new_obj)
+            edit_objs.extend(new_obj.rooms)
         elif isinstance(obj, ProgramType):
-            mod_obj.append(duplicate_and_id_program(obj))
+            new_obj = duplicate_and_id_program(obj)
+            mod_obj.append(new_obj)
+            edit_objs.append(new_obj)
         elif isinstance(obj, str):
             try:
                 program = building_program_type_by_identifier(obj)
             except ValueError:
                 program = program_type_by_identifier(obj)
-            mod_obj.append(duplicate_and_id_program(program))
+            new_obj = duplicate_and_id_program(obj)
+            mod_obj.append(new_obj)
+            edit_objs.append(new_obj)
         else:
-            raise TypeError('Expected Honeybee Room or ProgramType. '
+            raise TypeError('Expected Honeybee Room, Model or ProgramType. '
                             'Got {}.'.format(type(obj)))
 
     # assign the people_per_floor_
     if len(people_per_floor_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             people = dup_load(obj, 'people', People)
             people.people_per_area = longest_list(people_per_floor_, i)
             assign_load(obj, people, 'people')
 
     # assign the lighting_per_floor_
     if len(lighting_per_floor_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             lighting = dup_load(obj, 'lighting', Lighting)
             lighting.watts_per_area = longest_list(lighting_per_floor_, i)
             assign_load(obj, lighting, 'lighting')
 
     # assign the electric_per_floor_
     if len(electric_per_floor_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             equip = dup_load(obj, 'electric_equipment', ElectricEquipment)
             equip.watts_per_area = longest_list(electric_per_floor_, i)
             assign_load(obj, equip, 'electric_equipment')
 
     # assign the gas_per_floor_
     if len(gas_per_floor_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             equip = dup_load(obj, 'gas_equipment', GasEquipment)
             equip.watts_per_area = longest_list(gas_per_floor_, i)
             assign_load(obj, equip, 'gas_equipment')
 
     # assign the hot_wtr_per_floor_
     if len(hot_wtr_per_floor_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             shw = dup_load(obj, 'service_hot_water', ServiceHotWater)
             shw.flow_per_area = longest_list(hot_wtr_per_floor_, i)
             assign_load(obj, shw, 'service_hot_water')
 
     # assign the infilt_per_exterior_
     if len(infilt_per_exterior_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             infilt = dup_load(obj, 'infiltration', Infiltration)
             infilt.flow_per_exterior_area = longest_list(infilt_per_exterior_, i)
             assign_load(obj, infilt, 'infiltration')
 
     # assign the vent_per_floor_
     if len(vent_per_floor_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             vent = dup_load(obj, 'ventilation', Ventilation)
             vent.flow_per_area = longest_list(vent_per_floor_, i)
             assign_load(obj, vent, 'ventilation')
 
     # assign the vent_per_person_
     if len(vent_per_person_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             vent = dup_load(obj, 'ventilation', Ventilation)
             vent.flow_per_person = longest_list(vent_per_person_, i)
             assign_load(obj, vent, 'ventilation')
 
     # assign the vent_ach_
     if len(vent_ach_) != 0:
-        for i, obj in enumerate(mod_obj):
+        for i, obj in enumerate(edit_objs):
             vent = dup_load(obj, 'ventilation', Ventilation)
             vent.air_changes_per_hour = longest_list(vent_ach_, i)
             assign_load(obj, vent, 'ventilation')
