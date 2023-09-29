@@ -15,8 +15,8 @@ orientation, provided that a list of OpaqueConstructions are input to the _const
 -
 
     Args:
-        _hb_objs: Honeybee Faces, Doors or Rooms to which the input _constr should
-            be assigned. For the case of a Honeybee Room, the construction
+        _hb_objs: Honeybee Faces, Doors, Rooms or a Model to which the input _constr should
+            be assigned. For the case of a Room or a Model, the construction
             will only be applied to the Room's outdoor walls. Note that, if you
             need to assign a construction to all the roofs, floors, etc. of a
             Room, the best practice is to create a ConstructionSet and assing that
@@ -33,7 +33,7 @@ orientation, provided that a list of OpaqueConstructions are input to the _const
 
 ghenv.Component.Name = "HB Apply Opaque Construction"
 ghenv.Component.NickName = 'ApplyOpaqueConstr'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -47,6 +47,7 @@ except ImportError as e:
 try:  # import the core honeybee dependencies
     from honeybee.boundarycondition import Outdoors
     from honeybee.facetype import Wall
+    from honeybee.model import Model
     from honeybee.room import Room
     from honeybee.face import Face
     from honeybee.door import Door
@@ -69,21 +70,21 @@ def is_exterior_wall(face):
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
     hb_objs = [obj.duplicate() for obj in _hb_objs]
-    
+
     # process the input constructions
     for i, constr in enumerate(_constr):
         if isinstance(constr, str):
             _constr[i] = opaque_construction_by_identifier(constr)
-    
+
     # error message for unrecognized object
     error_msg = 'Input _hb_objs must be a Room, Face, or Door. Not {}.'
-    
+
     # assign the constructions
     if len(_constr) == 1:  # assign indiscriminately, even if it's horizontal
         for obj in hb_objs:
             if isinstance(obj, (Face, Door)):
                 obj.properties.energy.construction = _constr[0]
-            elif isinstance(obj, Room):
+            elif isinstance(obj, (Room, Model)):
                 for face in obj.faces:
                     if is_exterior_wall(face):
                         face.properties.energy.construction = _constr[0]
@@ -96,7 +97,7 @@ if all_required_inputs(ghenv.Component):
                 orient_i = face_orient_index(obj, angles)
                 if orient_i is not None:
                     obj.properties.energy.construction = _constr[orient_i]
-            elif isinstance(obj, Room):
+            elif isinstance(obj, (Room, Model)):
                  for face in obj.faces:
                      if is_exterior_wall(face):
                          orient_i = face_orient_index(face, angles)

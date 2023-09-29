@@ -17,8 +17,8 @@ orientation, provided that a list of WindowConstructions are input to the _const
 -
 
     Args:
-        _hb_objs: Honeybee Apertures, Faces, Doors or Rooms to which the input
-            _constr should be assigned. For the case of a Honeybee Room, the
+        _hb_objs: Honeybee Apertures, Faces, Doors, Rooms or a Model to which the input
+            _constr should be assigned. For the case of a Room or a Model, the
             construction will only be applied to the apertures in the the
             Room's outdoor walls. Note that, if you need to assign a construction
             to all the skylights, glass doors, etc. of a Room, the best practice
@@ -36,7 +36,7 @@ orientation, provided that a list of WindowConstructions are input to the _const
 
 ghenv.Component.Name = "HB Apply Window Construction"
 ghenv.Component.NickName = 'ApplyWindowConstr'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -50,6 +50,7 @@ except ImportError as e:
 try:  # import the core honeybee dependencies
     from honeybee.boundarycondition import Outdoors
     from honeybee.facetype import Wall
+    from honeybee.model import Model
     from honeybee.room import Room
     from honeybee.face import Face
     from honeybee.aperture import Aperture
@@ -90,7 +91,7 @@ if all_required_inputs(ghenv.Component):
             elif isinstance(obj, Face):
                 for ap in obj.apertures:
                     ap.properties.energy.construction = _constr[0]
-            elif isinstance(obj, Room):
+            elif isinstance(obj, (Room, Model)):
                 for face in obj.faces:
                     if is_exterior_wall(face):
                         for ap in face.apertures:
@@ -109,7 +110,7 @@ if all_required_inputs(ghenv.Component):
                 if orient_i is not None:
                     for ap in obj.apertures:
                         ap.properties.energy.construction = _constr[orient_i]
-            elif isinstance(obj, Room):
+            elif isinstance(obj, (Room, Model)):
                  for face in obj.faces:
                      if is_exterior_wall(face):
                          orient_i = face_orient_index(face, angles)

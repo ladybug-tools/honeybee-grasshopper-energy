@@ -8,13 +8,15 @@
 # @license AGPL-3.0-or-later <https://spdx.org/licenses/AGPL-3.0-or-later>
 
 """
-Apply ProgramType objects to Rooms.
+Apply ProgramType objects to Rooms or a Model.
 -
 
     Args:
-        _rooms: Honeybee Rooms to which the input load objects should be assigned.
+        _rooms: Honeybee Rooms to which the input program should be assigned.
+            This can also be a Honeybee Model for which all Rooms will be
+            assigned the ProgramType.
         _program: A ProgramType object to apply to the input rooms,
-    
+
     Returns:
         report: Reports, errors, warnings, etc.
         rooms: The input Rooms with their loads edited.
@@ -22,12 +24,13 @@ Apply ProgramType objects to Rooms.
 
 ghenv.Component.Name = "HB Apply ProgramType"
 ghenv.Component.NickName = 'ApplyProgram'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
 
 try:
+    from honeybee.model import Model
     from honeybee.room import Room
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -46,10 +49,21 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
-    rooms = [obj.duplicate() for obj in _rooms if isinstance(obj, Room)]
+    rooms = [obj.duplicate() for obj in _rooms]
+
+    # extract any rooms from the input Models
+    hb_objs = []
+    for hb_obj in rooms:
+        if isinstance(hb_obj, Model):
+            hb_objs.extend(hb_obj.rooms)
+        elif isinstance(hb_obj, Room):
+            hb_objs.append(hb_obj)
+        else:
+            raise ValueError(
+                'Expected Honeybee Room or Model. Got {}.'.format(type(hb_obj)))
 
     # apply the program to the rooms
-    for i, room in enumerate(rooms):
+    for i, room in enumerate(hb_objs):
         prog = longest_list(_program, i)
         if isinstance(prog, str):  # get the program object if it is a string
             try:

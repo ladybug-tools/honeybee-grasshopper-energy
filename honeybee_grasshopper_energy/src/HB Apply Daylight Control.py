@@ -19,6 +19,8 @@ Schedule" component under HB-Radiance should be used.
 
     Args:
         _rooms: Honeybee Rooms to which simple daylight controls should be assigned.
+            This can also be a Honeybee Model for which all Rooms will be
+            assigned daylight control sensors.
         _sensor_points_: A list of point objects that align with the input _rooms and
             assign the position of the daylight sensor within the Room.
             This point should lie within the Room volume and a warning will
@@ -61,10 +63,16 @@ Schedule" component under HB-Radiance should be used.
 
 ghenv.Component.Name = 'HB Apply Daylight Control'
 ghenv.Component.NickName = 'DaylightControl'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.6.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
+
+try:
+    from honeybee.model import Model
+    from honeybee.room import Room
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:  # import the honeybee-energy extension
     from honeybee_energy.load.daylight import DaylightingControl
@@ -84,12 +92,23 @@ if all_required_inputs(ghenv.Component):
     # duplicate the initial objects
     rooms = [room.duplicate() for room in _rooms]
 
+    # extract any rooms from the input Models
+    hb_objs = []
+    for hb_obj in rooms:
+        if isinstance(hb_obj, Model):
+            hb_objs.extend(hb_obj.rooms)
+        elif isinstance(hb_obj, Room):
+            hb_objs.append(hb_obj)
+        else:
+            raise ValueError(
+                'Expected Honeybee Room or Model. Got {}.'.format(type(hb_obj)))
+
     # set default values and perform checks
     dist_from_floor = 0.8 / conversion_to_meters()
     if len(_sensor_points_) != 0:
-        assert len(_sensor_points_) == len(_rooms), 'Number of sensor points ({}) ' \
+        assert len(_sensor_points_) == len(hb_objs), 'Number of sensor points ({}) ' \
             'must align exactly with the number of rooms ({}).'.format(
-                len(_sensor_points_), len(_rooms))
+                len(_sensor_points_), len(hb_objs))
     _ill_setpoint_ = [300] if len(_ill_setpoint_) == 0 else _ill_setpoint_
     _control_fract_ = [1] if len(_control_fract_) == 0 else _control_fract_
     _min_power_in_ = [0.3] if len(_min_power_in_) == 0 else _min_power_in_
@@ -99,7 +118,7 @@ if all_required_inputs(ghenv.Component):
     # loop through the rooms and assign daylight sensors
     unassigned_rooms = []
     if len(_sensor_points_) == 0:
-        for i, room in enumerate(rooms):
+        for i, room in enumerate(hb_objs):
             dl_control = room.properties.energy.add_daylight_control_to_center(
                 dist_from_floor, longest_list(_ill_setpoint_, i),
                 longest_list(_control_fract_, i), longest_list(_min_power_in_, i),
@@ -108,7 +127,7 @@ if all_required_inputs(ghenv.Component):
             if dl_control is None:
                 unassigned_rooms.append(room.display_name)
     else:
-        for i, room in enumerate(rooms):
+        for i, room in enumerate(hb_objs):
             sensor_pt = to_point3d(_sensor_points_[i])
             if room.geometry.is_point_inside(sensor_pt):
                 dl_control = DaylightingControl(

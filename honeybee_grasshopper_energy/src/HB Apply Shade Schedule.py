@@ -18,21 +18,21 @@ the _trans_sch.
 -
 
     Args:
-        _hb_objs: Honeybee Shades, Apertures, Door, Faces, or Rooms to which the
+        _hb_objs: Honeybee Shades, Apertures, Door, Faces, Rooms or a Model to which the
             input _trans_sch should be assigned. For the case of a Honeybee Aperture,
-            Door, Face or Room, the ShadeConstruction will be assigned to only the
-            child shades directly assigned to that object. So passing in a Room
+            Door, Face, Room, or Model, the ShadeConstruction will be assigned to only
+            the child shades directly assigned to that object. So passing in a Room
             will not change the schedule of shades assigned to Apertures
-            of the Room's Faces. If this is the desired outcome, then the Room
-            should be deconstructed into its child objects before using
-            this component.
+            of the Room's Faces. If changing these sub-children is the desired
+            outcome, then the Room should be deconstructed into its child objects
+            before using this component.
         _trans_sch: A Honeybee ScheduleRuleset or ScheduleFixedInterval to be
             applied to the input _hb_objs. This can also be text for a schedule
             to be looked up in the shade schedule library. If an array of text
             or schedule objects are input here, different schedules will be
             assigned based on cardinal direction, starting with north and
             moving clockwise.
-    
+
     Returns:
         hb_objs: The input honeybee objects with their shade transmittance
             schedules edited.
@@ -40,7 +40,7 @@ the _trans_sch.
 
 ghenv.Component.Name = "HB Apply Shade Schedule"
 ghenv.Component.NickName = 'ApplyShadeSch'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.6.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -53,6 +53,7 @@ except ImportError as e:
 
 try:  # import the core honeybee dependencies
     from honeybee.shade import Shade
+    from honeybee.model import Model
     from honeybee.room import Room
     from honeybee.face import Face
     from honeybee.aperture import Aperture
@@ -87,6 +88,9 @@ if all_required_inputs(ghenv.Component):
             elif isinstance(obj, (Aperture, Face, Room, Door)):
                 for shd in obj.shades:
                     shd.properties.energy.transmittance_schedule = _trans_sch[0]
+            elif isinstance(obj, Model):
+                for shd in obj.orphaned_shades:
+                    shd.properties.energy.transmittance_schedule = _trans_sch[0]
             else:
                 raise TypeError(error_msg.format(type(obj)))
     else:  # assign schedules based on cardinal direction
@@ -101,6 +105,9 @@ if all_required_inputs(ghenv.Component):
                 obj.properties.energy.transmittance_schedule = _trans_sch[0]
             elif isinstance(obj, Room):
                  for shd in obj.shades:
+                    shd.properties.energy.transmittance_schedule = _trans_sch[0]
+            elif isinstance(obj, Model):
+                for shd in obj.orphaned_shades:
                     shd.properties.energy.transmittance_schedule = _trans_sch[0]
             else:
                 raise TypeError(error_msg.format(type(obj)))
