@@ -15,7 +15,13 @@ Apply ProgramType objects to Rooms or a Model.
         _rooms: Honeybee Rooms to which the input program should be assigned.
             This can also be a Honeybee Model for which all Rooms will be
             assigned the ProgramType.
-        _program: A ProgramType object to apply to the input rooms,
+        _program: A ProgramType object to apply to the input rooms. This can also be
+            text for the program of the Rooms (to be looked up in the
+            ProgramType library) such as that output from the "HB List Programs"
+            component.
+        overwrite_: A Boolean to note whether any loads assigned specifically to the
+            Room, which overwrite the loads of ProgramType should be reset so
+            that they are determined by the input program. (Default: False).
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -24,7 +30,7 @@ Apply ProgramType objects to Rooms or a Model.
 
 ghenv.Component.Name = "HB Apply ProgramType"
 ghenv.Component.NickName = 'ApplyProgram'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.6.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -42,7 +48,8 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs, longest_list
+    from ladybug_rhino.grasshopper import all_required_inputs, longest_list, \
+        give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -71,3 +78,12 @@ if all_required_inputs(ghenv.Component):
             except ValueError:
                 prog = program_type_by_identifier(prog)
         room.properties.energy.program_type = prog
+        if overwrite_:
+            room.properties.energy.reset_loads_to_program()
+        elif overwrite_ is None and room.properties.energy.has_overridden_loads:
+            msg = 'Room "{}" has loads assigned specifically to it, which override ' \
+                'the assigned program.\nIf resetting all loads to be assigned by ' \
+                'the input program is desired, then the overwrite_ option\non this ' \
+                'component should be set to True.'.format(room.display_name)
+            print(msg)
+            give_warning(ghenv.Component, msg)

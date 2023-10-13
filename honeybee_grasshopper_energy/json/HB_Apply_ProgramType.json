@@ -1,5 +1,5 @@
 {
-  "version": "1.6.1", 
+  "version": "1.6.2", 
   "nickname": "ApplyProgram", 
   "outputs": [
     [
@@ -23,13 +23,20 @@
     {
       "access": "list", 
       "name": "_program", 
-      "description": "A ProgramType object to apply to the input rooms,", 
+      "description": "A ProgramType object to apply to the input rooms. This can also be\ntext for the program of the Rooms (to be looked up in the\nProgramType library) such as that output from the \"HB List Programs\"\ncomponent.", 
       "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "overwrite_", 
+      "description": "A Boolean to note whether any loads assigned specifically to the\nRoom, which overwrite the loads of ProgramType should be reset so\nthat they are determined by the input program. (Default: False).", 
+      "type": "bool", 
       "default": null
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\ntry:\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.lib.programtypes import program_type_by_identifier, \\\n        building_program_type_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, longest_list\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    rooms = [obj.duplicate() for obj in _rooms]\n\n    # extract any rooms from the input Models\n    hb_objs = []\n    for hb_obj in rooms:\n        if isinstance(hb_obj, Model):\n            hb_objs.extend(hb_obj.rooms)\n        elif isinstance(hb_obj, Room):\n            hb_objs.append(hb_obj)\n        else:\n            raise ValueError(\n                'Expected Honeybee Room or Model. Got {}.'.format(type(hb_obj)))\n\n    # apply the program to the rooms\n    for i, room in enumerate(hb_objs):\n        prog = longest_list(_program, i)\n        if isinstance(prog, str):  # get the program object if it is a string\n            try:\n                prog = building_program_type_by_identifier(prog)\n            except ValueError:\n                prog = program_type_by_identifier(prog)\n        room.properties.energy.program_type = prog", 
+  "code": "\ntry:\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.lib.programtypes import program_type_by_identifier, \\\n        building_program_type_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, longest_list, \\\n        give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    rooms = [obj.duplicate() for obj in _rooms]\n\n    # extract any rooms from the input Models\n    hb_objs = []\n    for hb_obj in rooms:\n        if isinstance(hb_obj, Model):\n            hb_objs.extend(hb_obj.rooms)\n        elif isinstance(hb_obj, Room):\n            hb_objs.append(hb_obj)\n        else:\n            raise ValueError(\n                'Expected Honeybee Room or Model. Got {}.'.format(type(hb_obj)))\n\n    # apply the program to the rooms\n    for i, room in enumerate(hb_objs):\n        prog = longest_list(_program, i)\n        if isinstance(prog, str):  # get the program object if it is a string\n            try:\n                prog = building_program_type_by_identifier(prog)\n            except ValueError:\n                prog = program_type_by_identifier(prog)\n        room.properties.energy.program_type = prog\n        if overwrite_:\n            room.properties.energy.reset_loads_to_program()\n        elif overwrite_ is None and room.properties.energy.has_overridden_loads:\n            msg = 'Room \"{}\" has loads assigned specifically to it, which override ' \\\n                'the assigned program.\\nIf resetting all loads to be assigned by ' \\\n                'the input program is desired, then the overwrite_ option\\non this ' \\\n                'component should be set to True.'.format(room.display_name)\n            print(msg)\n            give_warning(ghenv.Component, msg)", 
   "category": "HB-Energy", 
   "name": "HB Apply ProgramType", 
   "description": "Apply ProgramType objects to Rooms or a Model.\n-"
