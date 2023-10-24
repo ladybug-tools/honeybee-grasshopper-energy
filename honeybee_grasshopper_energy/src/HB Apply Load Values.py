@@ -157,7 +157,7 @@ if all_required_inputs(ghenv.Component):
                 program = building_program_type_by_identifier(obj)
             except ValueError:
                 program = program_type_by_identifier(obj)
-            new_obj = duplicate_and_id_program(obj)
+            new_obj = duplicate_and_id_program(program)
             mod_obj.append(new_obj)
             edit_objs.append(new_obj)
         else:
