@@ -61,7 +61,7 @@ such as MRI machines, theatrical lighting, elevators, etc.
 
 ghenv.Component.Name = 'HB Process Load'
 ghenv.Component.NickName = 'Process'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

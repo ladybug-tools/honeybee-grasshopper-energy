@@ -65,7 +65,7 @@ each schedule should be applied.
 
 ghenv.Component.Name = "HB Seasonal Schedule"
 ghenv.Component.NickName = 'SeasonalSchedule'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"

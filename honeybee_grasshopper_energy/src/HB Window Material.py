@@ -34,7 +34,7 @@ Construction" component.
 
 ghenv.Component.Name = 'HB Window Material'
 ghenv.Component.NickName = 'WindowMat'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'

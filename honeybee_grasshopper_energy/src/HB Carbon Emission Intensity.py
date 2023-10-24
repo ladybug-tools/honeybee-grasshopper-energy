@@ -57,7 +57,7 @@ _
 
 ghenv.Component.Name = 'HB Carbon Emission Intensity'
 ghenv.Component.NickName = 'CEI'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

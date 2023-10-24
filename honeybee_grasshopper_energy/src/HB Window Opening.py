@@ -76,7 +76,7 @@ properties assigned by this component are still relevant for such AFN simulation
 
 ghenv.Component.Name = 'HB Window Opening'
 ghenv.Component.NickName = 'WindowOpen'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

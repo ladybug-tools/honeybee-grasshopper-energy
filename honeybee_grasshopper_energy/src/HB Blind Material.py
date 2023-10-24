@@ -50,7 +50,7 @@ Window blind properties consist of flat, equally-spaced slats.
 
 ghenv.Component.Name = 'HB Blind Material'
 ghenv.Component.NickName = 'BlindMat'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

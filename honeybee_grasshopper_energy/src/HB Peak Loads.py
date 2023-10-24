@@ -98,7 +98,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

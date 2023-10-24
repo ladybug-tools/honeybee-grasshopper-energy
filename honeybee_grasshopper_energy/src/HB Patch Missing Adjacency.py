@@ -29,7 +29,7 @@ AirBoundary, the type will be set to a Wall.
 
 ghenv.Component.Name = 'HB Patch Missing Adjacency'
 ghenv.Component.NickName = 'PatchAdj'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

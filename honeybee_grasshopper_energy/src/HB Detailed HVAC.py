@@ -28,7 +28,7 @@ Apply a detailed Ironbug HVAC to Honeybee Rooms or a Honeybee Model.
 
 ghenv.Component.Name = "HB Detailed HVAC"
 ghenv.Component.NickName = 'DetailedHVAC'
-ghenv.Component.Message = '1.6.2'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

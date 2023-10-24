@@ -37,7 +37,7 @@ orientation, provided that a list of ShadeConstructions are input to the _constr
 
 ghenv.Component.Name = "HB Apply Shade Construction"
 ghenv.Component.NickName = 'ApplyShadeConstr'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

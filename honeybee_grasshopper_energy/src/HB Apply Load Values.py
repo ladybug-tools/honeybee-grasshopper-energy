@@ -63,7 +63,7 @@ simulation, the "Always On" schedule will be used as a default.
 
 ghenv.Component.Name = "HB Apply Load Values"
 ghenv.Component.NickName = 'ApplyLoadVals'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"

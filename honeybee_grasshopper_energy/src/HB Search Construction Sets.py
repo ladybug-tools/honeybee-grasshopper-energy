@@ -29,7 +29,7 @@ Search for available ConstructionSets within the honeybee energy standards libra
 
 ghenv.Component.Name = 'HB Search Construction Sets'
 ghenv.Component.NickName = 'SearchConstrSet'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

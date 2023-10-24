@@ -31,7 +31,7 @@ coefficient on the other side of a face.
 
 ghenv.Component.Name = 'HB Other Side Temperature'
 ghenv.Component.NickName = 'OtherTemp'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

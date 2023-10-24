@@ -43,7 +43,7 @@ directly to a Room.
 
 ghenv.Component.Name = "HB People"
 ghenv.Component.NickName = 'People'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"

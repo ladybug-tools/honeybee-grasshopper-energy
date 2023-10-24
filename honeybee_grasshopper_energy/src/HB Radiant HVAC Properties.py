@@ -39,7 +39,7 @@ often requires
 
 ghenv.Component.Name = 'HB Radiant HVAC Properties'
 ghenv.Component.NickName = 'RadiantHVAC'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

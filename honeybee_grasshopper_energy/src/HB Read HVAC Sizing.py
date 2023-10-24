@@ -43,7 +43,7 @@ been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read HVAC Sizing'
 ghenv.Component.NickName = 'ReadHVAC'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
