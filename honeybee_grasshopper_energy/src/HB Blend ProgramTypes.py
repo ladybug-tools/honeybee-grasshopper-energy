@@ -29,7 +29,7 @@ average based on program ratios.
 
 ghenv.Component.Name = 'HB Blend ProgramTypes'
 ghenv.Component.NickName = 'BlendPrograms'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

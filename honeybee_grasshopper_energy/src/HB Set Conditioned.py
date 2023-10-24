@@ -27,7 +27,7 @@ conditioned, the existing HVAC system will be left as it is.
 
 ghenv.Component.Name = 'HB Set Conditioned'
 ghenv.Component.NickName = 'Conditioned'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

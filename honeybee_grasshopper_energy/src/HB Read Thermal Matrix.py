@@ -37,7 +37,7 @@ pmv, utci category, or adaptive comfort degrees from neutral temperature.
 
 ghenv.Component.Name = 'HB Read Thermal Matrix'
 ghenv.Component.NickName = 'ThermalMtx'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'

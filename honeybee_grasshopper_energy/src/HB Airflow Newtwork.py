@@ -114,7 +114,7 @@ dictate when the operable Apertures of the Room open.
 
 ghenv.Component.Name = 'HB Airflow Newtwork'
 ghenv.Component.NickName = 'AFN'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

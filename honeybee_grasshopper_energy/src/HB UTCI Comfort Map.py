@@ -158,7 +158,7 @@ considered occupied.
 
 ghenv.Component.Name = 'HB UTCI Comfort Map'
 ghenv.Component.NickName = 'UTCIMap'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'

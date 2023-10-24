@@ -48,7 +48,7 @@ to be connected to the system.
 
 ghenv.Component.Name = "HB SHW System"
 ghenv.Component.NickName = 'SHW'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'

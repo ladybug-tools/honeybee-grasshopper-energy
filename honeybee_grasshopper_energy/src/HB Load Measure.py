@@ -35,7 +35,7 @@ https://bcl.nrel.gov/nrel/types/measure
 
 ghenv.Component.Name = 'HB Load Measure'
 ghenv.Component.NickName = 'LoadMeasure'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

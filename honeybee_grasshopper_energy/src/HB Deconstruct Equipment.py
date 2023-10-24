@@ -35,7 +35,7 @@ Deconstruct an Equipment object into its constituient properties.
 
 ghenv.Component.Name = "HB Deconstruct Equipment"
 ghenv.Component.NickName = 'DecnstrEquipment'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "0"

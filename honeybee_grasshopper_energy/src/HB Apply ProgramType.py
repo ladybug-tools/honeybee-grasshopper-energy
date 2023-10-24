@@ -30,7 +30,7 @@ Apply ProgramType objects to Rooms or a Model.
 
 ghenv.Component.Name = "HB Apply ProgramType"
 ghenv.Component.NickName = 'ApplyProgram'
-ghenv.Component.Message = '1.6.2'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"

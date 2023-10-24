@@ -33,7 +33,7 @@ Apply values for setpoints to a Room or ProgramType.
 
 ghenv.Component.Name = "HB Apply Setpoint Values"
 ghenv.Component.NickName = 'ApplySetpointVals'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"

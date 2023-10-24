@@ -67,7 +67,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.6.1'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

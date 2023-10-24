@@ -41,7 +41,7 @@ Create an EnergyPlus window construction with any number of dynamic states.
 
 ghenv.Component.Name = 'HB Window Construction Dynamic'
 ghenv.Component.NickName = 'WindowConstrDyn'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

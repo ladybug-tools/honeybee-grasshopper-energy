@@ -51,7 +51,7 @@ roofs and caution should be taken when applying ito to vertical walls.
 
 ghenv.Component.Name = 'HB Vegetation Material'
 ghenv.Component.NickName = 'VegetationMat'
-ghenv.Component.Message = '1.6.0'
+ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
