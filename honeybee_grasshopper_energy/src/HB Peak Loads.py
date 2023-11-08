@@ -98,7 +98,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -390,7 +390,9 @@ if all_required_inputs(ghenv.Component) and _run:
         # Execute the honybee CLI to obtain the results via CPython
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                 'zone-sizes', sql]
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        custom_env = os.environ.copy()
+        custom_env['PYTHONHOME'] = ''
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
         stdout = process.communicate()
         peak_dicts = json.loads(stdout[0])
         if peak_cool_dict is None:
@@ -432,7 +434,7 @@ if all_required_inputs(ghenv.Component) and _run:
             for outp in all_output:
                 out_str = json.dumps(outp) if isinstance(outp, tuple) else '["{}"]'.format(outp)
                 cmds.append(out_str)
-            process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+            process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
             stdout = process.communicate()
             data_coll_dicts = json.loads(stdout[0])
             light = serialize_data(data_coll_dicts[0])

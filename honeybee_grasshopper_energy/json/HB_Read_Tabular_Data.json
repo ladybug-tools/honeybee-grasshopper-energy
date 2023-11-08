@@ -1,50 +1,50 @@
 {
-  "version": "1.7.0", 
-  "nickname": "ReadTable", 
+  "name": "HB Read Tabular Data", 
+  "subcategory": "6 :: Result", 
+  "version": "1.7.1", 
+  "description": "Get all the data within a table of a Summary Report using the table name.\n_\nAll of the avaialable tables can be browsed by opening the .html output from the\nsimulation in a web browser.\n-", 
+  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.sql import SQLiteResult\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    if os.name == 'nt':  # we are on windows; use IronPython like usual\n        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object\n        results = sql_obj.tabular_data_by_name(_table_name)\n        values = list_to_data_tree(list(results.values()))\n        row_names = list(results.keys())\n        col_names = sql_obj.tabular_column_names(_table_name)\n\n    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'tabular-data', _sql, _table_name]\n        custom_env = os.environ.copy()\n        custom_env['PYTHONHOME'] = ''\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)\n        stdout = process.communicate()\n        results = json.loads(stdout[0])\n        values = list_to_data_tree(results)\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'tabular-metadata', _sql, _table_name]\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)\n        stdout = process.communicate()\n        metadata_dict = json.loads(stdout[0])\n        row_names = metadata_dict['row_names']\n        col_names = metadata_dict['column_names']\n", 
   "outputs": [
     [
       {
-        "access": "None", 
         "name": "values", 
+        "access": "None", 
+        "type": null, 
         "description": "A data tree represening the table matrix, with each branch (sub-list)\nof the tree representing a row of the table and each index of each\nbranch corresponding to a value in a column. The order of outputs\nshould reflect how the table appears in the HTML output. Note that\nany energy values in MJ or GJ in the .html output will automatically\nbe converted to kWh on import.", 
-        "type": null, 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "col_names", 
-        "description": "A list of text for the names of each of the columns in the table.\nThese order of this list corresponds directly to the order of items\neach of the values sub-list", 
+        "access": "None", 
         "type": null, 
+        "description": "A list of text for the names of each of the columns in the table.\nThese order of this list corresponds directly to the order of items\neach of the values sub-list", 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "row_names", 
-        "description": "A list of text for the names of each of the rows of the table.\nEach name in this list corresponds to a branch in the output values\ndata tree.", 
+        "access": "None", 
         "type": null, 
+        "description": "A list of text for the names of each of the rows of the table.\nEach name in this list corresponds to a branch in the output values\ndata tree.", 
         "default": null
       }
     ]
   ], 
+  "category": "HB-Energy", 
+  "nickname": "ReadTable", 
   "inputs": [
     {
-      "access": "item", 
       "name": "_sql", 
-      "description": "The file path of the SQL result file that has been generated from\nan energy simulation.", 
+      "access": "item", 
       "type": "string", 
+      "description": "The file path of the SQL result file that has been generated from\nan energy simulation.", 
       "default": null
     }, 
     {
-      "access": "item", 
       "name": "_table_name", 
-      "description": "Text string for the name of a table of a Summary Report.\nExamples include: General, Utility Use Per Conditioned Floor Area,\nand many more options that can be browsed in the .html file.", 
+      "access": "item", 
       "type": "string", 
+      "description": "Text string for the name of a table of a Summary Report.\nExamples include: General, Utility Use Per Conditioned Floor Area,\nand many more options that can be browsed in the .html file.", 
       "default": null
     }
-  ], 
-  "subcategory": "6 :: Result", 
-  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.sql import SQLiteResult\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, list_to_data_tree\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    if os.name == 'nt':  # we are on windows; use IronPython like usual\n        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object\n        results = sql_obj.tabular_data_by_name(_table_name)\n        values = list_to_data_tree(list(results.values()))\n        row_names = list(results.keys())\n        col_names = sql_obj.tabular_column_names(_table_name)\n\n    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'tabular-data', _sql, _table_name]\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)\n        stdout = process.communicate()\n        results = json.loads(stdout[0])\n        values = list_to_data_tree(results)\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'tabular-metadata', _sql, _table_name]\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)\n        stdout = process.communicate()\n        metadata_dict = json.loads(stdout[0])\n        row_names = metadata_dict['row_names']\n        col_names = metadata_dict['column_names']\n", 
-  "category": "HB-Energy", 
-  "name": "HB Read Tabular Data", 
-  "description": "Get all the data within a table of a Summary Report using the table name.\n_\nAll of the avaialable tables can be browsed by opening the .html output from the\nsimulation in a web browser.\n-"
+  ]
 }

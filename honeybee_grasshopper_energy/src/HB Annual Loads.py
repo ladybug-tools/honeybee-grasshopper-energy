@@ -96,7 +96,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -308,7 +308,9 @@ if all_required_inputs(ghenv.Component) and _run:
                 'data-by-outputs', sql]
         for outp in energy_output:
             cmds.append('["{}"]'.format(outp))
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        custom_env = os.environ.copy()
+        custom_env['PYTHONHOME'] = ''
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
         stdout = process.communicate()
         data_coll_dicts = json.loads(stdout[0])
         cool_init = serialize_data(data_coll_dicts[0])
@@ -357,6 +359,6 @@ if all_required_inputs(ghenv.Component) and _run:
                 json.dump(_model.to_dict(), fp)
             cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                     'load-balance', model_json, sql]
-            process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+            process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
             stdout = process.communicate()
             balance = serialize_data(json.loads(stdout[0]))

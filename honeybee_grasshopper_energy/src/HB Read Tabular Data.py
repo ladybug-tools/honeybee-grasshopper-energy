@@ -38,7 +38,7 @@ simulation in a web browser.
 
 ghenv.Component.Name = 'HB Read Tabular Data'
 ghenv.Component.NickName = 'ReadTable'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -75,13 +75,15 @@ if all_required_inputs(ghenv.Component):
         # Execute the honybee CLI to obtain the results via CPython
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                 'tabular-data', _sql, _table_name]
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        custom_env = os.environ.copy()
+        custom_env['PYTHONHOME'] = ''
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
         stdout = process.communicate()
         results = json.loads(stdout[0])
         values = list_to_data_tree(results)
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                 'tabular-metadata', _sql, _table_name]
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
         stdout = process.communicate()
         metadata_dict = json.loads(stdout[0])
         row_names = metadata_dict['row_names']
