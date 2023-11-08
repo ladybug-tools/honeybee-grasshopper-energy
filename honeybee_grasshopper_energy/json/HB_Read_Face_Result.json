@@ -1,43 +1,43 @@
 {
-  "version": "1.7.0", 
-  "nickname": "FaceResult", 
+  "name": "HB Read Face Result", 
+  "subcategory": "6 :: Result", 
+  "version": "1.7.1", 
+  "description": "Parse all of the common Room-level comfort-related results from an SQL result\nfile that has been generated from an energy simulation.\n-", 
+  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.datacollection import HourlyContinuousCollection, \\\n        MonthlyCollection, DailyCollection\n    from ladybug.sql import SQLiteResult\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef subtract_loss_from_gain(gain_load, loss_load):\n    \"\"\"Create a single DataCollection from gains and losses.\"\"\"\n    total_loads = []\n    for gain, loss in zip(gain_load, loss_load):\n        total_load = gain - loss\n        total_load.header.metadata['type'] = \\\n            total_load.header.metadata['type'].replace('Gain ', '')\n        total_loads.append(total_load)\n    return total_loads\n\n\ndef serialize_data(data_dicts):\n    \"\"\"Reserialize a list of collection dictionaries.\"\"\"\n    if len(data_dicts) == 0:\n        return []\n    elif data_dicts[0]['type'] == 'HourlyContinuous':\n        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Monthly':\n        return [MonthlyCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Daily':\n        return [DailyCollection.from_dict(data) for data in data_dicts]\n\n\n# List of all the output strings that will be requested\nface_indoor_temp_output = 'Surface Inside Face Temperature'\nface_outdoor_temp_output = 'Surface Outside Face Temperature'\nopaque_energy_flow_output = 'Surface Inside Face Conduction Heat Transfer Energy'\nwindow_loss_output = 'Surface Window Heat Loss Energy'\nwindow_gain_output = 'Surface Window Heat Gain Energy'\nall_output = [face_indoor_temp_output, face_outdoor_temp_output,\n              opaque_energy_flow_output, window_loss_output, window_gain_output]\n\n\nif all_required_inputs(ghenv.Component):\n    # check the size of the SQL file to see if we should use the CLI\n    assert os.path.isfile(_sql), 'No sql file found at: {}.'.format(_sql)\n    if os.name == 'nt' and os.path.getsize(_sql) < 1e8:\n        # small file on windows; use IronPython like usual\n        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object\n        # get all of the results\n        face_indoor_temp = sql_obj.data_collections_by_output_name(face_indoor_temp_output)\n        face_outdoor_temp = sql_obj.data_collections_by_output_name(face_outdoor_temp_output)\n        opaque_energy_flow = sql_obj.data_collections_by_output_name(opaque_energy_flow_output)\n        window_loss = sql_obj.data_collections_by_output_name(window_loss_output)\n        window_gain = sql_obj.data_collections_by_output_name(window_gain_output)\n\n    else:  # use the honeybee_energy CLI\n        # sqlite3 module doesn't work in Mac IronPython\n        # or the file's big and we know that the Python3 version scales better\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'data-by-outputs', _sql] + all_output\n        use_shell = True if os.name == 'nt' else False\n        custom_env = os.environ.copy()\n        custom_env['PYTHONHOME'] = ''\n        process = subprocess.Popen(\n            cmds, stdout=subprocess.PIPE, shell=use_shell, env=custom_env)\n        stdout = process.communicate()\n        data_coll_dicts = json.loads(stdout[0])\n        # get all of the results\n        face_indoor_temp = serialize_data(data_coll_dicts[0])\n        face_outdoor_temp = serialize_data(data_coll_dicts[1])\n        opaque_energy_flow = serialize_data(data_coll_dicts[2])\n        window_loss = serialize_data(data_coll_dicts[3])\n        window_gain = serialize_data(data_coll_dicts[4])\n\n    # do arithmetic with any of the gain/loss data collections\n    window_energy_flow = []\n    if len(window_gain) == len(window_loss):\n        window_energy_flow = subtract_loss_from_gain(window_gain, window_loss)\n    face_energy_flow = opaque_energy_flow + window_energy_flow\n", 
   "outputs": [
     [
       {
-        "access": "None", 
         "name": "face_indoor_temp", 
+        "access": "None", 
+        "type": null, 
         "description": "DataCollections for the indoor surface temperature of\neach surface (C).", 
-        "type": null, 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "face_outdoor_temp", 
-        "description": "DataCollections for the outdoor surface temperature\nof each surface (C).", 
+        "access": "None", 
         "type": null, 
+        "description": "DataCollections for the outdoor surface temperature\nof each surface (C).", 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "face_energy_flow", 
-        "description": "DataCollections for the heat loss (negative) or heat\ngain (positive) through each building surfaces (kWh).", 
+        "access": "None", 
         "type": null, 
+        "description": "DataCollections for the heat loss (negative) or heat\ngain (positive) through each building surfaces (kWh).", 
         "default": null
       }
     ]
   ], 
+  "category": "HB-Energy", 
+  "nickname": "FaceResult", 
   "inputs": [
     {
-      "access": "item", 
       "name": "_sql", 
-      "description": "The file path of the SQL result file that has been generated from\nan energy simulation.", 
+      "access": "item", 
       "type": "string", 
+      "description": "The file path of the SQL result file that has been generated from\nan energy simulation.", 
       "default": null
     }
-  ], 
-  "subcategory": "6 :: Result", 
-  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.datacollection import HourlyContinuousCollection, \\\n        MonthlyCollection, DailyCollection\n    from ladybug.sql import SQLiteResult\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef subtract_loss_from_gain(gain_load, loss_load):\n    \"\"\"Create a single DataCollection from gains and losses.\"\"\"\n    total_loads = []\n    for gain, loss in zip(gain_load, loss_load):\n        total_load = gain - loss\n        total_load.header.metadata['type'] = \\\n            total_load.header.metadata['type'].replace('Gain ', '')\n        total_loads.append(total_load)\n    return total_loads\n\n\ndef serialize_data(data_dicts):\n    \"\"\"Reserialize a list of collection dictionaries.\"\"\"\n    if len(data_dicts) == 0:\n        return []\n    elif data_dicts[0]['type'] == 'HourlyContinuous':\n        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Monthly':\n        return [MonthlyCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Daily':\n        return [DailyCollection.from_dict(data) for data in data_dicts]\n\n\n# List of all the output strings that will be requested\nface_indoor_temp_output = 'Surface Inside Face Temperature'\nface_outdoor_temp_output = 'Surface Outside Face Temperature'\nopaque_energy_flow_output = 'Surface Inside Face Conduction Heat Transfer Energy'\nwindow_loss_output = 'Surface Window Heat Loss Energy'\nwindow_gain_output = 'Surface Window Heat Gain Energy'\nall_output = [face_indoor_temp_output, face_outdoor_temp_output,\n              opaque_energy_flow_output, window_loss_output, window_gain_output]\n\n\nif all_required_inputs(ghenv.Component):\n    # check the size of the SQL file to see if we should use the CLI\n    assert os.path.isfile(_sql), 'No sql file found at: {}.'.format(_sql)\n    if os.name == 'nt' and os.path.getsize(_sql) < 1e8:\n        # small file on windows; use IronPython like usual\n        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object\n        # get all of the results\n        face_indoor_temp = sql_obj.data_collections_by_output_name(face_indoor_temp_output)\n        face_outdoor_temp = sql_obj.data_collections_by_output_name(face_outdoor_temp_output)\n        opaque_energy_flow = sql_obj.data_collections_by_output_name(opaque_energy_flow_output)\n        window_loss = sql_obj.data_collections_by_output_name(window_loss_output)\n        window_gain = sql_obj.data_collections_by_output_name(window_gain_output)\n\n    else:  # use the honeybee_energy CLI\n        # sqlite3 module doesn't work in Mac IronPython\n        # or the file's big and we know that the Python3 version scales better\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'data-by-outputs', _sql] + all_output\n        use_shell = True if os.name == 'nt' else False\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)\n        stdout = process.communicate()\n        data_coll_dicts = json.loads(stdout[0])\n        # get all of the results\n        face_indoor_temp = serialize_data(data_coll_dicts[0])\n        face_outdoor_temp = serialize_data(data_coll_dicts[1])\n        opaque_energy_flow = serialize_data(data_coll_dicts[2])\n        window_loss = serialize_data(data_coll_dicts[3])\n        window_gain = serialize_data(data_coll_dicts[4])\n\n    # do arithmetic with any of the gain/loss data collections\n    window_energy_flow = []\n    if len(window_gain) == len(window_loss):\n        window_energy_flow = subtract_loss_from_gain(window_gain, window_loss)\n    face_energy_flow = opaque_energy_flow + window_energy_flow\n", 
-  "category": "HB-Energy", 
-  "name": "HB Read Face Result", 
-  "description": "Parse all of the common Room-level comfort-related results from an SQL result\nfile that has been generated from an energy simulation.\n-"
+  ]
 }

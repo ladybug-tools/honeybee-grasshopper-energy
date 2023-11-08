@@ -53,7 +53,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -197,7 +197,10 @@ if all_required_inputs(ghenv.Component):
             out_str = json.dumps(outp) if isinstance(outp, tuple) else '["{}"]'.format(outp)
             cmds.append(out_str)
         use_shell = True if os.name == 'nt' else False
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
+        custom_env = os.environ.copy()
+        custom_env['PYTHONHOME'] = ''
+        process = subprocess.Popen(
+            cmds, stdout=subprocess.PIPE, shell=use_shell, env=custom_env)
         stdout = process.communicate()
         data_coll_dicts = json.loads(stdout[0])
 

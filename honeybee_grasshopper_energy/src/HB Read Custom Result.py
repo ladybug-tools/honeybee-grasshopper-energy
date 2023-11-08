@@ -24,7 +24,7 @@ Parse any time series data from an energy simulation SQL result file.
 
 ghenv.Component.Name = 'HB Read Custom Result'
 ghenv.Component.NickName = 'CustomResult'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -71,7 +71,9 @@ if all_required_inputs(ghenv.Component):
         # Execute the honybee CLI to obtain the results via CPython
         cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
                 'data-by-outputs', _sql, _output_names]
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        custom_env = os.environ.copy()
+        custom_env['PYTHONHOME'] = ''
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
         stdout = process.communicate()
         data_dicts = json.loads(stdout[0])
         results = serialize_data(data_dicts[0])

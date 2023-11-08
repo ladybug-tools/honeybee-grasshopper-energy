@@ -57,7 +57,7 @@ _
 
 ghenv.Component.Name = 'HB Carbon Emission Intensity'
 ghenv.Component.NickName = 'CEI'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -103,7 +103,9 @@ def get_results_mac(sql_files, elec_emiss):
             'carbon-emission-intensity']
     cmds.extend(sql_files)
     cmds.extend(['--electricity-emissions', str(elec_emiss)])
-    process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+    custom_env = os.environ.copy()
+    custom_env['PYTHONHOME'] = ''
+    process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
     stdout = process.communicate()
     results = json.loads(stdout[0], object_pairs_hook=OrderedDict)
     return results['carbon_intensity'], results['total_floor_area'], \

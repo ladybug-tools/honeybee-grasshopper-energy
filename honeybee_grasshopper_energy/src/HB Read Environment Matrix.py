@@ -43,7 +43,7 @@ air temperature, MRT, longwave MRT, and shortwave MRT delta.
 
 ghenv.Component.Name = 'HB Read Environment Matrix'
 ghenv.Component.NickName = 'EnvMtx'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -208,7 +208,10 @@ if all_required_inputs(ghenv.Component) and _load:
                         'merge-folder', src_f, dst_f, 'csv',
                         '--dist-info', dist_info]
                 shell = True if os.name == 'nt' else False
-                process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=shell)
+                custom_env = os.environ.copy()
+                custom_env['PYTHONHOME'] = ''
+                process = subprocess.Popen(
+                    cmds, stdout=subprocess.PIPE, shell=shell, env=custom_env)
                 stdout = process.communicate()
                 grid_info_src = os.path.join(_env_conds, 'grids_info.json')
                 grid_info_dst = os.path.join(dst_f, 'grids_info.json')

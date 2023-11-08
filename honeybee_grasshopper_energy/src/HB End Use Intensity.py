@@ -38,7 +38,7 @@ Get information about end use intensity from an EnergyPlus SQL file.
 
 ghenv.Component.Name = 'HB End Use Intensity'
 ghenv.Component.NickName = 'EUI'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -83,7 +83,9 @@ def get_results_mac(sql_files):
     cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
             'energy-use-intensity']
     cmds.extend(sql_files)
-    process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+    custom_env = os.environ.copy()
+    custom_env['PYTHONHOME'] = ''
+    process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
     stdout = process.communicate()
     results = json.loads(stdout[0], object_pairs_hook=OrderedDict)
     return results['eui'], results['total_floor_area'], results['end_uses']

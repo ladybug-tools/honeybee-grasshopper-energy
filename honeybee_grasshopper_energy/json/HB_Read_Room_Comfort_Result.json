@@ -1,50 +1,50 @@
 {
-  "version": "1.7.0", 
-  "nickname": "RoomComfortResult", 
+  "name": "HB Read Room Comfort Result", 
+  "subcategory": "6 :: Result", 
+  "version": "1.7.1", 
+  "description": "Parse all of the common Room-level comfort-related results from an SQL result\nfile that has been generated from an energy simulation.\n-", 
+  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.datacollection import HourlyContinuousCollection, \\\n        MonthlyCollection, DailyCollection\n    from ladybug.sql import SQLiteResult\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef serialize_data(data_dicts):\n    \"\"\"Reserialize a list of collection dictionaries.\"\"\"\n    if len(data_dicts) == 0:\n        return []\n    elif data_dicts[0]['type'] == 'HourlyContinuous':\n        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Monthly':\n        return [MonthlyCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Daily':\n        return [DailyCollection.from_dict(data) for data in data_dicts]\n\n\n# List of all the output strings that will be requested\noper_temp_output = 'Zone Operative Temperature'\nair_temp_output = 'Zone Mean Air Temperature'\nrad_temp_output = 'Zone Mean Radiant Temperature'\nrel_humidity_output = 'Zone Air Relative Humidity'\nall_output = [oper_temp_output, air_temp_output, rad_temp_output, rel_humidity_output]\n\n\nif all_required_inputs(ghenv.Component):\n    # check the size of the SQL file to see if we should use the CLI\n    assert os.path.isfile(_sql), 'No sql file found at: {}.'.format(_sql)\n    if os.name == 'nt' and os.path.getsize(_sql) < 1e8:\n        # small file on windows; use IronPython like usual\n        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object\n        # get all of the results\n        oper_temp = sql_obj.data_collections_by_output_name(oper_temp_output)\n        air_temp = sql_obj.data_collections_by_output_name(air_temp_output)\n        rad_temp = sql_obj.data_collections_by_output_name(rad_temp_output)\n        rel_humidity = sql_obj.data_collections_by_output_name(rel_humidity_output)\n\n    else:  # use the honeybee_energy CLI\n        # sqlite3 module doesn't work in Mac IronPython\n        # or the file's big and we know that the Python3 version scales better\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'data-by-outputs', _sql] + all_output\n        use_shell = True if os.name == 'nt' else False\n        custom_env = os.environ.copy()\n        custom_env['PYTHONHOME'] = ''\n        process = subprocess.Popen(\n            cmds, stdout=subprocess.PIPE, shell=use_shell, env=custom_env)\n        stdout = process.communicate()\n        data_coll_dicts = json.loads(stdout[0])\n        # get all of the results\n        oper_temp = serialize_data(data_coll_dicts[0])\n        air_temp = serialize_data(data_coll_dicts[1])\n        rad_temp = serialize_data(data_coll_dicts[2])\n        rel_humidity = serialize_data(data_coll_dicts[3])\n", 
   "outputs": [
     [
       {
-        "access": "None", 
         "name": "oper_temp", 
+        "access": "None", 
+        "type": null, 
         "description": "DataCollections for the mean operative temperature of each room (C).", 
-        "type": null, 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "air_temp", 
+        "access": "None", 
+        "type": null, 
         "description": "DataCollections for the mean air temperature of each room (C).", 
-        "type": null, 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "rad_temp", 
-        "description": "DataCollections for the mean radiant temperature of each room (C).", 
+        "access": "None", 
         "type": null, 
+        "description": "DataCollections for the mean radiant temperature of each room (C).", 
         "default": null
       }, 
       {
-        "access": "None", 
         "name": "rel_humidity", 
-        "description": "DataCollections for the relative humidity of each room (%).", 
+        "access": "None", 
         "type": null, 
+        "description": "DataCollections for the relative humidity of each room (%).", 
         "default": null
       }
     ]
   ], 
+  "category": "HB-Energy", 
+  "nickname": "RoomComfortResult", 
   "inputs": [
     {
-      "access": "item", 
       "name": "_sql", 
-      "description": "The file path of the SQL result file that has been generated from\nan energy simulation.", 
+      "access": "item", 
       "type": "string", 
+      "description": "The file path of the SQL result file that has been generated from\nan energy simulation.", 
       "default": null
     }
-  ], 
-  "subcategory": "6 :: Result", 
-  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.datacollection import HourlyContinuousCollection, \\\n        MonthlyCollection, DailyCollection\n    from ladybug.sql import SQLiteResult\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef serialize_data(data_dicts):\n    \"\"\"Reserialize a list of collection dictionaries.\"\"\"\n    if len(data_dicts) == 0:\n        return []\n    elif data_dicts[0]['type'] == 'HourlyContinuous':\n        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Monthly':\n        return [MonthlyCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Daily':\n        return [DailyCollection.from_dict(data) for data in data_dicts]\n\n\n# List of all the output strings that will be requested\noper_temp_output = 'Zone Operative Temperature'\nair_temp_output = 'Zone Mean Air Temperature'\nrad_temp_output = 'Zone Mean Radiant Temperature'\nrel_humidity_output = 'Zone Air Relative Humidity'\nall_output = [oper_temp_output, air_temp_output, rad_temp_output, rel_humidity_output]\n\n\nif all_required_inputs(ghenv.Component):\n    # check the size of the SQL file to see if we should use the CLI\n    assert os.path.isfile(_sql), 'No sql file found at: {}.'.format(_sql)\n    if os.name == 'nt' and os.path.getsize(_sql) < 1e8:\n        # small file on windows; use IronPython like usual\n        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object\n        # get all of the results\n        oper_temp = sql_obj.data_collections_by_output_name(oper_temp_output)\n        air_temp = sql_obj.data_collections_by_output_name(air_temp_output)\n        rad_temp = sql_obj.data_collections_by_output_name(rad_temp_output)\n        rel_humidity = sql_obj.data_collections_by_output_name(rel_humidity_output)\n\n    else:  # use the honeybee_energy CLI\n        # sqlite3 module doesn't work in Mac IronPython\n        # or the file's big and we know that the Python3 version scales better\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'data-by-outputs', _sql] + all_output\n        use_shell = True if os.name == 'nt' else False\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)\n        stdout = process.communicate()\n        data_coll_dicts = json.loads(stdout[0])\n        # get all of the results\n        oper_temp = serialize_data(data_coll_dicts[0])\n        air_temp = serialize_data(data_coll_dicts[1])\n        rad_temp = serialize_data(data_coll_dicts[2])\n        rel_humidity = serialize_data(data_coll_dicts[3])\n", 
-  "category": "HB-Energy", 
-  "name": "HB Read Room Comfort Result", 
-  "description": "Parse all of the common Room-level comfort-related results from an SQL result\nfile that has been generated from an energy simulation.\n-"
+  ]
 }
