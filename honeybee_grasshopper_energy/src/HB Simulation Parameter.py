@@ -68,7 +68,7 @@ simulation settings and can be plugged into the "HB Model To OSM" component.
 
 ghenv.Component.Name = 'HB Simulation Parameter'
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -88,8 +88,10 @@ except ImportError as e:
 
 try:  # import the ladybug_rhino dependencies
     from ladybug_rhino.togeometry import to_vector2d
+    from ladybug_rhino.grasshopper import turn_off_old_tag
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
 # set default simulation outputs

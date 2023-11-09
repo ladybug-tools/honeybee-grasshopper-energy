@@ -1,64 +1,64 @@
 {
-  "version": "1.7.0", 
-  "nickname": "SubfaceSubset", 
+  "description": "Create a list of exterior subface (apertures + doors) constructions that can be\nused to edit or create a ConstructionSet object.\n-", 
   "outputs": [
     [
       {
-        "access": "None", 
+        "type": null, 
         "name": "subface_set", 
         "description": "A list of exterior subface constructions that can be used\nto edit or create a ConstructionSet object.", 
-        "type": null, 
+        "access": "None", 
         "default": null
       }
     ]
   ], 
+  "code": "\ntry:  # import honeybee_energy dependencies\n    from honeybee_energy.construction.opaque import OpaqueConstruction\n    from honeybee_energy.construction.window import WindowConstruction\n    from honeybee_energy.construction.windowshade import WindowConstructionShade\n    from honeybee_energy.construction.dynamic import WindowConstructionDynamic\n    from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \\\n        window_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\ndef opaque_constr(construction, input_name):\n    \"\"\"Get an OpaqueConstrucion from the library if it's a string.\"\"\"\n    if isinstance(construction, str):\n        return opaque_construction_by_identifier(construction)\n    else:\n        assert isinstance(construction, OpaqueConstruction), \\\n            'Expected OpaqueConstruction for {}. Got {}'.format(\n                input_name, type(construction))\n    return construction\n\n\ndef window_constr(construction, input_name):\n    \"\"\"Get an WindowConstrucion from the library if it's a string.\"\"\"\n    if isinstance(construction, str):\n        return window_construction_by_identifier(construction)\n    else:\n        win_cls = (WindowConstruction, WindowConstructionShade, WindowConstructionDynamic)\n        assert isinstance(construction, win_cls), 'Expected WindowConstruction ' \\\n            'for {}. Got {}'.format(input_name, type(construction))\n    return construction\n\n\n# go through each input construction\nif _window_ is not None:\n    _window_ = window_constr(_window_, '_window_')\nif _skylight_ is not None:\n    _skylight_ = window_constr(_skylight_, '_skylight_')\nif _operable_ is not None:\n    _operable_ = window_constr(_operable_, '_operable_')\nif _exterior_door_ is not None:\n    _exterior_door_ = opaque_constr(_exterior_door_, '_exterior_door_')\nif _overhead_door_ is not None:\n    _overhead_door_ = opaque_constr(_overhead_door_, '_overhead_door_')\nif _glass_door_ is not None:\n    _glass_door_ = window_constr(_glass_door_, '_glass_door_')\n\n\n# return the final list from the component\nsubface_set = [_window_, _skylight_, _operable_, _exterior_door_,\n               _overhead_door_, _glass_door_]\n", 
+  "name": "HB Subface Subset", 
+  "version": "1.7.1", 
+  "category": "HB-Energy", 
+  "subcategory": "0 :: Basic Properties", 
+  "nickname": "SubfaceSubset", 
   "inputs": [
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_window_", 
       "description": "A construction object for apertures with an Outdoors boundary\ncondition and a Wall face type for their parent face. This can also\nbe text for the identifier of the construction within the library.", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_skylight_", 
       "description": "A construction object for apertures with an Outdoors boundary\ncondition and a RoofCeiling or Floor face type for their parent face.\nThis can also be text for the identifier of the construction within\nthe library.", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_operable_", 
       "description": "A construction object for apertures with an Outdoors boundary\ncondition and True is_operable property. This can also be text for\nthe identifier of the construction within the library.", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_exterior_door_", 
       "description": "A construction object for opaque doors with an Outdoors\nboundary condition and a Wall face type for their parent face. This\ncan also be text for the identifier of the construction within\nthe library.", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_overhead_door_", 
       "description": "A construction object for opaque doors with an Outdoors\nboundary condition and a RoofCeiling or Floor face type for their\nparent face. This can also be text for the identifier of the construction\nwithin the library.", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_glass_door_", 
       "description": "A construction object for all glass doors with an Outdoors\nboundary condition. This can also be text for the identifier of the\nconstruction within the library.", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }
-  ], 
-  "subcategory": "0 :: Basic Properties", 
-  "code": "\ntry:  # import honeybee_energy dependencies\n    from honeybee_energy.construction.opaque import OpaqueConstruction\n    from honeybee_energy.construction.window import WindowConstruction\n    from honeybee_energy.construction.windowshade import WindowConstructionShade\n    from honeybee_energy.construction.dynamic import WindowConstructionDynamic\n    from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \\\n        window_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\ndef opaque_constr(construction, input_name):\n    \"\"\"Get an OpaqueConstrucion from the library if it's a string.\"\"\"\n    if isinstance(construction, str):\n        return opaque_construction_by_identifier(construction)\n    else:\n        assert isinstance(construction, OpaqueConstruction), \\\n            'Expected OpaqueConstruction for {}. Got {}'.format(\n                input_name, type(construction))\n    return construction\n\n\ndef window_constr(construction, input_name):\n    \"\"\"Get an WindowConstrucion from the library if it's a string.\"\"\"\n    if isinstance(construction, str):\n        return window_construction_by_identifier(construction)\n    else:\n        win_cls = (WindowConstruction, WindowConstructionShade, WindowConstructionDynamic)\n        assert isinstance(construction, win_cls), 'Expected WindowConstruction ' \\\n            'for {}. Got {}'.format(input_name, type(construction))\n    return construction\n\n\n# go through each input construction\nif _window_ is not None:\n    _window_ = window_constr(_window_, '_window_')\nif _skylight_ is not None:\n    _skylight_ = window_constr(_skylight_, '_skylight_')\nif _operable_ is not None:\n    _operable_ = window_constr(_operable_, '_operable_')\nif _exterior_door_ is not None:\n    _exterior_door_ = opaque_constr(_exterior_door_, '_exterior_door_')\nif _overhead_door_ is not None:\n    _overhead_door_ = opaque_constr(_overhead_door_, '_overhead_door_')\nif _glass_door_ is not None:\n    _glass_door_ = window_constr(_glass_door_, '_glass_door_')\n\n\n# return the final list from the component\nsubface_set = [_window_, _skylight_, _operable_, _exterior_door_,\n               _overhead_door_, _glass_door_]\n", 
-  "category": "HB-Energy", 
-  "name": "HB Subface Subset", 
-  "description": "Create a list of exterior subface (apertures + doors) constructions that can be\nused to edit or create a ConstructionSet object.\n-"
+  ]
 }

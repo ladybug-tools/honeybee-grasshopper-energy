@@ -1,106 +1,106 @@
 {
-  "version": "1.7.0", 
-  "nickname": "VegetationMat", 
+  "description": "Create a vegetation material representing both plants and soil, which can be\nplugged into the \"HB Opaque Construction\" component.\n_\nNote that the underlying models for this material were developed using horizontal\nroofs and caution should be taken when applying ito to vertical walls.\n-", 
   "outputs": [
     [
       {
-        "access": "None", 
+        "type": null, 
         "name": "mat", 
         "description": "A vegetation material that can be assigned to a Honeybee\nOpaque construction.", 
-        "type": null, 
+        "access": "None", 
         "default": null
       }
     ]
   ], 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.opaque import EnergyMaterialVegetation\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# set the default material properties\n_plant_height_ = 0.2 if _plant_height_ is None else _plant_height_\n_leaf_area_ind_ = 1.0 if _leaf_area_ind_ is None else _leaf_area_ind_\n_leaf_reflect_ = 0.22 if _leaf_reflect_ is None else _leaf_reflect_\n_leaf_emiss_ = 0.95 if _leaf_emiss_ is None else _leaf_emiss_\nsoil_abs = 0.7 if _soil_reflect_ is None else 1 - _soil_reflect_\n_soil_emiss_ = 0.9 if _soil_emiss_ is None else _soil_emiss_\n_stomat_resist_ = 180 if _stomat_resist_ is None else _stomat_resist_\n_thickness_ = 0.1 if _thickness_ is None else _thickness_\n_conductivity_ = 0.35 if _conductivity_ is None else _conductivity_\n_density_ = 1100 if _density_ is None else _density_\n_spec_heat_ = 1200 if _spec_heat_ is None else _spec_heat_\nname = clean_and_id_ep_string('VegetationMaterial') if _name_ is None else \\\n    clean_ep_string(_name_)\n\n# create the material\nmat = EnergyMaterialVegetation(\n    name, _thickness_, _conductivity_, _density_, _spec_heat_, 'MediumRough',\n    _soil_emiss_, soil_abs, None, _plant_height_, _leaf_area_ind_,\n    _leaf_reflect_, _leaf_emiss_, _stomat_resist_\n)\nif _name_ is not None:\n    mat.display_name = _name_\n", 
+  "name": "HB Vegetation Material", 
+  "version": "1.7.1", 
+  "category": "HB-Energy", 
+  "subcategory": "1 :: Constructions", 
+  "nickname": "VegetationMat", 
   "inputs": [
     {
-      "access": "item", 
+      "type": "string", 
       "name": "_name_", 
       "description": "Text to set the name for the material and to be incorporated into\na unique material identifier.", 
-      "type": "string", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_plant_height_", 
       "description": "A number between 0.005 and 1.0 for the height of plants in the\nvegetation layer [m]. (Default: 0.2 m).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_leaf_area_ind_", 
       "description": "A number between 0.001 and 5.0 for the projected leaf area per unit\narea of soil surface (aka. Leaf Area Index or LAI). Note that\nthe fraction of vegetation cover is calculated directly from LAI\nusing an empirical relation. (Default: 1.0).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_leaf_reflect_", 
       "description": "A number between 0.05 and 0.5 for the fraction of incident solar\nradiation that is reflected by the leaf surfaces. Solar radiation\nincludes the visible spectrum as well as infrared and ultraviolet\nwavelengths. Typical values are 0.18 to 0.25. (Default: 0.22).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_leaf_emiss_", 
       "description": "A number between 0.8 and 1.0 for the ratio of thermal radiation\nemitted from leaf surfaces to that emitted by an ideal black\nbody at the same temperature. (Default: 0.95).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_soil_reflect_", 
       "description": "A number between 0 and 1 for the fraction of incident solar\nradiation reflected by the soil material. (Default: 0.3).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_soil_emiss_", 
       "description": "A number between 0 and 1 for the fraction of incident long wavelength\nradiation that is absorbed by the soil material. (Default: 0.9).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_stomat_resist_", 
       "description": "A number between 50 and 300 for the resistance of the plants\nto moisture transport [s/m]. Plants with low values of stomatal resistance\nwill result in higher evapotranspiration rates than plants with high\nresistance. (Default: 180).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_thickness_", 
       "description": "Number for the thickness of the soil layer [m]. (Default: 0.1).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_conductivity_", 
       "description": "Number for the thermal conductivity of the soil [W/m-K]. (Default: 0.35).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_density_", 
       "description": "Number for the density of the soil [kg/m3]. (Default: 1100).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_spec_heat_", 
       "description": "Number for the specific heat of the soil [J/kg-K]. (Default: 1200).", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }
-  ], 
-  "subcategory": "1 :: Constructions", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.material.opaque import EnergyMaterialVegetation\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\n# set the default material properties\n_plant_height_ = 0.2 if _plant_height_ is None else _plant_height_\n_leaf_area_ind_ = 1.0 if _leaf_area_ind_ is None else _leaf_area_ind_\n_leaf_reflect_ = 0.22 if _leaf_reflect_ is None else _leaf_reflect_\n_leaf_emiss_ = 0.95 if _leaf_emiss_ is None else _leaf_emiss_\nsoil_abs = 0.7 if _soil_reflect_ is None else 1 - _soil_reflect_\n_soil_emiss_ = 0.9 if _soil_emiss_ is None else _soil_emiss_\n_stomat_resist_ = 180 if _stomat_resist_ is None else _stomat_resist_\n_thickness_ = 0.1 if _thickness_ is None else _thickness_\n_conductivity_ = 0.35 if _conductivity_ is None else _conductivity_\n_density_ = 1100 if _density_ is None else _density_\n_spec_heat_ = 1200 if _spec_heat_ is None else _spec_heat_\nname = clean_and_id_ep_string('VegetationMaterial') if _name_ is None else \\\n    clean_ep_string(_name_)\n\n# create the material\nmat = EnergyMaterialVegetation(\n    name, _thickness_, _conductivity_, _density_, _spec_heat_, 'MediumRough',\n    _soil_emiss_, soil_abs, None, _plant_height_, _leaf_area_ind_,\n    _leaf_reflect_, _leaf_emiss_, _stomat_resist_\n)\nif _name_ is not None:\n    mat.display_name = _name_\n", 
-  "category": "HB-Energy", 
-  "name": "HB Vegetation Material", 
-  "description": "Create a vegetation material representing both plants and soil, which can be\nplugged into the \"HB Opaque Construction\" component.\n_\nNote that the underlying models for this material were developed using horizontal\nroofs and caution should be taken when applying ito to vertical walls.\n-"
+  ]
 }

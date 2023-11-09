@@ -1,43 +1,43 @@
 {
-  "version": "1.7.0", 
-  "nickname": "ExteriorSubset", 
+  "description": "Create a list of exterior constructions that can be used to edit or create a\nConstructionSet object.\n-", 
   "outputs": [
     [
       {
-        "access": "None", 
+        "type": null, 
         "name": "exterior_set", 
         "description": "A list of exterior constructions that can be used to edit\nor create a ConstructionSet object.", 
-        "type": null, 
+        "access": "None", 
         "default": null
       }
     ]
   ], 
+  "code": "\ntry:  # import honeybee_energy dependencies\n    from honeybee_energy.construction.opaque import OpaqueConstruction\n    from honeybee_energy.lib.constructions import opaque_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\ndef opaque_constr(construction, input_name):\n    \"\"\"Get an OpaqueConstrucion from the library if it's a string.\"\"\"\n    if isinstance(construction, str):\n        return opaque_construction_by_identifier(construction)\n    else:\n        assert isinstance(construction, OpaqueConstruction), \\\n            'Expected OpaqueConstruction for {}. Got {}'.format(\n                input_name, type(construction))\n    return construction\n\n\n# go through each input construction\nif _exterior_wall_ is not None:\n    _exterior_wall_ = opaque_constr(_exterior_wall_, '_exterior_wall_')\nif _exterior_roof_ is not None:\n    _exterior_roof_ = opaque_constr(_exterior_roof_, '_exterior_roof_')\nif _exposed_floor_ is not None:\n    _exposed_floor_ = opaque_constr(_exposed_floor_, '_exposed_floor_')\n\n\n# return the final list from the component\nexterior_set = [_exterior_wall_, _exterior_roof_, _exposed_floor_]\n", 
+  "name": "HB Exterior Construction Subset", 
+  "version": "1.7.1", 
+  "category": "HB-Energy", 
+  "subcategory": "0 :: Basic Properties", 
+  "nickname": "ExteriorSubset", 
   "inputs": [
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_exterior_wall_", 
       "description": "A construction object for exterior walls (or text for\nthe identifier of the construction within the library).", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_exterior_roof_", 
       "description": "A construction object for exterior roofs (or text for\nthe identifier of the construction within the library).", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "System.Object", 
       "name": "_exposed_floor_", 
       "description": "A construction object for exposed floors (or text for\nthe identifier of the construction within the library).", 
-      "type": "System.Object", 
+      "access": "item", 
       "default": null
     }
-  ], 
-  "subcategory": "0 :: Basic Properties", 
-  "code": "\ntry:  # import honeybee_energy dependencies\n    from honeybee_energy.construction.opaque import OpaqueConstruction\n    from honeybee_energy.lib.constructions import opaque_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\ndef opaque_constr(construction, input_name):\n    \"\"\"Get an OpaqueConstrucion from the library if it's a string.\"\"\"\n    if isinstance(construction, str):\n        return opaque_construction_by_identifier(construction)\n    else:\n        assert isinstance(construction, OpaqueConstruction), \\\n            'Expected OpaqueConstruction for {}. Got {}'.format(\n                input_name, type(construction))\n    return construction\n\n\n# go through each input construction\nif _exterior_wall_ is not None:\n    _exterior_wall_ = opaque_constr(_exterior_wall_, '_exterior_wall_')\nif _exterior_roof_ is not None:\n    _exterior_roof_ = opaque_constr(_exterior_roof_, '_exterior_roof_')\nif _exposed_floor_ is not None:\n    _exposed_floor_ = opaque_constr(_exposed_floor_, '_exposed_floor_')\n\n\n# return the final list from the component\nexterior_set = [_exterior_wall_, _exterior_roof_, _exposed_floor_]\n", 
-  "category": "HB-Energy", 
-  "name": "HB Exterior Construction Subset", 
-  "description": "Create a list of exterior constructions that can be used to edit or create a\nConstructionSet object.\n-"
+  ]
 }

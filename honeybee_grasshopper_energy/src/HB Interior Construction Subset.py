@@ -36,7 +36,7 @@ ConstructionSet object.
 
 ghenv.Component.Name = 'HB Interior Construction Subset'
 ghenv.Component.NickName = 'InteriorSubset'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -49,10 +49,12 @@ try:  # import honeybee_energy dependencies
         window_construction_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
 try:  # import ladybug_rhino dependencies
-    from ladybug_rhino.grasshopper import give_warning
+    from ladybug_rhino.grasshopper import give_warning, turn_off_old_tag
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
 def opaque_constr(construction, input_name):

@@ -86,7 +86,7 @@ Create parameters with criteria for sizing the heating and cooling system.
 
 ghenv.Component.Name = 'HB Sizing Parameter'
 ghenv.Component.NickName = 'SizingPar'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -95,6 +95,13 @@ try:
     from honeybee_energy.simulation.sizing import SizingParameter
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
+try:
+    from ladybug_rhino.grasshopper import turn_off_old_tag
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
+
 
 # dictionary to get correct efficiency standards
 EFF_STANDARDS = {
