@@ -1,43 +1,43 @@
 {
-  "version": "1.7.0", 
-  "nickname": "SearchSchs", 
+  "description": "Search for available Schedules within the honeybee energy standards library.\n-", 
   "outputs": [
     [
       {
-        "access": "None", 
+        "type": null, 
         "name": "schedules", 
         "description": "A list of Schedules within the honeybee energy standards\nlibrary (filtered by keywords_ if they are input).", 
-        "type": null, 
+        "access": "None", 
         "default": null
       }, 
       {
-        "access": "None", 
+        "type": null, 
         "name": "type_limits", 
         "description": "A list of all ScheduleTypeLimits within the honeybee energy\nstandards library.", 
-        "type": null, 
+        "access": "None", 
         "default": null
       }
     ]
   ], 
+  "code": "\ntry:  # import the honeybee-core dependencies\n    from honeybee.search import filter_array_by_keywords\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.lib.schedules import SCHEDULES\n    from honeybee_energy.lib.scheduletypelimits import SCHEDULE_TYPE_LIMITS\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\nif len(keywords_) == 0:\n    schedules = sorted(SCHEDULES)\nelse:\n    split_words = True if join_words_ is None else not join_words_\n    schedules = sorted(filter_array_by_keywords(SCHEDULES, keywords_, split_words))\ntype_limits = sorted(SCHEDULE_TYPE_LIMITS)\n", 
+  "name": "HB Search Schedules", 
+  "version": "1.7.1", 
+  "category": "HB-Energy", 
+  "subcategory": "2 :: Schedules", 
+  "nickname": "SearchSchs", 
   "inputs": [
     {
-      "access": "list", 
+      "type": "string", 
       "name": "keywords_", 
       "description": "Optional keywords to be used to narrow down the output list of\nscheduless. If nothing is input here, all available schedules\nwill be output.", 
-      "type": "string", 
+      "access": "list", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "bool", 
       "name": "join_words_", 
       "description": "If False or None, this component will automatically split\nany strings of multiple keywords (spearated by spaces) into separate\nkeywords for searching. This results in a greater liklihood of\nfinding an item in the search but it may not be appropropriate for\nall cases. You may want to set it to True when you are searching for\na specific phrase that includes spaces. Default: False.", 
-      "type": "bool", 
+      "access": "item", 
       "default": null
     }
-  ], 
-  "subcategory": "2 :: Schedules", 
-  "code": "\ntry:  # import the honeybee-core dependencies\n    from honeybee.search import filter_array_by_keywords\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.lib.schedules import SCHEDULES\n    from honeybee_energy.lib.scheduletypelimits import SCHEDULE_TYPE_LIMITS\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\n\nif len(keywords_) == 0:\n    schedules = sorted(SCHEDULES)\nelse:\n    split_words = True if join_words_ is None else not join_words_\n    schedules = sorted(filter_array_by_keywords(SCHEDULES, keywords_, split_words))\ntype_limits = sorted(SCHEDULE_TYPE_LIMITS)\n", 
-  "category": "HB-Energy", 
-  "name": "HB Search Schedules", 
-  "description": "Search for available Schedules within the honeybee energy standards library.\n-"
+  ]
 }

@@ -35,7 +35,7 @@ https://bcl.nrel.gov/nrel/types/measure
 
 ghenv.Component.Name = 'HB Load Measure'
 ghenv.Component.NickName = 'LoadMeasure'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -46,9 +46,11 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:  # import the ladybug_rhino dependencies
-    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning, \
+        turn_off_old_tag
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 import Grasshopper.Kernel as gh
 

@@ -33,7 +33,7 @@ Search for available Constructions within the honeybee energy standards library.
 
 ghenv.Component.Name = "HB Search Constructions"
 ghenv.Component.NickName = 'SearchConstrs'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -49,6 +49,12 @@ try:  # import the honeybee-energy dependencies
     from honeybee_energy.lib.constructions import SHADE_CONSTRUCTIONS
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
+try:
+    from ladybug_rhino.grasshopper import turn_off_old_tag
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
 if len(keywords_) == 0:

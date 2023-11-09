@@ -54,7 +54,7 @@ and loads on the Room.
 
 ghenv.Component.Name = 'HB ProgramType'
 ghenv.Component.NickName = 'ProgramType'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -72,42 +72,42 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import turn_off_old_tag
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
-if all_required_inputs(ghenv.Component):
-    # get the base program type
-    name = clean_and_id_ep_string('ProgramType') if _name_ is None else \
-        clean_ep_string(_name_)
-    if base_program_ is None:
-        program = ProgramType(name)
-    else:
-        if isinstance(base_program_, str):
-            try:
-                base_program_ = building_program_type_by_identifier(base_program_)
-            except ValueError:
-                base_program_ = program_type_by_identifier(base_program_)
-        program = base_program_.duplicate()
-        program.identifier = name
-    if _name_ is not None:
-        program.display_name = _name_
+# get the base program type
+name = clean_and_id_ep_string('ProgramType') if _name_ is None else \
+    clean_ep_string(_name_)
+if base_program_ is None:
+    program = ProgramType(name)
+else:
+    if isinstance(base_program_, str):
+        try:
+            base_program_ = building_program_type_by_identifier(base_program_)
+        except ValueError:
+            base_program_ = program_type_by_identifier(base_program_)
+    program = base_program_.duplicate()
+    program.identifier = name
+if _name_ is not None:
+    program.display_name = _name_
 
-    # go through each input load and assign it to the set
-    if _people_ is not None:
-        program.people = _people_
-    if _lighting_ is not None:
-        program.lighting = _lighting_
-    if _electric_equip_ is not None:
-        program.electric_equipment = _electric_equip_
-    if _gas_equip_ is not None:
-        program.gas_equipment = _gas_equip_
-    if _hot_water_ is not None:
-        program.service_hot_water = _hot_water_
-    if _infiltration_ is not None:
-        program.infiltration = _infiltration_
-    if _ventilation_ is not None:
-        program.ventilation = _ventilation_
-    if _setpoint_ is not None:
-        program.setpoint = _setpoint_
+# go through each input load and assign it to the set
+if _people_ is not None:
+    program.people = _people_
+if _lighting_ is not None:
+    program.lighting = _lighting_
+if _electric_equip_ is not None:
+    program.electric_equipment = _electric_equip_
+if _gas_equip_ is not None:
+    program.gas_equipment = _gas_equip_
+if _hot_water_ is not None:
+    program.service_hot_water = _hot_water_
+if _infiltration_ is not None:
+    program.infiltration = _infiltration_
+if _ventilation_ is not None:
+    program.ventilation = _ventilation_
+if _setpoint_ is not None:
+    program.setpoint = _setpoint_

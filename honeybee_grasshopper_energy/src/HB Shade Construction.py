@@ -31,7 +31,7 @@ do not have layers and are only defined by their exterior reflectance.
 
 ghenv.Component.Name = "HB Shade Construction"
 ghenv.Component.NickName = 'ShadeConstr'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
@@ -47,19 +47,20 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:  # import ladybug_rhino dependencies
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import turn_off_old_tag
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
-if all_required_inputs(ghenv.Component):
-    # set default values
-    _sol_ref_ = 0.2 if _sol_ref_ is None else _sol_ref_
-    _vis_ref_ = 0.2 if _vis_ref_ is None else _vis_ref_
-    specular_ = False if specular_ is None else specular_
-    name = clean_and_id_ep_string('ShadeConstruction') if _name_ is None else \
-        clean_ep_string(_name_)
 
-    # create the construction
-    constr = ShadeConstruction(name, _sol_ref_, _vis_ref_, specular_)
-    if _name_ is not None:
-        constr.display_name = _name_
+# set default values
+_sol_ref_ = 0.2 if _sol_ref_ is None else _sol_ref_
+_vis_ref_ = 0.2 if _vis_ref_ is None else _vis_ref_
+specular_ = False if specular_ is None else specular_
+name = clean_and_id_ep_string('ShadeConstruction') if _name_ is None else \
+    clean_ep_string(_name_)
+
+# create the construction
+constr = ShadeConstruction(name, _sol_ref_, _vis_ref_, specular_)
+if _name_ is not None:
+    constr.display_name = _name_

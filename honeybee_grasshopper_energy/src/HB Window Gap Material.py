@@ -31,7 +31,7 @@ This material can be plugged into the "HB Window Construction" component.
 
 ghenv.Component.Name = 'HB Window Gap Material'
 ghenv.Component.NickName = 'GapMat'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -48,26 +48,26 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:  # import ladybug_rhino dependencies
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import turn_off_old_tag
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
-if all_required_inputs(ghenv.Component):
-    # set the default material properties
-    _thickness_ = 0.0125 if _thickness_ is None else _thickness_
-    _gas_types_ = ['Air'] if len(_gas_types_) == 0 else _gas_types_
-    _gas_ratios_ = [1 / len(_gas_types_)] * len(_gas_types_) if \
-        len(_gas_ratios_) == 0 else _gas_ratios_
-    assert len(_gas_types_) == len(_gas_ratios_), \
-        'Length of _gas_types_ does not equal length of _gas_ratios_.'
-    name = clean_and_id_ep_string('GapMaterial') if _name_ is None else \
-        clean_ep_string(_name_)
+# set the default material properties
+_thickness_ = 0.0125 if _thickness_ is None else _thickness_
+_gas_types_ = ['Air'] if len(_gas_types_) == 0 else _gas_types_
+_gas_ratios_ = [1 / len(_gas_types_)] * len(_gas_types_) if \
+    len(_gas_ratios_) == 0 else _gas_ratios_
+assert len(_gas_types_) == len(_gas_ratios_), \
+    'Length of _gas_types_ does not equal length of _gas_ratios_.'
+name = clean_and_id_ep_string('GapMaterial') if _name_ is None else \
+    clean_ep_string(_name_)
 
-    # create the material
-    if len(_gas_types_) == 1:
-        mat = EnergyWindowMaterialGas(name, _thickness_, _gas_types_[0])
-    else:
-        mat = EnergyWindowMaterialGasMixture(name, _thickness_, _gas_types_, _gas_ratios_)
-    if _name_ is not None:
-        mat.display_name = _name_
+# create the material
+if len(_gas_types_) == 1:
+    mat = EnergyWindowMaterialGas(name, _thickness_, _gas_types_[0])
+else:
+    mat = EnergyWindowMaterialGasMixture(name, _thickness_, _gas_types_, _gas_ratios_)
+if _name_ is not None:
+    mat.display_name = _name_

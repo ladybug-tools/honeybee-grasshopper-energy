@@ -50,7 +50,7 @@ Window blind properties consist of flat, equally-spaced slats.
 
 ghenv.Component.Name = 'HB Blind Material'
 ghenv.Component.NickName = 'BlindMat'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -66,33 +66,33 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:  # import ladybug_rhino dependencies
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import turn_off_old_tag
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
-if all_required_inputs(ghenv.Component):
-    # set the default material properties
-    orientation = 'Vertical' if _vertical_ else 'Horizontal'
-    _slat_width_ = 0.025 if _slat_width_ is None else _slat_width_
-    _slat_separation_ = 0.01875 if _slat_separation_ is None else _slat_separation_
-    _slat_thickness_ = 0.001 if _slat_thickness_ is None else _slat_thickness_
-    _slat_angle_ = 45 if _slat_angle_ is None else _slat_angle_
-    _conductivity_ = 221 if _conductivity_ is None else _conductivity_
-    _transmittance_ = 0 if _transmittance_ is None else _transmittance_
-    _reflectance_ = 0.5 if _reflectance_ is None else _reflectance_
-    _t_infrared_ = 0 if _t_infrared_ is None else _t_infrared_
-    _emissivity_ = 0.9 if _emissivity_ is None else _emissivity_
-    _dist_to_glass_ = 0.05 if _dist_to_glass_ is None else _dist_to_glass_
-    _open_mult_ = 0.5 if _open_mult_ is None else _open_mult_
-    name = clean_and_id_ep_string('BlindMaterial') if _name_ is None else \
-        clean_ep_string(_name_)
+# set the default material properties
+orientation = 'Vertical' if _vertical_ else 'Horizontal'
+_slat_width_ = 0.025 if _slat_width_ is None else _slat_width_
+_slat_separation_ = 0.01875 if _slat_separation_ is None else _slat_separation_
+_slat_thickness_ = 0.001 if _slat_thickness_ is None else _slat_thickness_
+_slat_angle_ = 45 if _slat_angle_ is None else _slat_angle_
+_conductivity_ = 221 if _conductivity_ is None else _conductivity_
+_transmittance_ = 0 if _transmittance_ is None else _transmittance_
+_reflectance_ = 0.5 if _reflectance_ is None else _reflectance_
+_t_infrared_ = 0 if _t_infrared_ is None else _t_infrared_
+_emissivity_ = 0.9 if _emissivity_ is None else _emissivity_
+_dist_to_glass_ = 0.05 if _dist_to_glass_ is None else _dist_to_glass_
+_open_mult_ = 0.5 if _open_mult_ is None else _open_mult_
+name = clean_and_id_ep_string('BlindMaterial') if _name_ is None else \
+    clean_ep_string(_name_)
 
-    # create the material
-    mat = EnergyWindowMaterialBlind(
-        name, orientation, _slat_width_, _slat_separation_,
-        _slat_thickness_, _slat_angle_, _conductivity_, _transmittance_,
-        _reflectance_, _transmittance_,  _reflectance_, _t_infrared_, _emissivity_,
-        _dist_to_glass_, _open_mult_)
-    if _name_ is not None:
-        mat.display_name = _name_
+# create the material
+mat = EnergyWindowMaterialBlind(
+    name, orientation, _slat_width_, _slat_separation_,
+    _slat_thickness_, _slat_angle_, _conductivity_, _transmittance_,
+    _reflectance_, _transmittance_,  _reflectance_, _t_infrared_, _emissivity_,
+    _dist_to_glass_, _open_mult_)
+if _name_ is not None:
+    mat.display_name = _name_

@@ -1,50 +1,50 @@
 {
-  "version": "1.7.0", 
-  "nickname": "ShadeConstr", 
+  "description": "Create an EnergyPlus shade construction. Note that Shade objects in EnergyPlus\ndo not have layers and are only defined by their exterior reflectance.\n-", 
   "outputs": [
     [
       {
-        "access": "None", 
+        "type": null, 
         "name": "constr", 
         "description": "A shade construction that can be assigned to Honeybee\nShades or ConstructionSets.", 
-        "type": null, 
+        "access": "None", 
         "default": null
       }
     ]
   ], 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.construction.shade import ShadeConstruction\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# set default values\n_sol_ref_ = 0.2 if _sol_ref_ is None else _sol_ref_\n_vis_ref_ = 0.2 if _vis_ref_ is None else _vis_ref_\nspecular_ = False if specular_ is None else specular_\nname = clean_and_id_ep_string('ShadeConstruction') if _name_ is None else \\\n    clean_ep_string(_name_)\n\n# create the construction\nconstr = ShadeConstruction(name, _sol_ref_, _vis_ref_, specular_)\nif _name_ is not None:\n    constr.display_name = _name_\n", 
+  "name": "HB Shade Construction", 
+  "version": "1.7.1", 
+  "category": "HB-Energy", 
+  "subcategory": "1 :: Constructions", 
+  "nickname": "ShadeConstr", 
   "inputs": [
     {
-      "access": "item", 
+      "type": "string", 
       "name": "_name_", 
       "description": "Text to set the name for the Construction and to be incorporated\ninto a unique Construction identifier.", 
-      "type": "string", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_sol_ref_", 
       "description": "A number between 0 and 1 for the solar reflectance\nof the construction. Default: 0.2.", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "double", 
       "name": "_vis_ref_", 
       "description": "A number between 0 and 1 for the visible reflectance\nof the construction. Default: 0.2.", 
-      "type": "double", 
+      "access": "item", 
       "default": null
     }, 
     {
-      "access": "item", 
+      "type": "bool", 
       "name": "specular_", 
       "description": "A boolean to note whether the reflection off the shade\nshould be diffuse (False) or specular (True). Set to True if the\nconstruction is representing a glass facade or a mirror\nmaterial. Default: False.", 
-      "type": "bool", 
+      "access": "item", 
       "default": null
     }
-  ], 
-  "subcategory": "1 :: Constructions", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.construction.shade import ShadeConstruction\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\nif all_required_inputs(ghenv.Component):\n    # set default values\n    _sol_ref_ = 0.2 if _sol_ref_ is None else _sol_ref_\n    _vis_ref_ = 0.2 if _vis_ref_ is None else _vis_ref_\n    specular_ = False if specular_ is None else specular_\n    name = clean_and_id_ep_string('ShadeConstruction') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # create the construction\n    constr = ShadeConstruction(name, _sol_ref_, _vis_ref_, specular_)\n    if _name_ is not None:\n        constr.display_name = _name_\n", 
-  "category": "HB-Energy", 
-  "name": "HB Shade Construction", 
-  "description": "Create an EnergyPlus shade construction. Note that Shade objects in EnergyPlus\ndo not have layers and are only defined by their exterior reflectance.\n-"
+  ]
 }

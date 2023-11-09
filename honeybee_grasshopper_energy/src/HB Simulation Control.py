@@ -23,7 +23,7 @@ calculations to run.
             be run for the sizing periods. Default: False.
         _for_run_period_: Boolean for whether the simulation should
             be run for the run periods. Default: True.
-    
+
     Returns:
         sim_control: A SimulationControl object that can be connected to the
             "HB Simulation Parameter" component in order to specify which
@@ -32,7 +32,7 @@ calculations to run.
 
 ghenv.Component.Name = 'HB Simulation Control'
 ghenv.Component.NickName = 'SimControl'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -41,6 +41,12 @@ try:
     from honeybee_energy.simulation.control import SimulationControl
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
+try:
+    from ladybug_rhino.grasshopper import turn_off_old_tag
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
 # set default values
