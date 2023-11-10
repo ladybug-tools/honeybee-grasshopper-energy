@@ -35,7 +35,7 @@ https://bcl.nrel.gov/nrel/types/measure
 
 ghenv.Component.Name = 'HB Load Measure'
 ghenv.Component.NickName = 'LoadMeasure'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -80,6 +80,9 @@ def add_component_input_from_arg(argument):
         if None not in argument.valid_choices:
             descr.append('Choose from the following options:')
             descr = descr + list(argument.valid_choices)
+        if len(descr) > 50:  # truncate illegible long docstrings
+            descr = descr[:50]
+            descr.append('...more options not shown...')
         param.Description = '\n '.join(descr)
     elif argument.description:
         param.Description = argument.description
