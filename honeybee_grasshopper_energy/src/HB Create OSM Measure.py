@@ -42,7 +42,7 @@ measures/create_DOE_prototype_building
 
 ghenv.Component.Name = 'HB Create OSM Measure'
 ghenv.Component.NickName = 'OSMMeasure'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -65,6 +65,7 @@ except ImportError as e:
 try:
     from honeybee_energy.measure import Measure
     from honeybee_energy.run import run_osw
+    from honeybee_energy.result.osw import OSW
     from honeybee_energy.config import folders as energy_folders
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -137,3 +138,12 @@ if all_required_inputs(ghenv.Component) and _run:
             workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
     osw = os.path.abspath(osw_json)
     osm, idf = run_osw(osw, silent=False)
+
+    # if the measure fails, report it
+    if idf is None:  # measures failed to run correctly; parse out.osw
+        log_osw = OSW(os.path.join(directory, 'out.osw'))
+        errors = []
+        for error, tb in zip(log_osw.errors, log_osw.error_tracebacks):
+            print(tb)
+            errors.append(error)
+        raise Exception('Failed to run OpenStudio CLI:\n{}'.format('\n'.join(errors)))
