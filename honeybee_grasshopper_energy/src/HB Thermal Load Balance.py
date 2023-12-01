@@ -67,7 +67,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -78,6 +78,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
+    from honeybee_energy.hvac.idealair import IdealAirSystem
     from honeybee_energy.result.loadbalance import LoadBalance
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
@@ -105,6 +106,24 @@ if all_required_inputs(ghenv.Component):
             floor_area += hb_obj.floor_area
         else:
             rooms.append(hb_obj)
+
+    # if a detailed HVAC system is assigned to the rooms, give a warning
+    bad_rooms = []
+    for room in rooms:
+        hvac = room.properties.energy.hvac
+        if hvac is not None and not isinstance(hvac, (IdealAirSystem)):
+            bad_rooms.append(room.display_name)
+    if len(bad_rooms) != 0:
+        if len(bad_rooms) > 20:
+            bad_rooms = bad_rooms[:20] + ['...']
+        msg = 'The following Rooms use HVAC systems other than Ideal Air.\n' \
+            'The cooling and heating results for detailed HVAC are electricity and\n' \
+            'fuel, which cannot be used in load balances of thermal energy.\n' \
+            'Either replace these detailed HVAC systems with Ideal Air Systems or \n' \
+            'use the "HB Annual Loads" component to get a load balance these\n' \
+            'roomswith detailed HVAC:\n\n{}'.format('\n'.join(bad_rooms))
+        print(msg)
+        give_warning(ghenv.Component, msg)
 
     # if the input is for individual rooms, check the solar to ensure no groued zones
     if not is_model and len(solar_gain_) != 0:
