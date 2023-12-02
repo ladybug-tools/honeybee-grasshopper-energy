@@ -35,6 +35,11 @@ The resulting object can be used to request output variables from EnergyPlus.
             See the Input Output Reference SummaryReports section for a full
             list of all reports that can be requested. https://bigladdersoftware.com/
             epx/docs/9-1/input-output-reference/output-table-summaryreports.html
+        _unmet_setpt_tol_: A number in degrees Celsius for the difference that the zone
+            conditions must be from the thermostat setpoint in order
+            for the setpoint to be considered unmet. This will affect how unmet
+            hours are reported in the output. ASHRAE 90.1 uses a tolerance of
+            1.11C, which is equivalent to 1.8F. (Default: 1.11C).
 
     Returns:
         sim_output: A SimulationOutput object that can be connected to the
@@ -44,7 +49,7 @@ The resulting object can be used to request output variables from EnergyPlus.
 
 ghenv.Component.Name = 'HB Custom Simulation Output'
 ghenv.Component.NickName = 'CustomOutput'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -76,3 +81,7 @@ for output_name in output_names_:
 # add the summary_reports_
 for rep in summary_reports_:
     sim_output.add_summary_report(rep)
+
+# add the unmet setpoint tolerance
+if _unmet_setpt_tol_ is not None:
+    sim_output.unmet_setpoint_tolerance = _unmet_setpt_tol_
