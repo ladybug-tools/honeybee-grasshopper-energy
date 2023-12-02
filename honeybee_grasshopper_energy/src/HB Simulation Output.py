@@ -25,7 +25,7 @@ The resulting object can be used to request output variables from EnergyPlus.
             and ventilation losses/gains.
         comfort_metrics_: Set to True to add outputs for zone thermal comfort analysis.
             This includes air temperature, mean radiant temperature, relative
-            humidity.
+            humidity, and unmet setpoint time.
         surface_temperature_: Set to True to add outputs for indoor and outdoor
             surface temperature.
         surface_energy_flow_: Set to True to add outputs for energy flow across
@@ -53,7 +53,7 @@ The resulting object can be used to request output variables from EnergyPlus.
 
 ghenv.Component.Name = 'HB Simulation Output'
 ghenv.Component.NickName = 'SimOutput'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -90,6 +90,7 @@ if gains_and_losses_:
     sim_output.add_gains_and_losses(load_type)
 if comfort_metrics_:
     sim_output.add_comfort_metrics()
+    sim_output.add_unmet_hours()
 if surface_temperature_:
     sim_output.add_surface_temperature()
 if surface_energy_flow_:

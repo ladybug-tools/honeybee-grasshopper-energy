@@ -21,11 +21,15 @@ file that has been generated from an energy simulation.
         air_temp: DataCollections for the mean air temperature of each room (C).
         rad_temp: DataCollections for the mean radiant temperature of each room (C).
         rel_humidity: DataCollections for the relative humidity of each room (%).
+        unmet_heat: DataCollections for time that the heating setpoint is not met
+            in each room (hours).
+        unmet_cool: DataCollections for time that the cooling setpoint is not met
+            in each room (hours).
 """
 
 ghenv.Component.Name = 'HB Read Room Comfort Result'
 ghenv.Component.NickName = 'RoomComfortResult'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -69,7 +73,12 @@ oper_temp_output = 'Zone Operative Temperature'
 air_temp_output = 'Zone Mean Air Temperature'
 rad_temp_output = 'Zone Mean Radiant Temperature'
 rel_humidity_output = 'Zone Air Relative Humidity'
-all_output = [oper_temp_output, air_temp_output, rad_temp_output, rel_humidity_output]
+heat_setpt_output = 'Zone Heating Setpoint Not Met Time'
+cool_setpt_output = 'Zone Cooling Setpoint Not Met Time'
+all_output = [
+    oper_temp_output, air_temp_output, rad_temp_output,
+    rel_humidity_output, heat_setpt_output, cool_setpt_output
+]
 
 
 if all_required_inputs(ghenv.Component):
@@ -83,6 +92,8 @@ if all_required_inputs(ghenv.Component):
         air_temp = sql_obj.data_collections_by_output_name(air_temp_output)
         rad_temp = sql_obj.data_collections_by_output_name(rad_temp_output)
         rel_humidity = sql_obj.data_collections_by_output_name(rel_humidity_output)
+        unmet_heat = sql_obj.data_collections_by_output_name(heat_setpt_output)
+        unmet_cool = sql_obj.data_collections_by_output_name(cool_setpt_output)
 
     else:  # use the honeybee_energy CLI
         # sqlite3 module doesn't work in Mac IronPython
@@ -102,3 +113,5 @@ if all_required_inputs(ghenv.Component):
         air_temp = serialize_data(data_coll_dicts[1])
         rad_temp = serialize_data(data_coll_dicts[2])
         rel_humidity = serialize_data(data_coll_dicts[3])
+        unmet_heat = serialize_data(data_coll_dicts[4])
+        unmet_cool = serialize_data(data_coll_dicts[5])
