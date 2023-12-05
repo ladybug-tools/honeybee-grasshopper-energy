@@ -1,0 +1,71 @@
+{
+  "version": "1.7.0", 
+  "nickname": "FanVent", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "rooms", 
+        "description": "The input Rooms with ventilation fans assigned to them.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_rooms", 
+      "description": "Honeybee Rooms to which ventilation fans should be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_name_", 
+      "description": "Text to set the name for the ventilation fan and to be incorporated into a\nunique ventilation fan identifier. If None, a unique name will be\ngenerated.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_flow_rate", 
+      "description": "A positive number for the flow rate of the fan in m3/s.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_vent_type_", 
+      "description": "Text to indicate the type of type of ventilation. Choose from the\noptions below. For either Exhaust or Intake, values for fan pressure\nand efficiency define the fan electric consumption. For Exhaust\nventilation, the conditions of the air entering the space are assumed\nto be equivalent to outside air conditions. For Intake and Balanced\nventilation, an appropriate amount of fan heat is added to the\nentering air stream. For Balanced ventilation, both an intake fan\nand an exhaust fan are assumed to co-exist, both having the same\nflow rate and power consumption (using the entered values for fan\npressure rise and fan total efficiency). Thus, the fan electric\nconsumption for Balanced ventilation is twice that for the Exhaust or\nIntake ventilation types which employ only a single fan. (Default: Balanced).\n* Exhaust\n* Intake\n* Balanced", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_pressure_rise_", 
+      "description": "A number for the the pressure rise across the fan in Pascals (N/m2).\nThis is often a function of the fan speed and the conditions in\nwhich the fan is operating since having the fan blow air through filters\nor narrow ducts will increase the pressure rise that is needed to\ndeliver the input flow rate. The pressure rise plays an important role in\ndetermining the amount of energy consumed by the fan. Smaller fans like\na 0.05 m3/s desk fan tend to have lower pressure rises around 60 Pa.\nLarger fans, such as a 6 m3/s fan used for ventilating a large room tend\nto have higher pressure rises around 400 Pa. The highest pressure rises\nare typically for large fans blowing air through ducts and filters, which\ncan have pressure rises as high as 1000 Pa. If this input is None,\nthe pressure rise will be estimated from the flow_rate, with higher\nflow rates corresponding to larger pressure rises (up to 400 Pa). These\nestimated pressure rises are generally assumed to have minimal obstructions\nbetween the fan and the room and they should be increased if the fan is\nblowing air through ducts or filters.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "_efficiency_", 
+      "description": "A number between 0 and 1 for the overall efficiency of the fan.\nSpecifically, this is the ratio of the power delivered to the fluid\nto the electrical input power. It is the product of the fan motor\nefficiency and the fan impeller efficiency. Fans that have a higher blade\ndiameter and operate at lower speeds with smaller pressure rises for\ntheir size tend to have higher efficiencies. Because motor efficiencies\nare typically between 0.8 and 0.9, the best overall fan efficiencies\ntend to be around 0.7 with most typical fan efficiencies between 0.5 and\n0.7. The lowest efficiencies often happen for small fans in situations\nwith high pressure rises for their size, which can result in efficiencies\nas low as 0.15. If None, this input will be estimated from the fan\nflow rate and pressure rise with large fans operating at low pressure\nrises for their size having up to 0.7 efficiency and small fans\noperating at high pressure rises for their size having as low as\n0.15 efficiency.", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "list", 
+      "name": "vent_cntrl_", 
+      "description": "A Ventilation Control object from the \"HB Ventilation Control\"\ncomponent that dictates the conditions under which the\nfan is turned on. If None, the fan on all of the time.", 
+      "type": "System.Object", 
+      "default": null
+    }
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:  # import the honeybee extension\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy extension\n    from honeybee_energy.ventcool.fan import VentilationFan\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, longest_list\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    rooms = [room.duplicate() for room in _rooms]\n\n    # set default values and check the inputs\n    _vent_type_ = ['Balanced'] if len(_vent_type_) == 0 else _vent_type_\n    _pressure_rise_ = [None] if len(_pressure_rise_) == 0 else _pressure_rise_\n    _efficiency_ = [None] if len(_efficiency_) == 0 else _efficiency_\n    vent_cntrl_ = [None] if len(vent_cntrl_) == 0 else vent_cntrl_\n\n    # loop through the rooms and assign ventilation fans\n    for i, room in enumerate(rooms):\n        flow_rate = longest_list(_flow_rate, i)\n        if flow_rate != 0:\n            name = clean_and_id_ep_string('VentilationFan') if len(_name_) == 0 else \\\n                clean_ep_string(longest_list(_name_, i))\n            fan = VentilationFan(\n                name, flow_rate,  longest_list(_vent_type_, i),\n                longest_list(_pressure_rise_, i),\n                longest_list(_efficiency_, i), longest_list(vent_cntrl_, i)\n            )\n            room.properties.energy.add_fan(fan)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Fan Ventilation", 
+  "description": "Add ventilation fans to Rooms.\n_\nThis fan is not connected to any heating or cooling system and is meant to\nrepresent the intentional circulation of unconditioned outdoor air for the\npurposes of keeping a space cooler, drier or free of indoor pollutants (as in\nthe case of kitchen or bathroom exhaust fans).\n-"
+}
