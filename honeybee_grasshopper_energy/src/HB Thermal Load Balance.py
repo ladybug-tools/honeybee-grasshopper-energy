@@ -67,7 +67,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -141,6 +141,7 @@ if all_required_inputs(ghenv.Component):
     lighting_ = check_input(lighting_)
     electric_equip_ = check_input(electric_equip_)
     gas_equip_ = check_input(gas_equip_)
+    process_ = check_input(process_)
     hot_water_ = check_input(hot_water_)
     people_gain_ = check_input(people_gain_)
     solar_gain_ = check_input(solar_gain_)
