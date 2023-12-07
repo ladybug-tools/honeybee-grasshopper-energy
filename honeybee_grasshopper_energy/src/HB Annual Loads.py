@@ -96,7 +96,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -118,6 +118,7 @@ except ImportError as e:
 
 try:
     from honeybee.config import folders
+    from honeybee.facetype import AirBoundary
     from honeybee.model import Model
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
@@ -146,15 +147,33 @@ except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
 
-def check_window_vent(rooms):
+def check_timestep_issues(rooms):
     """Check a rooms to make sure there's no opening of windows as coarse timestep."""
+    base_msg = '{} was detected but your timestep is too low to model this ' \
+        'correctly.\nIt is recommended that you increase your timestep ' \
+        'to at least 4 to get loads for this case\nand the loads may not be fully ' \
+        'balanced unless a timestep as high as 12 is used.'
     for room in rooms:
         if room.properties.energy.window_vent_control is not None:
-            msg = 'Window ventilation was detected but your timestep is too low ' \
-                'to model window opening correctly.\nIt is recommended that you ' \
-                'increase your timestep to at least 4 to get loads for this case.'
+            msg = base_msg.format('Window ventilation')
             print(msg)
             give_warning(ghenv.Component, msg)
+            break
+        if len(room.properties.energy.fans) != 0:
+            msg = base_msg.format('Fan ventilation')
+            print(msg)
+            give_warning(ghenv.Component, msg)
+            break
+        room_issue = False
+        for face in room.faces:
+            if isinstance(face.type, AirBoundary):
+                msg = base_msg.format('Air Boundaries')
+                print(msg)
+                give_warning(ghenv.Component, msg)
+                room_issue = True
+                break
+        if room_issue:
+            break
 
 
 def data_to_load_intensity(data_colls, floor_area, data_type, cop=1, mults=None):
@@ -247,7 +266,7 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # check the rooms for inaccurate cases
     if _sim_par_.timestep < 4:
-        check_window_vent(_rooms)
+        check_timestep_issues(_rooms)
 
     # assign design days from the EPW
     msg = None
