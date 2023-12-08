@@ -74,7 +74,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -171,6 +171,8 @@ if all_required_inputs(ghenv.Component) and _write:
         error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
             'Is this correct?'.format(units_system())
         raise ValueError(error)
+    # remove the HVAC from any Rooms lacking setpoints
+    _model.properties.energy.remove_hvac_from_no_setpoints()
 
     # auto-assign stories if there are none since most OpenStudio measures need these
     if len(_model.stories) == 0 and len(_model.rooms) != 0:
