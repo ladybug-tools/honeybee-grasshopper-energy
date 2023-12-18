@@ -27,7 +27,7 @@ file that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Face Result'
 ghenv.Component.NickName = 'FaceResult'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -77,6 +77,17 @@ def serialize_data(data_dicts):
         return [DailyCollection.from_dict(data) for data in data_dicts]
 
 
+def ironpython_results(sql_file):
+    sql_obj = SQLiteResult(sql_file)  # create the SQL result parsing object
+    # get all of the results
+    face_indoor_temp = sql_obj.data_collections_by_output_name(face_indoor_temp_output)
+    face_outdoor_temp = sql_obj.data_collections_by_output_name(face_outdoor_temp_output)
+    opaque_energy_flow = sql_obj.data_collections_by_output_name(opaque_energy_flow_output)
+    window_loss = sql_obj.data_collections_by_output_name(window_loss_output)
+    window_gain = sql_obj.data_collections_by_output_name(window_gain_output)
+    return face_indoor_temp, face_outdoor_temp, opaque_energy_flow, window_loss, window_gain
+
+
 # List of all the output strings that will be requested
 face_indoor_temp_output = 'Surface Inside Face Temperature'
 face_outdoor_temp_output = 'Surface Outside Face Temperature'
@@ -90,16 +101,11 @@ all_output = [face_indoor_temp_output, face_outdoor_temp_output,
 if all_required_inputs(ghenv.Component):
     # check the size of the SQL file to see if we should use the CLI
     assert os.path.isfile(_sql), 'No sql file found at: {}.'.format(_sql)
+    cpy_fail = False
     if os.name == 'nt' and os.path.getsize(_sql) < 1e8:
         # small file on windows; use IronPython like usual
-        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object
-        # get all of the results
-        face_indoor_temp = sql_obj.data_collections_by_output_name(face_indoor_temp_output)
-        face_outdoor_temp = sql_obj.data_collections_by_output_name(face_outdoor_temp_output)
-        opaque_energy_flow = sql_obj.data_collections_by_output_name(opaque_energy_flow_output)
-        window_loss = sql_obj.data_collections_by_output_name(window_loss_output)
-        window_gain = sql_obj.data_collections_by_output_name(window_gain_output)
-
+        face_indoor_temp, face_outdoor_temp, opaque_energy_flow, window_loss, window_gain = \
+            ironpython_results(_sql)
     else:  # use the honeybee_energy CLI
         # sqlite3 module doesn't work in Mac IronPython
         # or the file's big and we know that the Python3 version scales better
@@ -111,14 +117,22 @@ if all_required_inputs(ghenv.Component):
         custom_env['PYTHONHOME'] = ''
         process = subprocess.Popen(
             cmds, stdout=subprocess.PIPE, shell=use_shell, env=custom_env)
-        stdout = process.communicate()
-        data_coll_dicts = json.loads(stdout[0])
-        # get all of the results
-        face_indoor_temp = serialize_data(data_coll_dicts[0])
-        face_outdoor_temp = serialize_data(data_coll_dicts[1])
-        opaque_energy_flow = serialize_data(data_coll_dicts[2])
-        window_loss = serialize_data(data_coll_dicts[3])
-        window_gain = serialize_data(data_coll_dicts[4])
+        try:
+            stdout = process.communicate()
+        except Exception as e:
+            if 'System.OutOfMemoryException' in str(e):
+                cpy_fail = True  # too much data to pass over CLI
+        if not cpy_fail:
+            data_coll_dicts = json.loads(stdout[0])
+            # get all of the results
+            face_indoor_temp = serialize_data(data_coll_dicts[0])
+            face_outdoor_temp = serialize_data(data_coll_dicts[1])
+            opaque_energy_flow = serialize_data(data_coll_dicts[2])
+            window_loss = serialize_data(data_coll_dicts[3])
+            window_gain = serialize_data(data_coll_dicts[4])
+        else:  # too much data to pass over CLI; load it with slow IronPython
+            face_indoor_temp, face_outdoor_temp, opaque_energy_flow, window_loss, window_gain = \
+                ironpython_results(_sql)
 
     # do arithmetic with any of the gain/loss data collections
     window_energy_flow = []
