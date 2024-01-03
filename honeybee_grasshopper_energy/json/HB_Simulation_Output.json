@@ -1,5 +1,5 @@
 {
-  "version": "1.7.2", 
+  "version": "1.7.3", 
   "nickname": "SimOutput", 
   "outputs": [
     [
@@ -22,8 +22,8 @@
     }, 
     {
       "access": "item", 
-      "name": "hvac_energy_use_", 
-      "description": "Set to True to add outputs for HVAC energy use from detailed\nsystems. This includes outputs for different pieces of equipment,\nwhich together catch all energy-consuming parts of a system.\n(eg. chillers, boilers, coils, humidifiers, fans, pumps).", 
+      "name": "system_energy_use_", 
+      "description": "Set to True to add outputs for HVAC energy use from detailed\nsystems. This includes outputs for different pieces of HVAC equipment,\nwhich together catch all energy-consuming parts of a system.\n(eg. chillers, boilers, coils, humidifiers, fans, pumps). It also\nincludes the energy use of components of Service Hot Water (SHW)\nsystems as well as any electricity generated on site, such at that\ncoming from photovoltaics.", 
       "type": "bool", 
       "default": null
     }, 
@@ -71,7 +71,7 @@
     }
   ], 
   "subcategory": "5 :: Simulate", 
-  "code": "\ntry:\n    from honeybee_energy.simulation.output import SimulationOutput\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# set default reporting frequency.\n_report_frequency_ = _report_frequency_.title() \\\n    if _report_frequency_ is not None else 'Hourly'\n\n# set the default load_type\nload_type_ = load_type_.title() if load_type_ is not None else 'All'\n\n# create the starting simulation output object.\nsim_output = SimulationOutput(reporting_frequency=_report_frequency_)\n\n# set each of the requested outputs\nif zone_energy_use_:\n    sim_output.add_zone_energy_use(load_type_)\nif hvac_energy_use_:\n    sim_output.add_hvac_energy_use()\nif gains_and_losses_:\n    load_type = load_type_ if load_type_ != 'All' else 'Total'\n    sim_output.add_gains_and_losses(load_type)\nif comfort_metrics_:\n    sim_output.add_comfort_metrics()\n    sim_output.add_unmet_hours()\nif surface_temperature_:\n    sim_output.add_surface_temperature()\nif surface_energy_flow_:\n    sim_output.add_surface_energy_flow()\n", 
+  "code": "\ntry:\n    from honeybee_energy.simulation.output import SimulationOutput\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# set default reporting frequency.\n_report_frequency_ = _report_frequency_.title() \\\n    if _report_frequency_ is not None else 'Hourly'\n\n# set the default load_type\nload_type_ = load_type_.title() if load_type_ is not None else 'All'\n\n# create the starting simulation output object.\nsim_output = SimulationOutput(reporting_frequency=_report_frequency_)\n\n# set each of the requested outputs\nif zone_energy_use_:\n    sim_output.add_zone_energy_use(load_type_)\nif system_energy_use_:\n    sim_output.add_hvac_energy_use()\n    sim_output.add_electricity_generation()\nif gains_and_losses_:\n    load_type = load_type_ if load_type_ != 'All' else 'Total'\n    sim_output.add_gains_and_losses(load_type)\nif comfort_metrics_:\n    sim_output.add_comfort_metrics()\n    sim_output.add_unmet_hours()\nif surface_temperature_:\n    sim_output.add_surface_temperature()\nif surface_energy_flow_:\n    sim_output.add_surface_energy_flow()\n", 
   "category": "HB-Energy", 
   "name": "HB Simulation Output", 
   "description": "Create a simulation output object by selecting sets of commonly-requested output variables.\nThe resulting object can be used to request output variables from EnergyPlus.\n-"
