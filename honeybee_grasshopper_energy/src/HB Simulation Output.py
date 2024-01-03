@@ -16,10 +16,13 @@ The resulting object can be used to request output variables from EnergyPlus.
         zone_energy_use_: Set to True to add outputs for zone energy use when ideal
             air systems are assigned. This includes, ideal air heating + cooling,
             lighting, electric + gas equipment, and fan electric energy.
-        hvac_energy_use_: Set to True to add outputs for HVAC energy use from detailed
-            systems. This includes outputs for different pieces of equipment,
+        system_energy_use_: Set to True to add outputs for HVAC energy use from detailed
+            systems. This includes outputs for different pieces of HVAC equipment,
             which together catch all energy-consuming parts of a system.
-            (eg. chillers, boilers, coils, humidifiers, fans, pumps).
+            (eg. chillers, boilers, coils, humidifiers, fans, pumps). It also
+            includes the energy use of components of Service Hot Water (SHW)
+            systems as well as any electricity generated on site, such at that
+            coming from photovoltaics.
         gains_and_losses_: Set to True to Add outputs for zone gains and losses.
             This includes such as people gains, solar gains, infiltration losses/gains,
             and ventilation losses/gains.
@@ -53,7 +56,7 @@ The resulting object can be used to request output variables from EnergyPlus.
 
 ghenv.Component.Name = 'HB Simulation Output'
 ghenv.Component.NickName = 'SimOutput'
-ghenv.Component.Message = '1.7.2'
+ghenv.Component.Message = '1.7.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -83,8 +86,9 @@ sim_output = SimulationOutput(reporting_frequency=_report_frequency_)
 # set each of the requested outputs
 if zone_energy_use_:
     sim_output.add_zone_energy_use(load_type_)
-if hvac_energy_use_:
+if system_energy_use_:
     sim_output.add_hvac_energy_use()
+    sim_output.add_electricity_generation()
 if gains_and_losses_:
     load_type = load_type_ if load_type_ != 'All' else 'Total'
     sim_output.add_gains_and_losses(load_type)

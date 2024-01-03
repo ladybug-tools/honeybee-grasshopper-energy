@@ -27,7 +27,7 @@ to an IDF file and then run through EnergyPlus.
         add_str_: THIS OPTION IS JUST FOR ADVANCED USERS OF ENERGYPLUS.
             You can input additional text strings here that you would like
             written into the IDF.  The input here should be complete EnergyPlus
-            objects as a single string following the IDF format. This input ca
+            objects as a single string following the IDF format. This input can
             be used to write objects into the IDF that are not currently supported
             by Honeybee.
         _folder_: An optional folder on this computer, into which the IDF and result
@@ -74,7 +74,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -126,6 +126,7 @@ if all_required_inputs(ghenv.Component) and _write:
         _sim_par_ = SimulationParameter()
         _sim_par_.output.add_zone_energy_use()
         _sim_par_.output.add_hvac_energy_use()
+        _sim_par_.output.add_electricity_generation()
     else:
         _sim_par_ = _sim_par_.duplicate()  # ensure input is not edited
 
@@ -190,11 +191,11 @@ if all_required_inputs(ghenv.Component) and _write:
     model_json = os.path.join(directory, '{}.hbjson'.format(clean_name))
     if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
         with open(model_json, 'wb') as fp:
-            model_str = json.dumps(model_dict, indent=4, ensure_ascii=False)
+            model_str = json.dumps(model_dict, ensure_ascii=False)
             fp.write(model_str.encode('utf-8'))
     else:
         with open(model_json, 'w', encoding='utf-8') as fp:
-            model_str = json.dump(model_dict, fp, indent=4, ensure_ascii=False)
+            model_str = json.dump(model_dict, fp, ensure_ascii=False)
 
     # write the simulation parameter JSONs
     sim_par_dict = _sim_par_.to_dict()

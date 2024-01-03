@@ -1,0 +1,78 @@
+{
+  "version": "1.7.0", 
+  "nickname": "Photovoltaic", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "shades", 
+        "description": "The input Shades with photovoltaic properties assigned.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "list", 
+      "name": "_shades", 
+      "description": "Honeybee Shades to which photovoltaic properties will be assigned.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_rated_efficiency_", 
+      "description": "A number between 0 and 1 for the rated nameplate efficiency\nof the photovoltaic solar cells under standard test conditions (STC).\n_\nStandard test conditions are 1,000 Watts per square meter solar\nirradiance, 25 degrees C cell temperature, and ASTM G173-03 standard\nspectrum. Nameplate efficiencies reported by manufacturers are typically\nunder STC.\n_\nStandard poly- or mono-crystalline silicon modules tend to have\nrated efficiencies in the range of 14-17%. Premium high efficiency\nmono-crystalline silicon modules with anti-reflective coatings can\nhave efficiencies in the range of 18-20%. Thin film photovoltaic\nmodules typically have efficiencies of 11% or less. (Default: 0.15\nfor standard silicon solar cells).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_active_fraction_", 
+      "description": "The fraction of the parent Shade geometry that is covered in active\nsolar cells. This fraction includes the difference between the PV\npanel (aka. PV module) area and the active cells within the panel\nas well as any losses for how the (typically rectangular) panels\ncan be arranged on the Shade geometry. When the parent Shade\ngeometry represents just the solar panels, this fraction is typically\naround 0.9 given that the framing elements of the panel reduce the\noverall active area. (Default: 0.9).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_module_type_", 
+      "description": "Text or an integer to indicate the type of solar module. This is used\nto determine the temperature coefficients used in the simulation of the\nphotovoltaic modules. Choose from the three options below. If unspecified,\nthe module_type will be inferred from the rated_efficiency of these\nPVProperties using the rated efficiencies listed below.\n_\n* 0 - Standard - 12% <= rated_efficiency < 18%\n* 1 - Premium - rated_efficiency >= 18%\n* 2 - ThinFilm - rated_efficiency < 12%", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_mounting_type_", 
+      "description": "Text or an integer to indicate the type of mounting and/or tracking used\nfor the photovoltaic array. Note that the OneAxis options have an axis\nof rotation that is determined by the azimuth of the parent Shade\ngeometry. Also note that, in the case of one or two axis tracking,\nshadows on the (static) parent Shade geometry still reduce the\nelectrical output, enabling the simulation to account for large\ncontext geometry casting shadows on the array. However, the effects\nof smaller detailed shading may be improperly accounted for and self\nshading of the dynamic panel geometry is only accounted for via the\ntracking_gcr property. Choose from the following. (Default: FixedOpenRack).\n_\n* 0 - FixedOpenRack - ground or roof mounting where the air flows freely\n* 1 - FixedRoofMounted - mounting flush with the roof with limited air flow\n* 2 - OneAxis - a fixed tilt and azimuth, which define an axis of rotation\n* 3 - OneAxisBacktracking - same as OneAxis but with controls to reduce self-shade\n* 4 - TwoAxis - a dynamic tilt and azimuth that track the sun", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_loss_fraction_", 
+      "description": "A number between 0 and 1 for the fraction of the electricity output\nlost due to factors other than EPW climate conditions, panel\nefficiency/type, active area, mounting, and inverter conversion\nfrom DC to AC.\n_\nFactors that should be accounted for in this input include soiling,\nsnow, wiring losses, electrical connection losses, manufacturer\ndefects/tolerances/mismatch in cell characteristics, losses from power\ngrid availability, and losses due to age or light-induced degradation.\n_\nLosses from these factors tend to be between 10-20% but can vary widely\ndepending on the installation, maintenance and the grid to which the\npanels are connected. The loss_fraction_from_components staticmethod\non this class can be used to estimate this value from the various\nfactors that it is intended to account for. (Default: 0.14).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "tracking_gcr_", 
+      "description": "A number between 0 and 1 that ONLY APPLIES TO ARRAYS WITH ONE AXIS\nmounting_type.\n_\nThe ground coverage ratio (GCR) is the ratio of module surface area\nto the area of the ground beneath the array, which is used to account\nfor self shading of single-axis panels as they move to track the sun.\nA GCR of 0.5 means that, when the modules are horizontal, half of the\nsurface below the array is occupied by the array. An array with wider\nspacing between rows of modules has a lower GCR than one with narrower\nspacing. A GCR of 1 would be for an array with no space between modules,\nand a GCR of 0 for infinite spacing between rows. Typical values\nrange from 0.3 to 0.6. (Default: 0.4).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_name_", 
+      "description": "An optional text name for the photovoltaic properties. This can be useful\nfor keeping track of different photovoltaics when using several of\nthese components. If unspecified, a unique one will be generated.", 
+      "type": "string", 
+      "default": null
+    }
+  ], 
+  "subcategory": "4 :: HVAC", 
+  "code": "\nimport math\n\ntry:  # import the ladybug geometry dependencies\n    from ladybug_geometry.geometry3d import Vector3D\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_geometry:\\n\\t{}'.format(e))\n\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import honeybee_energy dependencies\n    from honeybee_energy.generator.pv import PVProperties\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.config import angle_tolerance, conversion_to_meters\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, \\\n        document_counter, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n# dictionaries to convert user input to enumerations\nMODULE_TYPES = {\n    'standard': 'Standard',\n    'premium': 'Premium',\n    'thinfilm': 'ThinFilm',\n    '0': 'Standard',\n    '1': 'Premium',\n    '2': 'Standard'\n}\nMOUNTING_TYPES = {\n    'fixedopenrack': 'FixedOpenRack',\n    'fixedroofmounted': 'FixedRoofMounted',\n    'oneaxis': 'OneAxis',\n    'oneaxisbacktracking': 'OneAxisBacktracking',\n    'twoaxis': 'TwoAxis',\n    '0': 'FixedOpenRack',\n    '1': 'FixedRoofMounted',\n    '2': 'OneAxis',\n    '3': 'OneAxisBacktracking',\n    '4': 'TwoAxis',\n}\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    shades = []\n    for shade in _shades:\n        shades.append(shade.duplicate())\n        if math.degrees(Vector3D(0, 0, 1).angle(shade.normal)) - 90 > angle_tolerance:\n            msg = 'Shade \"{}\" is pointing downwards, which is atypical of photovoltaics.\\n' \\\n                'You will likely want to flip the geometry to have it point upwards to ' \\\n                'the sky.'.format(shade.display_name)\n            print(msg)\n            give_warning(ghenv.Component, msg)\n\n    # assign defaults for the PV properties\n    display_name = 'Photovoltaic Array {}'.format(document_counter('pv_count')) \\\n        if _name_ is None else _name_\n    pv_id = clean_ep_string(display_name)\n    eff = _rated_efficiency_ if _rated_efficiency_ is not None else 0.15\n    act_fraction = _active_fraction_ if _active_fraction_ is not None else 0.9\n    mod_type = MODULE_TYPES[_module_type_.lower()] \\\n        if _module_type_ is not None else None\n    mount_type = MOUNTING_TYPES[_mounting_type_.lower()] \\\n        if _mounting_type_ is not None else 'FixedOpenRack'\n    loss_fraction = _loss_fraction_ if _loss_fraction_ is not None else 0.14\n    gcr = tracking_gcr_ if tracking_gcr_ is not None else 0.4\n\n    # create the base PV properties\n    pv_props = PVProperties(pv_id, eff, act_fraction, mod_type, mount_type,\n                            loss_fraction, gcr)\n    pv_props.display_name = pv_id\n\n    # assign the PV properties to the Shades\n    conversion = conversion_to_meters() ** 2\n    total_area = 0\n    for shade in shades:\n        shade.properties.energy.pv_properties = pv_props\n        total_area += shade.area * conversion\n\n    # compute the rated DC size from the area and other inputs\n    dc_size = int(total_area * eff * act_fraction * 1000)\n    msg = 'The combined rated DC size across all input shades is {:,} W.'.format(dc_size)\n    print(msg)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Photovoltaic Properties", 
+  "description": "Assign photovoltaic properties to a honeybee Shade such that it will generate\nelectricity in energy simulations.\n-"
+}

@@ -1,0 +1,43 @@
+{
+  "version": "1.7.0", 
+  "nickname": "ElectricCenter", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "model", 
+        "description": "The input Honeybee Model with the electric load center properties set.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_model", 
+      "description": "A Honeybee Model for which the electric load center properties will be set.\nThis Model should include on-site power generation objects, like\nShades with PV properties assigned, in order for the inputs here\nto have an effect on the simulation.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_inverter_eff_", 
+      "description": "A number between 0 and 1 for the load centers's inverter nominal\nrated DC-to-AC conversion efficiency. An inverter converts DC power,\nsuch as that output by photovoltaic panels, to AC power, such as\nthat distributed by the electrical grid and is available from\nstandard electrical outlets. Inverter efficiency is defined as the\ninverter's rated AC power output divided by its rated DC power\noutput. (Default: 0.96).", 
+      "type": "double", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_dc_to_ac_size_", 
+      "description": "A positive number (typically greater than 1) for the ratio of the\ninverter's DC rated size to its AC rated size. Typically, inverters\nare not sized to convert the full DC output under standard test\nconditions (STC) as such conditions rarely occur in reality and\ntherefore unnecessarily add to the size/cost of the inverter. For a\nsystem with a high DC to AC size ratio, during times when the\nDC power output exceeds the inverter's rated DC input size, the inverter\nlimits the array's power output by increasing the DC operating voltage,\nwhich moves the arrays operating point down its current-voltage (I-V)\ncurve. The default value of 1.1 is reasonable for most systems. A\ntypical range is 1.1 to 1.25, although some large-scale systems have\nratios of as high as 1.5. The optimal value depends on the system's\nlocation, array orientation, and module cost. (Default: 1.1).", 
+      "type": "double", 
+      "default": null
+    }
+  ], 
+  "subcategory": "4 :: HVAC", 
+  "code": "\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the input Model to avoid editing it\n    model = _model.duplicate()\n\n    # set default properties\n    _inverter_eff_ = 0.96 if _inverter_eff_ is None else _inverter_eff_\n    _dc_to_ac_size_ = 1.1 if _dc_to_ac_size_ is None else _dc_to_ac_size_\n    model.properties.energy.electric_load_center.inverter_efficiency = _inverter_eff_\n    model.properties.energy.electric_load_center.inverter_dc_to_ac_size_ratio = _inverter_eff_\n", 
+  "category": "HB-Energy", 
+  "name": "HB Electric Load Center", 
+  "description": "Set the properites of a Model's electric load center, which govern how on-site\nelectricity generation is converted and distributed.\n-"
+}
