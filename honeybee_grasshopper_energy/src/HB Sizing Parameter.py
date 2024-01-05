@@ -46,13 +46,13 @@ Create parameters with criteria for sizing the heating and cooling system.
                 * ASHRAE_2013
                 * ASHRAE_2016
                 * ASHRAE_2019
-        climate_zone: Text indicating the ASHRAE climate zone to be used with the
+        climate_zone_: Text indicating the ASHRAE climate zone to be used with the
             efficiency_standard. When unspecified, the climate zone will be
             inferred from the design days. This input can be a single
             integer (in which case it is interpreted as A) or it can include the
             A, B, or C qualifier (eg. 3C). Typically, the "LB Import STAT"
             component can yield the climate zone for a particular location.
-        building_type: Text for the building type to be used in the efficiency_standard.
+        bldg_type_: Text for the building type to be used in the efficiency_standard.
             If the type is not recognized or is None, it will be assumed that the
             building is a generic NonResidential. The following have meaning
             for the standard.
@@ -86,7 +86,7 @@ Create parameters with criteria for sizing the heating and cooling system.
 
 ghenv.Component.Name = 'HB Sizing Parameter'
 ghenv.Component.NickName = 'SizingPar'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.7.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
