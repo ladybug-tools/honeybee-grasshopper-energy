@@ -8,7 +8,7 @@
 # @license AGPL-3.0-or-later <https://spdx.org/licenses/AGPL-3.0-or-later>
 
 """
-Parse any time series data from an energy simulation SQL result file.
+Parse electricity generation results from an energy simulation SQL result file.
 
 -
     Args:
@@ -39,7 +39,7 @@ Parse any time series data from an energy simulation SQL result file.
 
 ghenv.Component.Name = 'HB Read Generation Result'
 ghenv.Component.NickName = 'GenerationResult'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -47,6 +47,7 @@ ghenv.Component.AdditionalHelpFromDocStrings = '0'
 import os
 import subprocess
 import json
+from collections import OrderedDict
 
 try:
     from ladybug.datacollection import HourlyContinuousCollection, \
@@ -141,3 +142,14 @@ if all_required_inputs(ghenv.Component):
         result_dict['production_surplus_sold'],
         result_dict['consumption_purchased']
     )
+
+    # group the generator results by identifier
+    dc_dict = OrderedDict()
+    for g_data in dc_power:
+        gen_id = g_data.header.metadata['System'].split('..')[0]
+        g_data.header.metadata['System'] = gen_id
+        try:
+            dc_dict[gen_id] += g_data
+        except KeyError:
+            dc_dict[gen_id] = g_data
+    dc_power = [dcp for dcp in dc_dict.values()]
