@@ -72,7 +72,7 @@ generator objects.
 
 ghenv.Component.Name = 'HB Generation Loads'
 ghenv.Component.NickName = 'GenLoads'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -85,6 +85,7 @@ from collections import OrderedDict
 try:
     from ladybug.futil import write_to_file_by_name, nukedir
     from ladybug.sql import SQLiteResult
+    from ladybug.datacollection import HourlyContinuousCollection
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
@@ -118,8 +119,8 @@ except ImportError as e:
 
 
 def serialize_data(data_dicts):
-    """Reserialize a list of HourlyCollection dictionaries."""
-    return [HourlyCollection.from_dict(data) for data in data_dicts]
+    """Reserialize a list of HourlyContinuousCollection dictionaries."""
+    return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]
 
 
 # List of all the output strings that will be requested
