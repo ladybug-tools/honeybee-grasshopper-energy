@@ -82,6 +82,18 @@ http://www.ibpsa.org/proceedings/bs2011/p_1209.pdf
             longer as there are more intersection operations to perform. The
             default is 1 timestep per hour, which is the coarsest resolution
             avalable and the fastest calculation.
+        lag_time_: A number for the amount of time in hours between when solar gain
+            eneters the room and the gain results in an increased cooling load.
+            Typically, it takes an hour or so for solar gains falling on the
+            room floors to heat up the floor surface and then convect to the
+            room air where the gain can be absorbed by a cooling system. This
+            means that the cooling value associated with each sun vector should
+            be a step or two after the time of the sun vector. Lag time can
+            be longer than an hour if the room has a particularly high thermal
+            mass or it may be shorter if the room has less mass or uses a radiant
+            cooling system integrated into the floor where the sun is absorbed.
+            Note that the value input here can be a decimal value to indicate
+            that the lag time is a fraction of an hour. (Default: 1.0 hour).
         legend_par_: Optional legend parameters from the "LB Legend Parameters"
             that will be used to customize the display of the results.
         _cpu_count_: An integer to set the number of CPUs used in the execution of the
@@ -121,7 +133,7 @@ http://www.ibpsa.org/proceedings/bs2011/p_1209.pdf
             if the shade has a net helpful effect.
 """
 
-ghenv.Component.Name = 'HB Cooling Heating Load Shade Benefit'
+ghenv.Component.Name = 'HB Load Shade Benefit'
 ghenv.Component.NickName = 'LoadShadeBenefit'
 ghenv.Component.Message = '1.7.0'
 ghenv.Component.Category = 'HB-Energy'
@@ -151,6 +163,7 @@ except ImportError as e:
 
 try:
     from honeybee.config import folders
+    from honeybee.boundarycondition import Outdoors
     from honeybee.model import Model
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
@@ -203,6 +216,8 @@ if all_required_inputs(ghenv.Component) and _run:
     # set the defaults and process all of the inputs
     workers = _cpu_count_ if _cpu_count_ is not None else recommended_processor_count()
     timestep = _timestep_ if _timestep_ is not None else 1
+    lag_time = 1 if lag_time_ is None else lag_time_
+    lag_steps = int(timestep * lag_time)
     if _north_ is not None:  # process the north_
         try:
             _north_ = math.degrees(
@@ -221,17 +236,25 @@ if all_required_inputs(ghenv.Component) and _run:
                 room.properties.energy.setpoint is not None:
             r_dict = {}
             for face in room.faces:
-                for ap in face.apertures:
-                    ap_shds = ap.outdoor_shades
-                    if len(ap_shds) != 0:
-                        r_dict[ap.identifier.upper()] = {
-                            'geo': from_face3d(ap.geometry),
-                            'shades': [from_face3d(shd.geometry) for shd in ap_shds],
-                            'normal': from_vector3d(ap.normal)
-                        }
-                        ap_count += 1
-                        shd_count += len(ap_shds)
-                        ap.remove_shades()  # remove shades for the energy simulation
+                if isinstance(face.boundary_condition, Outdoors):
+                    aps = face.apertures
+                    if len(aps) != 0:
+                        fap_ids, fap_geos, fshd_geos = [], [], []
+                        for ap in aps:
+                            fap_ids.append(ap.identifier.upper())
+                            fap_geos.append(from_face3d(ap.geometry))
+                            fshd_geos.extend(from_face3d(shd.geometry)
+                                             for shd in ap.outdoor_shades)
+                            ap.remove_shades()  # remove shades for the energy simulation
+                        if len(fshd_geos) != 0:
+                            r_dict[face.identifier] = {
+                                'ap_ids': fap_ids,
+                                'ap_geo': fap_geos,
+                                'shd_geo': fshd_geos,
+                                'normal': from_vector3d(face.normal)
+                            }
+                            ap_count += len(fap_geos)
+                            shd_count += len(fshd_geos)
             if len(r_dict) != 0:
                 shade_dict[room.identifier.upper()] = r_dict
 
@@ -364,13 +387,18 @@ if all_required_inputs(ghenv.Component) and _run:
     for room_id, room_data in shade_dict.items():
         cool_vals = cool_dict[room_id].values
         heat_vals = heat_dict[room_id].values
-        for ap_id, ap_data in room_data.items():
-            solar_vals = solar_dict[ap_id]
+        # shif the values by the lag
+        cool_vals = cool_vals[-lag_steps:] + cool_vals[:-lag_steps]
+        heat_vals = heat_vals[-lag_steps:] + heat_vals[:-lag_steps] 
+        for ap_data in room_data.values():
+            solar_vals = solar_dict[ap_data['ap_ids'][0]]
+            for ap_id in ap_data['ap_ids'][1:]:
+                solar_vals += solar_dict[ap_id]
 
             # create the gridded mesh from the geometry
-            analysis_mesh = to_joined_gridded_mesh3d(ap_data['shades'], _grid_size)
+            analysis_mesh = to_joined_gridded_mesh3d(ap_data['shd_geo'], _grid_size)
             ap_mesh = from_mesh3d(analysis_mesh)
-            study_mesh = to_joined_gridded_mesh3d([ap_data['geo']], _grid_size / 1.75)
+            study_mesh = to_joined_gridded_mesh3d(ap_data['ap_geo'], _grid_size / 1.75)
             ap_points = [from_point3d(pt) for pt in study_mesh.face_centroids]
             points.extend(ap_points)
             mesh.append(analysis_mesh)
@@ -384,7 +412,7 @@ if all_required_inputs(ghenv.Component) and _run:
                 ap_mesh, int_rays, context_mesh, normals, cpu_count=workers)
 
             # loop through the face intersection result and evaluate the benefit
-            region_cell_area = study_mesh.area / len(ap_points)
+            pt_div = 1 / float(len(ap_points))
             for face_res, face_area in zip(face_int, analysis_mesh.face_areas):
                 f_help, f_harm = 0, 0
                 for t_ind in face_res:
@@ -396,8 +424,8 @@ if all_required_inputs(ghenv.Component) and _run:
                         f_harm -= min(ht, sl)
                 # Normalize by the area of the cell so there's is a consistent metric
                 # between cells of different areas.
-                shd_help = ((f_help / face_area)) * region_cell_area
-                shd_harm = ((f_harm / face_area)) * region_cell_area
+                shd_help = ((f_help / face_area)) * pt_div
+                shd_harm = ((f_harm / face_area)) * pt_div
                 shade_help.append(shd_help)
                 shade_harm.append(shd_harm)
                 shade_net.append(shd_help + shd_harm)
