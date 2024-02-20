@@ -48,9 +48,9 @@ varies over the simulation, the "Always On" schedule will be used as a default.
         rooms: The input Rooms with their load values modified.
 """
 
-ghenv.Component.Name = 'HB Apply Abolute Load Values'
+ghenv.Component.Name = 'HB Apply Absolute Load Values'
 ghenv.Component.NickName = 'AbsoluteLoadVals'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
