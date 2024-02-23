@@ -8,7 +8,7 @@
 # @license AGPL-3.0-or-later <https://spdx.org/licenses/AGPL-3.0-or-later>
 
 """
-Set the properites of a Model's electric load center, which govern how on-site
+Set the properites of a Model's electric load center, which governs how on-site
 electricity generation is converted and distributed.
 -
 
@@ -44,7 +44,7 @@ electricity generation is converted and distributed.
 
 ghenv.Component.Name = 'HB Electric Load Center'
 ghenv.Component.NickName = 'ElectricCenter'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '6'

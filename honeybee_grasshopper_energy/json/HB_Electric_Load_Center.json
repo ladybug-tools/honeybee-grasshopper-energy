@@ -1,5 +1,5 @@
 {
-  "version": "1.7.0", 
+  "version": "1.7.1", 
   "nickname": "ElectricCenter", 
   "outputs": [
     [
@@ -39,5 +39,5 @@
   "code": "\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the input Model to avoid editing it\n    model = _model.duplicate()\n\n    # set default properties\n    _inverter_eff_ = 0.96 if _inverter_eff_ is None else _inverter_eff_\n    _dc_to_ac_size_ = 1.1 if _dc_to_ac_size_ is None else _dc_to_ac_size_\n    model.properties.energy.electric_load_center.inverter_efficiency = _inverter_eff_\n    model.properties.energy.electric_load_center.inverter_dc_to_ac_size_ratio = _inverter_eff_\n", 
   "category": "HB-Energy", 
   "name": "HB Electric Load Center", 
-  "description": "Set the properites of a Model's electric load center, which govern how on-site\nelectricity generation is converted and distributed.\n-"
+  "description": "Set the properites of a Model's electric load center, which governs how on-site\nelectricity generation is converted and distributed.\n-"
 }
