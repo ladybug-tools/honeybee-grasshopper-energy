@@ -1,5 +1,5 @@
 {
-  "version": "1.7.0", 
+  "version": "1.7.1", 
   "nickname": "Setpoint", 
   "outputs": [
     [
@@ -47,10 +47,17 @@
       "description": "A numerical value between 0 and 100 for the relative humidity\ndehumidifying setpoint [%]. This value will be constant throughout the\nyear. If None, no dehumidification will occur beyond that which is needed\nto create air at the cooling supply temperature.", 
       "type": "double", 
       "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "cutout_difference_", 
+      "description": "An optional positive number for the temperature difference between the\ncutout temperature and the setpoint temperature. Specifying a non-zero\nnumber here is useful for modeling the throttling range associated\nwith a given setup of setpoint controls and HVAC equipment. Throttling\nranges describe the range where a zone is slightly over-cooled or\nover-heated beyond the thermostat setpoint. They are used to avoid\nsituations where HVAC systems turn on only to turn off a few minutes later,\nthereby wearing out the parts of mechanical systems faster. They can\nhave a minor impact on energy consumption and can often have significant\nimpacts on occupant thermal comfort, though using the default value\nof zero will often yield results that are close enough when trying\nto estimate the annual heating/cooling energy use. Specifying a value\nof zero effectively assumes that the system will turn on whenever\nconditions are outside the setpoint range and will cut out as soon\nas the setpoint is reached. (Default: 0).", 
+      "type": "double", 
+      "default": null
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.setpoint import Setpoint\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # make a default Setpoint name if none is provided\n    name = clean_and_id_ep_string('Setpoint') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # get the schedules\n    if isinstance(_heating_sch, str):\n        _heating_sch = schedule_by_identifier(_heating_sch)\n    if isinstance(_cooling_sch, str):\n        _cooling_sch = schedule_by_identifier(_cooling_sch)\n\n    # create the Setpoint object\n    setpoint = Setpoint(name, _heating_sch, _cooling_sch)\n    if _name_ is not None:\n        setpoint.display_name = _name_\n\n    # assign the humidification and dehumidification setpoints if requested\n    if humid_setpt_ is not None:\n        setpoint.humidifying_setpoint = humid_setpt_\n    if dehumid_setpt_ is not None:\n        setpoint.dehumidifying_setpoint = dehumid_setpt_\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.setpoint import Setpoint\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # make a default Setpoint name if none is provided\n    name = clean_and_id_ep_string('Setpoint') if _name_ is None else \\\n        clean_ep_string(_name_)\n\n    # get the schedules\n    if isinstance(_heating_sch, str):\n        _heating_sch = schedule_by_identifier(_heating_sch)\n    if isinstance(_cooling_sch, str):\n        _cooling_sch = schedule_by_identifier(_cooling_sch)\n\n    # create the Setpoint object\n    setpoint = Setpoint(name, _heating_sch, _cooling_sch)\n    if _name_ is not None:\n        setpoint.display_name = _name_\n\n    # assign the humidification and dehumidification setpoints if specified\n    if humid_setpt_ is not None:\n        setpoint.humidifying_setpoint = humid_setpt_\n    if dehumid_setpt_ is not None:\n        setpoint.dehumidifying_setpoint = dehumid_setpt_\n\n    # assign the cutout_difference_ if specified\n    if cutout_difference_ is not None:\n        setpoint.setpoint_cutout_difference = cutout_difference_\n", 
   "category": "HB-Energy", 
   "name": "HB Setpoint", 
   "description": "Create a Setpoint object that can be used to create a ProgramType or be assigned\ndirectly to a Room.\n-"
