@@ -29,6 +29,21 @@ directly to a Room.
             dehumidifying setpoint [%]. This value will be constant throughout the
             year. If None, no dehumidification will occur beyond that which is needed
             to create air at the cooling supply temperature.
+        cutout_difference_: An optional positive number for the temperature difference between the
+            cutout temperature and the setpoint temperature. Specifying a non-zero
+            number here is useful for modeling the throttling range associated
+            with a given setup of setpoint controls and HVAC equipment. Throttling
+            ranges describe the range where a zone is slightly over-cooled or
+            over-heated beyond the thermostat setpoint. They are used to avoid
+            situations where HVAC systems turn on only to turn off a few minutes later,
+            thereby wearing out the parts of mechanical systems faster. They can
+            have a minor impact on energy consumption and can often have significant
+            impacts on occupant thermal comfort, though using the default value
+            of zero will often yield results that are close enough when trying
+            to estimate the annual heating/cooling energy use. Specifying a value
+            of zero effectively assumes that the system will turn on whenever
+            conditions are outside the setpoint range and will cut out as soon
+            as the setpoint is reached. (Default: 0).
 
     Returns:
         setpoint: A Setpoint object that can be used to create a ProgramType or
@@ -37,7 +52,7 @@ directly to a Room.
 
 ghenv.Component.Name = 'HB Setpoint'
 ghenv.Component.NickName = 'Setpoint'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -75,8 +90,12 @@ if all_required_inputs(ghenv.Component):
     if _name_ is not None:
         setpoint.display_name = _name_
 
-    # assign the humidification and dehumidification setpoints if requested
+    # assign the humidification and dehumidification setpoints if specified
     if humid_setpt_ is not None:
         setpoint.humidifying_setpoint = humid_setpt_
     if dehumid_setpt_ is not None:
         setpoint.dehumidifying_setpoint = dehumid_setpt_
+
+    # assign the cutout_difference_ if specified
+    if cutout_difference_ is not None:
+        setpoint.setpoint_cutout_difference = cutout_difference_
