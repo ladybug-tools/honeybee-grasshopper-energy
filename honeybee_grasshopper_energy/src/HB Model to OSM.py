@@ -74,7 +74,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.7.3'
+ghenv.Component.Message = '1.7.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -92,6 +92,7 @@ except ImportError as e:
 
 try:
     import honeybee.config as hb_config
+    from honeybee.model import Model
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
@@ -120,6 +121,8 @@ except ImportError as e:
 if all_required_inputs(ghenv.Component) and _write:
     # check the presence of openstudio and check that the version is compatible
     check_openstudio_version()
+    assert isinstance(_model, Model), \
+        'Expected Honeybee Model for _model input. Got {}.'.format(type(_model))
 
     # process the simulation parameters
     if _sim_par_ is None:
