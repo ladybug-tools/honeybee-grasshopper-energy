@@ -1,50 +1,50 @@
 {
-  "description": "Search for available Constructions within the honeybee energy standards library.\n-", 
+  "version": "1.8.0", 
+  "nickname": "SearchConstrs", 
   "outputs": [
     [
       {
-        "type": null, 
+        "access": "None", 
         "name": "opaque_constrs", 
         "description": "A list of opaque constructions within the honeybee energy\nstandards library (filtered by keywords_ if they are input).", 
-        "access": "None", 
+        "type": null, 
         "default": null
       }, 
       {
-        "type": null, 
+        "access": "None", 
         "name": "window_constrs", 
         "description": "A list of window constructions within the honeybee energy\nstandards library (filtered by keywords_ if they are input).", 
-        "access": "None", 
+        "type": null, 
         "default": null
       }, 
       {
-        "type": null, 
+        "access": "None", 
         "name": "shade_constrs", 
         "description": "A list of shade constructions within the honeybee energy\nstandards library (filtered by keywords_ if they are input).", 
-        "access": "None", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "code": "\ntry:  # import the honeybee-core dependencies\n    from honeybee.search import filter_array_by_keywords\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.lib.constructions import OPAQUE_CONSTRUCTIONS\n    from honeybee_energy.lib.constructions import WINDOW_CONSTRUCTIONS\n    from honeybee_energy.lib.constructions import SHADE_CONSTRUCTIONS\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\nif len(keywords_) == 0:\n    opaque_constrs = sorted(OPAQUE_CONSTRUCTIONS)\n    window_constrs = sorted(WINDOW_CONSTRUCTIONS)\n    shade_constrs = sorted(SHADE_CONSTRUCTIONS)\nelse:\n    split_words = True if join_words_ is None else not join_words_\n    opaque_constrs = sorted(filter_array_by_keywords(\n        OPAQUE_CONSTRUCTIONS, keywords_, split_words))\n    window_constrs = sorted(filter_array_by_keywords(\n        WINDOW_CONSTRUCTIONS, keywords_, split_words))\n    shade_constrs = sorted(filter_array_by_keywords(\n        SHADE_CONSTRUCTIONS, keywords_, split_words))\n", 
-  "name": "HB Search Constructions", 
-  "version": "1.7.1", 
-  "category": "HB-Energy", 
-  "subcategory": "1 :: Constructions", 
-  "nickname": "SearchConstrs", 
   "inputs": [
     {
-      "type": "string", 
+      "access": "list", 
       "name": "keywords_", 
       "description": "Optional keywords to be used to narrow down the output list of\nconstructions. If nothing is input here, all available constructions\nwill be output.", 
-      "access": "list", 
+      "type": "string", 
       "default": null
     }, 
     {
-      "type": "bool", 
+      "access": "item", 
       "name": "join_words_", 
       "description": "If False or None, this component will automatically split\nany strings of multiple keywords (spearated by spaces) into separate\nkeywords for searching. This results in a greater liklihood of\nfinding an item in the search but it may not be appropropriate for\nall cases. You may want to set it to True when you are searching for\na specific phrase that includes spaces. Default: False.", 
-      "access": "item", 
+      "type": "bool", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "1 :: Constructions", 
+  "code": "\ntry:  # import the honeybee-core dependencies\n    from honeybee.search import filter_array_by_keywords\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:  # import the honeybee-energy dependencies\n    from honeybee_energy.lib.constructions import OPAQUE_CONSTRUCTIONS\n    from honeybee_energy.lib.constructions import WINDOW_CONSTRUCTIONS\n    from honeybee_energy.lib.constructions import SHADE_CONSTRUCTIONS\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\nif len(keywords_) == 0:\n    opaque_constrs = sorted(OPAQUE_CONSTRUCTIONS)\n    window_constrs = sorted(WINDOW_CONSTRUCTIONS)\n    shade_constrs = sorted(SHADE_CONSTRUCTIONS)\nelse:\n    split_words = True if join_words_ is None else not join_words_\n    opaque_constrs = sorted(filter_array_by_keywords(\n        OPAQUE_CONSTRUCTIONS, keywords_, split_words))\n    window_constrs = sorted(filter_array_by_keywords(\n        WINDOW_CONSTRUCTIONS, keywords_, split_words))\n    shade_constrs = sorted(filter_array_by_keywords(\n        SHADE_CONSTRUCTIONS, keywords_, split_words))\n", 
+  "category": "HB-Energy", 
+  "name": "HB Search Constructions", 
+  "description": "Search for available Constructions within the honeybee energy standards library.\n-"
 }

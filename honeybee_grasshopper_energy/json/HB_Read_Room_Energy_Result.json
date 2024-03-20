@@ -1,120 +1,120 @@
 {
-  "name": "HB Read Room Energy Result", 
-  "subcategory": "6 :: Result", 
-  "version": "1.7.1", 
-  "description": "Parse all of the common Room-level energy-related results from an SQL result file\nthat has been generated from an energy simulation.\n-", 
-  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.sql import SQLiteResult\n    from ladybug.datacollection import HourlyContinuousCollection, \\\n        MonthlyCollection, DailyCollection\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.loadbalance import LoadBalance\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef subtract_loss_from_gain(gain_load, loss_load):\n    \"\"\"Create a single DataCollection from gains and losses.\"\"\"\n    total_loads = []\n    for gain, loss in zip(gain_load, loss_load):\n        total_load = gain - loss\n        total_load.header.metadata['type'] = \\\n            total_load.header.metadata['type'].replace('Gain ', '')\n        total_loads.append(total_load)\n    return total_loads\n\n\ndef serialize_data(data_dicts):\n    \"\"\"Reserialize a list of collection dictionaries.\"\"\"\n    if len(data_dicts) == 0:\n        return []\n    elif data_dicts[0]['type'] == 'HourlyContinuous':\n        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Monthly':\n        return [MonthlyCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Daily':\n        return [DailyCollection.from_dict(data) for data in data_dicts]\n\n\n# List of all the output strings that will be requested\ncooling_outputs = LoadBalance.COOLING + (\n    'Cooling Coil Electricity Energy',\n    'Chiller Electricity Energy',\n    'Zone VRF Air Terminal Cooling Electricity Energy',\n    'VRF Heat Pump Cooling Electricity Energy',\n    'Chiller Heater System Cooling Electricity Energy',\n    'District Cooling Chilled Water Energy',\n    'Evaporative Cooler Electricity Energy')\nheating_outputs = LoadBalance.HEATING + (\n    'Boiler NaturalGas Energy',\n    'Heating Coil Total Heating Energy',\n    'Heating Coil NaturalGas Energy',\n    'Heating Coil Electricity Energy',\n    'Humidifier Electricity Energy',\n    'Zone VRF Air Terminal Heating Electricity Energy',\n    'VRF Heat Pump Heating Electricity Energy',\n    'VRF Heat Pump Defrost Electricity Energy',\n    'VRF Heat Pump Crankcase Heater Electricity Energy',\n    'Chiller Heater System Heating Electricity Energy',\n    'District Heating Hot Water Energy',\n    'Baseboard Electricity Energy',\n    'Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption',\n    'Boiler Electricity Energy',\n    'Water Heater NaturalGas Energy',\n    'Water Heater Electricity Energy',\n    'Cooling Coil Water Heating Electricity Energy')\nlighting_outputs = LoadBalance.LI{{PLGN}}TING\nelectric_equip_outputs = LoadBalance.ELECTRIC_EQUIP\ngas_equip_outputs = LoadBalance.GAS_EQUIP\nprocess_outputs = LoadBalance.PROCESS\nshw_outputs = ('Water Use Equipment Heating Energy',) + LoadBalance.HOT_WATER\nfan_electric_outputs = (\n    'Zone Ventilation Fan Electricity Energy',\n    'Fan Electricity Energy',\n    'Cooling Tower Fan Electricity Energy')\npump_electric_outputs = 'Pump Electricity Energy'\npeople_gain_outputs = LoadBalance.PEOPLE_GAIN\nsolar_gain_outputs = LoadBalance.SOLAR_GAIN\ninfil_gain_outputs = LoadBalance.INFIL_GAIN\ninfil_loss_outputs = LoadBalance.INFIL_LOSS\nvent_loss_outputs = LoadBalance.VENT_LOSS\nvent_gain_outputs = LoadBalance.VENT_GAIN\nnat_vent_gain_outputs = LoadBalance.NAT_VENT_GAIN\nnat_vent_loss_outputs = LoadBalance.NAT_VENT_LOSS\nall_output = \\\n[cooling_outputs, heating_outputs, lighting_outputs, electric_equip_outputs, gas_equip_outputs,\n process_outputs, shw_outputs, fan_electric_outputs, pump_electric_outputs,\n people_gain_outputs, solar_gain_outputs, infil_gain_outputs, infil_loss_outputs,\n vent_loss_outputs, vent_gain_outputs, nat_vent_gain_outputs, nat_vent_loss_outputs]\n\n\nif all_required_inputs(ghenv.Component):\n    # check the size of the SQL file to see if we should use the CLI\n    assert os.path.isfile(_sql), 'No sql file found at: {}.'.format(_sql)\n    if os.name == 'nt' and os.path.getsize(_sql) < 1e8:\n        # small file on windows; use IronPython like usual\n        # create the SQL result parsing object\n        sql_obj = SQLiteResult(_sql)\n\n        # get all of the results relevant for energy use\n        cooling = sql_obj.data_collections_by_output_name(cooling_outputs)\n        heating = sql_obj.data_collections_by_output_name(heating_outputs)\n        lighting = sql_obj.data_collections_by_output_name(lighting_outputs)\n        electric_equip = sql_obj.data_collections_by_output_name(electric_equip_outputs)\n        hot_water = sql_obj.data_collections_by_output_name(shw_outputs)\n        gas_equip = sql_obj.data_collections_by_output_name(gas_equip_outputs)\n        process = sql_obj.data_collections_by_output_name(process_outputs)\n        fan_electric = sql_obj.data_collections_by_output_name(fan_electric_outputs)\n        pump_electric = sql_obj.data_collections_by_output_name(pump_electric_outputs)\n\n        # get all of the results relevant for gains and losses\n        people_gain = sql_obj.data_collections_by_output_name(people_gain_outputs)\n        solar_gain = sql_obj.data_collections_by_output_name(solar_gain_outputs)\n        infil_gain = sql_obj.data_collections_by_output_name(infil_gain_outputs)\n        infil_loss = sql_obj.data_collections_by_output_name(infil_loss_outputs)\n        vent_loss = sql_obj.data_collections_by_output_name(vent_loss_outputs)\n        vent_gain = sql_obj.data_collections_by_output_name(vent_gain_outputs)\n        nat_vent_gain = sql_obj.data_collections_by_output_name(nat_vent_gain_outputs)\n        nat_vent_loss = sql_obj.data_collections_by_output_name(nat_vent_loss_outputs)\n\n    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'data-by-outputs', _sql]\n        for outp in all_output:\n            out_str = json.dumps(outp) if isinstance(outp, tuple) else '[\"{}\"]'.format(outp)\n            cmds.append(out_str)\n        use_shell = True if os.name == 'nt' else False\n        custom_env = os.environ.copy()\n        custom_env['PYTHONHOME'] = ''\n        process = subprocess.Popen(\n            cmds, stdout=subprocess.PIPE, shell=use_shell, env=custom_env)\n        stdout = process.communicate()\n        data_coll_dicts = json.loads(stdout[0])\n\n        # get all of the results relevant for energy use\n        cooling = serialize_data(data_coll_dicts[0])\n        heating = serialize_data(data_coll_dicts[1])\n        lighting = serialize_data(data_coll_dicts[2])\n        electric_equip = serialize_data(data_coll_dicts[3])\n        gas_equip = serialize_data(data_coll_dicts[4])\n        process = serialize_data(data_coll_dicts[5])\n        hot_water = serialize_data(data_coll_dicts[6])\n        fan_electric = serialize_data(data_coll_dicts[7])\n        pump_electric = serialize_data(data_coll_dicts[8])\n\n        # get all of the results relevant for gains and losses\n        people_gain = serialize_data(data_coll_dicts[9])\n        solar_gain = serialize_data(data_coll_dicts[10])\n        infil_gain = serialize_data(data_coll_dicts[11])\n        infil_loss = serialize_data(data_coll_dicts[12])\n        vent_loss = serialize_data(data_coll_dicts[13])\n        vent_gain = serialize_data(data_coll_dicts[14])\n        nat_vent_gain = serialize_data(data_coll_dicts[15])\n        nat_vent_loss = serialize_data(data_coll_dicts[16])\n\n    # do arithmetic with any of the gain/loss data collections\n    if len(infil_gain) == len(infil_loss):\n        infiltration_load = subtract_loss_from_gain(infil_gain, infil_loss)\n    if len(vent_gain) == len(vent_loss) == len(cooling) == len(heating):\n        mech_vent_loss = subtract_loss_from_gain(heating, vent_loss)\n        mech_vent_gain = subtract_loss_from_gain(cooling, vent_gain)\n        mech_vent_load = [data.duplicate() for data in\n                          subtract_loss_from_gain(mech_vent_gain, mech_vent_loss)]\n        for load in mech_vent_load:\n            load.header.metadata['type'] = \\\n                'Zone Ideal Loads Ventilation Heat Energy'\n    if len(nat_vent_gain) == len(nat_vent_loss):\n        nat_vent_load = subtract_loss_from_gain(nat_vent_gain, nat_vent_loss)\n\n    # remove the district hot water system used for service hot water from space heating\n    shw_equip, distr_i = [], None\n    for i, heat in enumerate(heating):\n        if not isinstance(heat, float):\n            try:\n                heat_equip = heat.header.metadata['System']\n                if heat_equip.startswith('SHW'):\n                    shw_equip.append(i)\n                elif heat_equip == 'SERVICE HOT WATER DISTRICT HEAT':\n                    distr_i = i\n            except KeyError:\n                pass\n    if len(shw_equip) != 0 and distr_i is None:\n        hot_water = [heating.pop(i) for i in reversed(shw_equip)]\n    elif distr_i is not None:\n        for i in reversed(shw_equip + [distr_i]):\n            heating.pop(i)\n", 
+  "version": "1.8.0", 
+  "nickname": "RoomEnergyResult", 
   "outputs": [
     [
       {
+        "access": "None", 
         "name": "cooling", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the cooling energy in kWh. For Ideal Air\nloads, this output is the sum of sensible and latent heat that must\nbe removed from each room.  For detailed HVAC systems, this output\nwill be electric energy needed to power each chiller/cooling coil.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "heating", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the heating energy needed in kWh. For Ideal\nAir loads, this is the heat that must be added to each room.  For\ndetailed HVAC systems, this will be fuel energy or electric energy\nneeded for each boiler/heating element.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "lighting", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the electric lighting energy used for\neach room in kWh.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "electric_equip", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the electric equipment energy used\nfor each room in kWh.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "gas_equip", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the gas equipment energy used for each\nroom in kWh.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "process", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the process load energy used for each\nroom in kWh.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "hot_water", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the service hote water energy used for each\nroom in kWh.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "fan_electric", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the fan electric energy in kWh for\neither a ventilation fan or a HVAC system fan.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "pump_electric", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the water pump electric energy in kWh\nfor a heating/cooling system.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "people_gain", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the internal heat gains in each room\nresulting from people (kWh).", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "solar_gain", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the total solar gain in each room (kWh).", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "infiltration_load", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the heat loss (negative) or heat\ngain (positive) in each room resulting from infiltration (kWh).", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "mech_vent_load", 
-        "access": "None", 
-        "type": null, 
         "description": "DataCollections for the heat loss (negative) or heat gain\n(positive) in each room resulting from the outdoor air coming through\nthe HVAC System (kWh).", 
+        "type": null, 
         "default": null
       }, 
       {
-        "name": "nat_vent_load", 
         "access": "None", 
-        "type": null, 
+        "name": "nat_vent_load", 
         "description": "DataCollections for the heat loss (negative) or heat gain\n(positive) in each room resulting from natural ventilation (kWh).", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "category": "HB-Energy", 
-  "nickname": "RoomEnergyResult", 
   "inputs": [
     {
-      "name": "_sql", 
       "access": "item", 
-      "type": "string", 
+      "name": "_sql", 
       "description": "The file path of the SQL result file that has been generated from\nan energy simulation.", 
+      "type": "string", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "6 :: Result", 
+  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.sql import SQLiteResult\n    from ladybug.datacollection import HourlyContinuousCollection, \\\n        MonthlyCollection, DailyCollection\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.loadbalance import LoadBalance\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef subtract_loss_from_gain(gain_load, loss_load):\n    \"\"\"Create a single DataCollection from gains and losses.\"\"\"\n    total_loads = []\n    for gain, loss in zip(gain_load, loss_load):\n        total_load = gain - loss\n        total_load.header.metadata['type'] = \\\n            total_load.header.metadata['type'].replace('Gain ', '')\n        total_loads.append(total_load)\n    return total_loads\n\n\ndef serialize_data(data_dicts):\n    \"\"\"Reserialize a list of collection dictionaries.\"\"\"\n    if len(data_dicts) == 0:\n        return []\n    elif data_dicts[0]['type'] == 'HourlyContinuous':\n        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Monthly':\n        return [MonthlyCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Daily':\n        return [DailyCollection.from_dict(data) for data in data_dicts]\n\n\n# List of all the output strings that will be requested\ncooling_outputs = LoadBalance.COOLING + (\n    'Cooling Coil Electricity Energy',\n    'Chiller Electricity Energy',\n    'Zone VRF Air Terminal Cooling Electricity Energy',\n    'VRF Heat Pump Cooling Electricity Energy',\n    'Chiller Heater System Cooling Electricity Energy',\n    'District Cooling Chilled Water Energy',\n    'Evaporative Cooler Electricity Energy')\nheating_outputs = LoadBalance.HEATING + (\n    'Boiler NaturalGas Energy',\n    'Heating Coil Total Heating Energy',\n    'Heating Coil NaturalGas Energy',\n    'Heating Coil Electricity Energy',\n    'Humidifier Electricity Energy',\n    'Zone VRF Air Terminal Heating Electricity Energy',\n    'VRF Heat Pump Heating Electricity Energy',\n    'VRF Heat Pump Defrost Electricity Energy',\n    'VRF Heat Pump Crankcase Heater Electricity Energy',\n    'Chiller Heater System Heating Electricity Energy',\n    'District Heating Hot Water Energy',\n    'Baseboard Electricity Energy',\n    'Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption',\n    'Boiler Electricity Energy',\n    'Water Heater NaturalGas Energy',\n    'Water Heater Electricity Energy',\n    'Cooling Coil Water Heating Electricity Energy')\nlighting_outputs = LoadBalance.LI{{PLGN}}TING\nelectric_equip_outputs = LoadBalance.ELECTRIC_EQUIP\ngas_equip_outputs = LoadBalance.GAS_EQUIP\nprocess_outputs = LoadBalance.PROCESS\nshw_outputs = ('Water Use Equipment Heating Energy',) + LoadBalance.HOT_WATER\nfan_electric_outputs = (\n    'Zone Ventilation Fan Electricity Energy',\n    'Fan Electricity Energy',\n    'Cooling Tower Fan Electricity Energy')\npump_electric_outputs = 'Pump Electricity Energy'\npeople_gain_outputs = LoadBalance.PEOPLE_GAIN\nsolar_gain_outputs = LoadBalance.SOLAR_GAIN\ninfil_gain_outputs = LoadBalance.INFIL_GAIN\ninfil_loss_outputs = LoadBalance.INFIL_LOSS\nvent_loss_outputs = LoadBalance.VENT_LOSS\nvent_gain_outputs = LoadBalance.VENT_GAIN\nnat_vent_gain_outputs = LoadBalance.NAT_VENT_GAIN\nnat_vent_loss_outputs = LoadBalance.NAT_VENT_LOSS\nall_output = \\\n[cooling_outputs, heating_outputs, lighting_outputs, electric_equip_outputs, gas_equip_outputs,\n process_outputs, shw_outputs, fan_electric_outputs, pump_electric_outputs,\n people_gain_outputs, solar_gain_outputs, infil_gain_outputs, infil_loss_outputs,\n vent_loss_outputs, vent_gain_outputs, nat_vent_gain_outputs, nat_vent_loss_outputs]\n\n\nif all_required_inputs(ghenv.Component):\n    # check the size of the SQL file to see if we should use the CLI\n    assert os.path.isfile(_sql), 'No sql file found at: {}.'.format(_sql)\n    if os.name == 'nt' and os.path.getsize(_sql) < 1e8:\n        # small file on windows; use IronPython like usual\n        # create the SQL result parsing object\n        sql_obj = SQLiteResult(_sql)\n\n        # get all of the results relevant for energy use\n        cooling = sql_obj.data_collections_by_output_name(cooling_outputs)\n        heating = sql_obj.data_collections_by_output_name(heating_outputs)\n        lighting = sql_obj.data_collections_by_output_name(lighting_outputs)\n        electric_equip = sql_obj.data_collections_by_output_name(electric_equip_outputs)\n        hot_water = sql_obj.data_collections_by_output_name(shw_outputs)\n        gas_equip = sql_obj.data_collections_by_output_name(gas_equip_outputs)\n        process = sql_obj.data_collections_by_output_name(process_outputs)\n        fan_electric = sql_obj.data_collections_by_output_name(fan_electric_outputs)\n        pump_electric = sql_obj.data_collections_by_output_name(pump_electric_outputs)\n\n        # get all of the results relevant for gains and losses\n        people_gain = sql_obj.data_collections_by_output_name(people_gain_outputs)\n        solar_gain = sql_obj.data_collections_by_output_name(solar_gain_outputs)\n        infil_gain = sql_obj.data_collections_by_output_name(infil_gain_outputs)\n        infil_loss = sql_obj.data_collections_by_output_name(infil_loss_outputs)\n        vent_loss = sql_obj.data_collections_by_output_name(vent_loss_outputs)\n        vent_gain = sql_obj.data_collections_by_output_name(vent_gain_outputs)\n        nat_vent_gain = sql_obj.data_collections_by_output_name(nat_vent_gain_outputs)\n        nat_vent_loss = sql_obj.data_collections_by_output_name(nat_vent_loss_outputs)\n\n    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'data-by-outputs', _sql]\n        for outp in all_output:\n            out_str = json.dumps(outp) if isinstance(outp, tuple) else '[\"{}\"]'.format(outp)\n            cmds.append(out_str)\n        use_shell = True if os.name == 'nt' else False\n        custom_env = os.environ.copy()\n        custom_env['PYTHONHOME'] = ''\n        process = subprocess.Popen(\n            cmds, stdout=subprocess.PIPE, shell=use_shell, env=custom_env)\n        stdout = process.communicate()\n        data_coll_dicts = json.loads(stdout[0])\n\n        # get all of the results relevant for energy use\n        cooling = serialize_data(data_coll_dicts[0])\n        heating = serialize_data(data_coll_dicts[1])\n        lighting = serialize_data(data_coll_dicts[2])\n        electric_equip = serialize_data(data_coll_dicts[3])\n        gas_equip = serialize_data(data_coll_dicts[4])\n        process = serialize_data(data_coll_dicts[5])\n        hot_water = serialize_data(data_coll_dicts[6])\n        fan_electric = serialize_data(data_coll_dicts[7])\n        pump_electric = serialize_data(data_coll_dicts[8])\n\n        # get all of the results relevant for gains and losses\n        people_gain = serialize_data(data_coll_dicts[9])\n        solar_gain = serialize_data(data_coll_dicts[10])\n        infil_gain = serialize_data(data_coll_dicts[11])\n        infil_loss = serialize_data(data_coll_dicts[12])\n        vent_loss = serialize_data(data_coll_dicts[13])\n        vent_gain = serialize_data(data_coll_dicts[14])\n        nat_vent_gain = serialize_data(data_coll_dicts[15])\n        nat_vent_loss = serialize_data(data_coll_dicts[16])\n\n    # do arithmetic with any of the gain/loss data collections\n    if len(infil_gain) == len(infil_loss):\n        infiltration_load = subtract_loss_from_gain(infil_gain, infil_loss)\n    if len(vent_gain) == len(vent_loss) == len(cooling) == len(heating):\n        mech_vent_loss = subtract_loss_from_gain(heating, vent_loss)\n        mech_vent_gain = subtract_loss_from_gain(cooling, vent_gain)\n        mech_vent_load = [data.duplicate() for data in\n                          subtract_loss_from_gain(mech_vent_gain, mech_vent_loss)]\n        for load in mech_vent_load:\n            load.header.metadata['type'] = \\\n                'Zone Ideal Loads Ventilation Heat Energy'\n    if len(nat_vent_gain) == len(nat_vent_loss):\n        nat_vent_load = subtract_loss_from_gain(nat_vent_gain, nat_vent_loss)\n\n    # remove the district hot water system used for service hot water from space heating\n    shw_equip, distr_i = [], None\n    for i, heat in enumerate(heating):\n        if not isinstance(heat, float):\n            try:\n                heat_equip = heat.header.metadata['System']\n                if heat_equip.startswith('SHW'):\n                    shw_equip.append(i)\n                elif heat_equip == 'SERVICE HOT WATER DISTRICT HEAT':\n                    distr_i = i\n            except KeyError:\n                pass\n    if len(shw_equip) != 0 and distr_i is None:\n        hot_water = [heating.pop(i) for i in reversed(shw_equip)]\n    elif distr_i is not None:\n        for i in reversed(shw_equip + [distr_i]):\n            heating.pop(i)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Read Room Energy Result", 
+  "description": "Parse all of the common Room-level energy-related results from an SQL result file\nthat has been generated from an energy simulation.\n-"
 }

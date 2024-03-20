@@ -1,57 +1,57 @@
 {
-  "description": "Create settings for the EnergyPlus Shadow Calculation.\n-", 
+  "version": "1.8.0", 
+  "nickname": "ShadowCalc", 
   "outputs": [
     [
       {
-        "type": null, 
+        "access": "None", 
         "name": "shadow_calc", 
         "description": "A ShadowCalculation object that can be connected to the\n\"HB Simulation Parameter\" component in order to specify settings\nfor the EnergyPlus Shadow Calculation.", 
-        "access": "None", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "code": "\ntry:\n    from honeybee_energy.simulation.shadowcalculation import ShadowCalculation\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# dictionary to convert to acceptable solar distributions\nSOLAR_DISTRIBUTIONS = {\n    '0': 'MinimalShadowing',\n    '1': 'FullExterior',\n    '2': 'FullInteriorAndExterior',\n    '3': 'FullExteriorWithReflections',\n    '4': 'FullInteriorAndExteriorWithReflections',\n    'MinimalShadowing': 'MinimalShadowing',\n    'FullExterior': 'FullExterior',\n    'FullInteriorAndExterior': 'FullInteriorAndExterior',\n    'FullExteriorWithReflections': 'FullExteriorWithReflections',\n    'FullInteriorAndExteriorWithReflections': 'FullInteriorAndExteriorWithReflections'\n    }\n\n\n# process the solar distribution\ntry:\n    _solar_dist_ = SOLAR_DISTRIBUTIONS[_solar_dist_] if _solar_dist_ is not None \\\n        else 'FullExteriorWithReflections'\nexcept KeyError:\n    raise ValueError(' Input _solar_dist_ \"{}\" is not valid.\\nChoose from the '\n        'following:\\n{}'.format(_solar_dist_, SOLAR_DISTRIBUTIONS.keys()))\n\n# set other default values\n_calc_method_ = _calc_method_ if _calc_method_ is not None else 'PolygonClipping'\n_update_method_ = _update_method_ if _update_method_ is not None else 'Periodic'\n_frequency_ = _frequency_ if _frequency_ is not None else 30\n_max_figures_ = _max_figures_ if _max_figures_ is not None else 15000\n\n# create the object\nshadow_calc = ShadowCalculation(\n    _solar_dist_, _calc_method_, _update_method_, _frequency_, _max_figures_)\n", 
-  "name": "HB Shadow Calculation", 
-  "version": "1.7.1", 
-  "category": "HB-Energy", 
-  "subcategory": "5 :: Simulate", 
-  "nickname": "ShadowCalc", 
   "inputs": [
     {
-      "type": "string", 
+      "access": "item", 
       "name": "_solar_dist_", 
       "description": "An integer or text desribing how EnergyPlus should treat beam solar\nradiation and reflectances from surfaces that strike the building surfaces.\nDefault is \"FullExteriorWithReflections\". Choose from the following.\n* 0 = \"MinimalShadowing\" - In this case, exterior shadowing is only computed\nfor windows and not for other opaque surfaces that might have their\nsurface temperature affected by the sun. All beam solar radiation\nentering the room is assumed to fall on the floor. A simple window\nview factor calculation is used to distribute incoming diffuse\nsolar energy between interior surfaces.\n* 1 = \"FullExterior\" - The simulation will perform the solar calculation\nin a manner that only accounts for direct sun and whether it is\nblocked by surrounding context geometry.  For the inside of the\nbuilding, all beam solar radiation entering the room is assumed\nto fall on the floor. A simple window view factor calculation is\nused to distribute incoming diffuse solar energy between\ninterior surfaces.\n* 2 = \"FullInteriorAndExterior\" - The simulation will perform the solar\ncalculation in a manner that models the direct sun (and wheter it\nis blocked by outdoor context goemetry.  It will also ray trace\nthe direct sun on the interior of rooms to distribute it correctly\nbetween interior surfaces.  Any indirect sun or sun bouncing off\nof objects will not be modled. Note that, if you use this\nmethod without setting the _calc_method_ to PixelCounting,\nEnergyPlus will give Severe warnings if your rooms have concave\ngeometry (aka. are \"L\"-shaped). So it is recommended that this\nsolar distribution only be used with the PixelCounting.\n* 3 = \"FullExteriorWithReflections\" - [DEFAULT] The simulation will perform the\nsolar calculation in a manner that accounts for both direct sun\nand the light bouncing off outdoor surrounding context.  For the\ninside of the building, all beam solar radiation entering the room\nis assumed to fall on the floor. A simple window view factor\ncalculation is used to distribute incoming diffuse solar\nenergy between interior surfaces.\n* 4 = \"FullInteriorAndExteriorWithReflections\" - The simulation will perform\nthe solar calculation in a manner that accounts for light bounces\nthat happen both outside and inside the rooms. This is the most\naccurate method but will take longer to run. Note that, if you\nuse this method without setting the _calc_method_ to PixelCounting,\nEnergyPlus will give Severe warnings if your rooms have concave\ngeometry (aka. are \"L\"-shaped). So it is recommended that this\nsolar distribution only be used with the PixelCounting.", 
-      "access": "item", 
+      "type": "string", 
       "default": null
     }, 
     {
-      "type": "string", 
+      "access": "item", 
       "name": "_calc_method_", 
       "description": "Text noting whether CPU-based polygon clipping method or GPU-based\npixel counting method should be used. For low numbers of shading\nsurfaces (less than ~200), PolygonClipping requires less runtime than\nPixelCounting. However, PixelCounting runtime scales significantly\nbetter at higher numbers of shading surfaces. PixelCounting also has\nno limitations related to room concavity when used with any\n\u201cFullInterior\u201d solar distribution options. (Default: PolygonClipping).\nChoose from the following:\n* PolygonClipping\n* PixelCounting", 
-      "access": "item", 
+      "type": "string", 
       "default": null
     }, 
     {
-      "type": "string", 
+      "access": "item", 
       "name": "_update_method_", 
       "description": "Text describing how often the solar and shading calculations are\nupdated with respect to the flow of time in the simulation. (Default: Periodic)\nChoose from the following:\n* Periodic\n* Timestep", 
-      "access": "item", 
+      "type": "string", 
       "default": null
     }, 
     {
-      "type": "int", 
+      "access": "item", 
       "name": "_frequency_", 
       "description": "Integer for the number of days in each period in\nwhich a unique shadow calculation will be performed. This field is only\nused if the AverageOverDaysInFrequency method is used in the previous\nfield. Default - 30.", 
-      "access": "item", 
+      "type": "int", 
       "default": null
     }, 
     {
-      "type": "int", 
+      "access": "item", 
       "name": "_max_figures_", 
       "description": "Integer for the number of figures used in shadow overlaps.\nDefault - 15000.", 
-      "access": "item", 
+      "type": "int", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "5 :: Simulate", 
+  "code": "\ntry:\n    from honeybee_energy.simulation.shadowcalculation import ShadowCalculation\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# dictionary to convert to acceptable solar distributions\nSOLAR_DISTRIBUTIONS = {\n    '0': 'MinimalShadowing',\n    '1': 'FullExterior',\n    '2': 'FullInteriorAndExterior',\n    '3': 'FullExteriorWithReflections',\n    '4': 'FullInteriorAndExteriorWithReflections',\n    'MinimalShadowing': 'MinimalShadowing',\n    'FullExterior': 'FullExterior',\n    'FullInteriorAndExterior': 'FullInteriorAndExterior',\n    'FullExteriorWithReflections': 'FullExteriorWithReflections',\n    'FullInteriorAndExteriorWithReflections': 'FullInteriorAndExteriorWithReflections'\n    }\n\n\n# process the solar distribution\ntry:\n    _solar_dist_ = SOLAR_DISTRIBUTIONS[_solar_dist_] if _solar_dist_ is not None \\\n        else 'FullExteriorWithReflections'\nexcept KeyError:\n    raise ValueError(' Input _solar_dist_ \"{}\" is not valid.\\nChoose from the '\n        'following:\\n{}'.format(_solar_dist_, SOLAR_DISTRIBUTIONS.keys()))\n\n# set other default values\n_calc_method_ = _calc_method_ if _calc_method_ is not None else 'PolygonClipping'\n_update_method_ = _update_method_ if _update_method_ is not None else 'Periodic'\n_frequency_ = _frequency_ if _frequency_ is not None else 30\n_max_figures_ = _max_figures_ if _max_figures_ is not None else 15000\n\n# create the object\nshadow_calc = ShadowCalculation(\n    _solar_dist_, _calc_method_, _update_method_, _frequency_, _max_figures_)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Shadow Calculation", 
+  "description": "Create settings for the EnergyPlus Shadow Calculation.\n-"
 }

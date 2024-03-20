@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2023, Ladybug Tools.
+# Copyright (c) 2024, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -68,7 +68,7 @@ simulation settings and can be plugged into the "HB Model To OSM" component.
 
 ghenv.Component.Name = 'HB Simulation Parameter'
 ghenv.Component.NickName = 'SimPar'
-ghenv.Component.Message = '1.7.1'
+ghenv.Component.Message = '1.8.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

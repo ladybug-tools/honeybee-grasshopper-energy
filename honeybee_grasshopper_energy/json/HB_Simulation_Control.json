@@ -1,57 +1,57 @@
 {
-  "description": "Create simulation controls with instructions for which types of EnergyPlus\ncalculations to run.\n-", 
+  "version": "1.8.0", 
+  "nickname": "SimControl", 
   "outputs": [
     [
       {
-        "type": null, 
+        "access": "None", 
         "name": "sim_control", 
         "description": "A SimulationControl object that can be connected to the\n\"HB Simulation Parameter\" component in order to specify which\ntypes of EnergyPlus calculations to run.", 
-        "access": "None", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "code": "\ntry:\n    from honeybee_energy.simulation.control import SimulationControl\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# set default values\n_do_zone_sizing_ = _do_zone_sizing_ if _do_zone_sizing_ is not None else True\n_do_system_sizing_ = _do_system_sizing_ if _do_system_sizing_ is not None else True\n_do_plant_sizing_ = _do_plant_sizing_ if _do_plant_sizing_ is not None else True\n_for_sizing_period_ = _for_sizing_period_ if _for_sizing_period_ is not None else False\n_for_run_period_ = _for_run_period_ if _for_run_period_ is not None else True\n\n# create the object\nsim_control = SimulationControl(_do_zone_sizing_, _do_system_sizing_, _do_plant_sizing_,\n                                _for_sizing_period_, _for_run_period_)", 
-  "name": "HB Simulation Control", 
-  "version": "1.7.1", 
-  "category": "HB-Energy", 
-  "subcategory": "5 :: Simulate", 
-  "nickname": "SimControl", 
   "inputs": [
     {
-      "type": "bool", 
+      "access": "item", 
       "name": "_do_zone_sizing_", 
       "description": "Boolean for whether the zone sizing calculation\nshould be run. Default: True.", 
-      "access": "item", 
+      "type": "bool", 
       "default": null
     }, 
     {
-      "type": "bool", 
+      "access": "item", 
       "name": "_do_system_sizing_", 
       "description": "Boolean for whether the system sizing calculation\nshould be run. Default: True.", 
-      "access": "item", 
+      "type": "bool", 
       "default": null
     }, 
     {
-      "type": "bool", 
+      "access": "item", 
       "name": "_do_plant_sizing_", 
       "description": "Boolean for whether the plant sizing calculation\nshould be run. Default: True.", 
-      "access": "item", 
+      "type": "bool", 
       "default": null
     }, 
     {
-      "type": "bool", 
+      "access": "item", 
       "name": "_for_sizing_period_", 
       "description": "Boolean for whether the simulation should\nbe run for the sizing periods. Default: False.", 
-      "access": "item", 
+      "type": "bool", 
       "default": null
     }, 
     {
-      "type": "bool", 
+      "access": "item", 
       "name": "_for_run_period_", 
       "description": "Boolean for whether the simulation should\nbe run for the run periods. Default: True.", 
-      "access": "item", 
+      "type": "bool", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "5 :: Simulate", 
+  "code": "\ntry:\n    from honeybee_energy.simulation.control import SimulationControl\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# set default values\n_do_zone_sizing_ = _do_zone_sizing_ if _do_zone_sizing_ is not None else True\n_do_system_sizing_ = _do_system_sizing_ if _do_system_sizing_ is not None else True\n_do_plant_sizing_ = _do_plant_sizing_ if _do_plant_sizing_ is not None else True\n_for_sizing_period_ = _for_sizing_period_ if _for_sizing_period_ is not None else False\n_for_run_period_ = _for_run_period_ if _for_run_period_ is not None else True\n\n# create the object\nsim_control = SimulationControl(_do_zone_sizing_, _do_system_sizing_, _do_plant_sizing_,\n                                _for_sizing_period_, _for_run_period_)", 
+  "category": "HB-Energy", 
+  "name": "HB Simulation Control", 
+  "description": "Create simulation controls with instructions for which types of EnergyPlus\ncalculations to run.\n-"
 }
