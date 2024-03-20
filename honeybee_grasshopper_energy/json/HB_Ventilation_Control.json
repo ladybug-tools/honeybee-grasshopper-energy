@@ -1,64 +1,64 @@
 {
-  "description": "Create a Ventilation Control object to dictate the temperature setpoints and\nschedule for ventilative cooling (eg. opening windows).\n_\nNote the all of the default setpoints of this object are set to always perform\nventilative cooling such that one can individually decide which setpoints\nare relevant to a given ventilation strategy.\n-", 
+  "version": "1.8.0", 
+  "nickname": "VentControl", 
   "outputs": [
     [
       {
-        "type": null, 
+        "access": "None", 
         "name": "vent_cntrl", 
         "description": "HBZones with their airflow modified.", 
-        "access": "None", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "code": "\ntry:\n    from honeybee_energy.ventcool.control import VentilationControl\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# set default values\nmin_in_temp_ = -100 if min_in_temp_ is None else min_in_temp_\nmax_in_temp_ = 100 if max_in_temp_ is None else max_in_temp_\nmin_out_temp_ = -100 if min_out_temp_ is None else min_out_temp_\nmax_out_temp_ = 100 if max_out_temp_ is None else max_out_temp_\ndelta_temp_ = -100 if delta_temp_ is None else delta_temp_\n\n# get the schedule if it's just an identifier\nif isinstance(_schedule_, str):\n    _schedule_ = schedule_by_identifier(_schedule_)\n\n# create the VentilationControl object\nvent_cntrl = VentilationControl(\n    min_in_temp_, max_in_temp_, min_out_temp_, max_out_temp_, delta_temp_, _schedule_)\n", 
-  "name": "HB Ventilation Control", 
-  "version": "1.7.1", 
-  "category": "HB-Energy", 
-  "subcategory": "3 :: Loads", 
-  "nickname": "VentControl", 
   "inputs": [
     {
-      "type": "double", 
+      "access": "item", 
       "name": "min_in_temp_", 
       "description": "A number between -100 and 100 for the minimum indoor\ntemperature at which to ventilate in Celsius. Typically,\nthis variable is used to initiate ventilation with values\naround room temperature above which the windows will open\n(eg. 22 C). (Default: -100 C).", 
-      "access": "item", 
+      "type": "double", 
       "default": null
     }, 
     {
-      "type": "double", 
+      "access": "item", 
       "name": "max_in_temp_", 
       "description": "A number between -100 and 100 for the maximum indoor\ntemperature at which to ventilate in Celsius. This can be\nused to set a maximum temperature at which point ventilation is\nstopped and a cooling system is turned on. (Default: 100 C).", 
-      "access": "item", 
+      "type": "double", 
       "default": null
     }, 
     {
-      "type": "double", 
+      "access": "item", 
       "name": "min_out_temp_", 
       "description": "A number between -100 and 100 for the minimum outdoor\ntemperature at which to ventilate in Celsius. This can be used\nto ensure ventilative cooling doesn't happen during the winter even\nif the Room is above the min_in_temp. (Default: -100 C).", 
-      "access": "item", 
+      "type": "double", 
       "default": null
     }, 
     {
-      "type": "double", 
+      "access": "item", 
       "name": "max_out_temp_", 
       "description": "A number between -100 and 100 for the maximum outdoor\ntemperature at which to ventilate in Celsius. This can be used\nto set a limit for when it is considered too hot outside for\nventilative cooling. (Default: 100).", 
-      "access": "item", 
+      "type": "double", 
       "default": null
     }, 
     {
-      "type": "double", 
+      "access": "item", 
       "name": "delta_temp_", 
       "description": "A number between -100 and 100 for the temperature differential\nin Celsius between indoor and outdoor below which ventilation\nis shut off.  This should usually be a positive number so that\nventilation only occurs when the outdoors is cooler than the indoors.\nNegative numbers indicate how much hotter the outdoors can be than\nthe indoors before ventilation is stopped. (Default: -100).", 
-      "access": "item", 
+      "type": "double", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_schedule_", 
       "description": "An optional schedule for the ventilation over the course of\nthe year. This can also be the name of a schedule to be looked up\nin the standards library. Note that this is applied on top of any\nsetpoints. The type of this schedule should be On/Off and values\nshould be either 0 (no possibility of ventilation) or 1 (ventilation\npossible). (Default: \"Always On\")", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "3 :: Loads", 
+  "code": "\ntry:\n    from honeybee_energy.ventcool.control import VentilationControl\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# set default values\nmin_in_temp_ = -100 if min_in_temp_ is None else min_in_temp_\nmax_in_temp_ = 100 if max_in_temp_ is None else max_in_temp_\nmin_out_temp_ = -100 if min_out_temp_ is None else min_out_temp_\nmax_out_temp_ = 100 if max_out_temp_ is None else max_out_temp_\ndelta_temp_ = -100 if delta_temp_ is None else delta_temp_\n\n# get the schedule if it's just an identifier\nif isinstance(_schedule_, str):\n    _schedule_ = schedule_by_identifier(_schedule_)\n\n# create the VentilationControl object\nvent_cntrl = VentilationControl(\n    min_in_temp_, max_in_temp_, min_out_temp_, max_out_temp_, delta_temp_, _schedule_)\n", 
+  "category": "HB-Energy", 
+  "name": "HB Ventilation Control", 
+  "description": "Create a Ventilation Control object to dictate the temperature setpoints and\nschedule for ventilative cooling (eg. opening windows).\n_\nNote the all of the default setpoints of this object are set to always perform\nventilative cooling such that one can individually decide which setpoints\nare relevant to a given ventilation strategy.\n-"
 }

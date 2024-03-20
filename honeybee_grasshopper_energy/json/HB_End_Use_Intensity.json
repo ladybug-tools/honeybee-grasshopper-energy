@@ -1,57 +1,57 @@
 {
-  "name": "HB End Use Intensity", 
-  "subcategory": "6 :: Result", 
-  "version": "1.7.1", 
-  "description": "Get information about end use intensity from an EnergyPlus SQL file.\n-", 
-  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.datatype.area import Area\n    from ladybug.datatype.energyintensity import EnergyIntensity\n    from ladybug.datatype.energy import Energy\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.eui import eui_from_sql\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\n# Use the SQLiteResult class to parse the result files directly on Windows.\ndef get_results_windows(sql_files):\n    results = eui_from_sql(sql_files)\n    return results['eui'], results['total_floor_area'], results['end_uses']\n\n\n# The SQLite3 module doesn't work in IronPython on Mac, so we must make a call\n# to the Honeybee CLI (which runs on CPython) to get the results.\ndef get_results_mac(sql_files):\n    from collections import OrderedDict\n    cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n            'energy-use-intensity']\n    cmds.extend(sql_files)\n    custom_env = os.environ.copy()\n    custom_env['PYTHONHOME'] = ''\n    process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)\n    stdout = process.communicate()\n    results = json.loads(stdout[0], object_pairs_hook=OrderedDict)\n    return results['eui'], results['total_floor_area'], results['end_uses']\n\n\nif all_required_inputs(ghenv.Component):\n    # ensure that _sql is a list rather than a single string\n    if isinstance(_sql, basestring):\n        _sql = [_sql]\n\n    # get the results\n    get_results = get_results_windows if os.name == 'nt' else get_results_mac\n    eui, gross_floor, end_use_pairs = get_results(_sql)\n\n    # create separate lists for end use values and labels\n    eui_end_use = end_use_pairs.values()\n    end_uses = [use.replace('_', ' ').title() for use in end_use_pairs.keys()]\n\n    # convert data to IP if requested\n    if ip_:\n        eui_typ, a_typ, e_typ = EnergyIntensity(), Area(), Energy()\n        eui = round(eui_typ.to_ip([eui], 'kWh/m2')[0][0], 3)\n        gross_floor = round(a_typ.to_ip([gross_floor], 'm2')[0][0], 3)\n        eui_end_use = [round(eui_typ.to_ip([val], 'kWh/m2')[0][0], 3)\n                       for val in eui_end_use]\n", 
+  "version": "1.8.0", 
+  "nickname": "EUI", 
   "outputs": [
     [
       {
+        "access": "None", 
         "name": "eui", 
-        "access": "None", 
-        "type": null, 
         "description": "The total end use intensity result from the simulation. Specifically,\nthis is the sum of all electricity, fuel, district heating/cooling,\netc. divided by the gross floor area (including both conditioned\nand unconditioned spaces). The value will be in kWh/m2 if ip_\nis False or None and kBtu/ft2 if True.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "eui_end_use", 
-        "access": "None", 
-        "type": null, 
         "description": "The end use intensity result from the simulation, broken down by each\nend use. These values coorespond to the end_uses output below. Values\nwill be in kWh/m2 if ip_ is False or None and kBtu/ft2 if True.", 
+        "type": null, 
         "default": null
       }, 
       {
+        "access": "None", 
         "name": "end_uses", 
-        "access": "None", 
-        "type": null, 
         "description": "A list of text for each of the end uses in the simulation (Heating,\nCooling, etc.). Thes outputs coorespond to the eui_end_use\noutput above.", 
+        "type": null, 
         "default": null
       }, 
       {
-        "name": "gross_floor", 
         "access": "None", 
-        "type": null, 
+        "name": "gross_floor", 
         "description": "The total gross floor area of the energy model. This can be used\nto compute the total energy use from the intensity values above or\nit can be used to help with other result post-processing. The value\nwill be in m2 if ip_ is False or None and ft2 if True.", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "category": "HB-Energy", 
-  "nickname": "EUI", 
   "inputs": [
     {
-      "name": "_sql", 
       "access": "list", 
-      "type": "string", 
+      "name": "_sql", 
       "description": "The file path of the SQL result file that has been generated from\nan energy simulation. This can also be a list of EnergyPlus files\nin which case, EUI will be computed across all files.", 
+      "type": "string", 
       "default": null
     }, 
     {
-      "name": "ip_", 
       "access": "item", 
-      "type": "bool", 
+      "name": "ip_", 
       "description": "Boolean to note whether the EUI should be in SI (kWh/m2) or IP\n(kBtu/ft2) units. (Default: False).", 
+      "type": "bool", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "6 :: Result", 
+  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.datatype.area import Area\n    from ladybug.datatype.energyintensity import EnergyIntensity\n    from ladybug.datatype.energy import Energy\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.eui import eui_from_sql\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\n# Use the SQLiteResult class to parse the result files directly on Windows.\ndef get_results_windows(sql_files):\n    results = eui_from_sql(sql_files)\n    return results['eui'], results['total_floor_area'], results['end_uses']\n\n\n# The SQLite3 module doesn't work in IronPython on Mac, so we must make a call\n# to the Honeybee CLI (which runs on CPython) to get the results.\ndef get_results_mac(sql_files):\n    from collections import OrderedDict\n    cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n            'energy-use-intensity']\n    cmds.extend(sql_files)\n    custom_env = os.environ.copy()\n    custom_env['PYTHONHOME'] = ''\n    process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)\n    stdout = process.communicate()\n    results = json.loads(stdout[0], object_pairs_hook=OrderedDict)\n    return results['eui'], results['total_floor_area'], results['end_uses']\n\n\nif all_required_inputs(ghenv.Component):\n    # ensure that _sql is a list rather than a single string\n    if isinstance(_sql, basestring):\n        _sql = [_sql]\n\n    # get the results\n    get_results = get_results_windows if os.name == 'nt' else get_results_mac\n    eui, gross_floor, end_use_pairs = get_results(_sql)\n\n    # create separate lists for end use values and labels\n    eui_end_use = end_use_pairs.values()\n    end_uses = [use.replace('_', ' ').title() for use in end_use_pairs.keys()]\n\n    # convert data to IP if requested\n    if ip_:\n        eui_typ, a_typ, e_typ = EnergyIntensity(), Area(), Energy()\n        eui = round(eui_typ.to_ip([eui], 'kWh/m2')[0][0], 3)\n        gross_floor = round(a_typ.to_ip([gross_floor], 'm2')[0][0], 3)\n        eui_end_use = [round(eui_typ.to_ip([val], 'kWh/m2')[0][0], 3)\n                       for val in eui_end_use]\n", 
+  "category": "HB-Energy", 
+  "name": "HB End Use Intensity", 
+  "description": "Get information about end use intensity from an EnergyPlus SQL file.\n-"
 }

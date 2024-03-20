@@ -1,36 +1,36 @@
 {
-  "name": "HB Read Custom Result", 
-  "subcategory": "6 :: Result", 
-  "version": "1.7.1", 
-  "description": "Parse any time series data from an energy simulation SQL result file.\n-", 
-  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.datacollection import HourlyContinuousCollection, \\\n        MonthlyCollection, DailyCollection\n    from ladybug.sql import SQLiteResult\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\ndef serialize_data(data_dicts):\n    \"\"\"Reserialize a list of collection dictionaries.\"\"\"\n    if len(data_dicts) == 0:\n        return []\n    elif data_dicts[0]['type'] == 'HourlyContinuous':\n        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Monthly':\n        return [MonthlyCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Daily':\n        return [DailyCollection.from_dict(data) for data in data_dicts]\n\n\nif all_required_inputs(ghenv.Component):\n    if os.name == 'nt':  # we are on windows; use IronPython like usual\n        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object\n        results = sql_obj.data_collections_by_output_name(_output_names)\n\n    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'data-by-outputs', _sql, _output_names]\n        custom_env = os.environ.copy()\n        custom_env['PYTHONHOME'] = ''\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)\n        stdout = process.communicate()\n        data_dicts = json.loads(stdout[0])\n        results = serialize_data(data_dicts[0])\n", 
+  "version": "1.8.0", 
+  "nickname": "CustomResult", 
   "outputs": [
     [
       {
-        "name": "results", 
         "access": "None", 
-        "type": null, 
+        "name": "results", 
         "description": "DataCollections for the output_names.", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "category": "HB-Energy", 
-  "nickname": "CustomResult", 
   "inputs": [
     {
-      "name": "_sql", 
       "access": "item", 
-      "type": "string", 
+      "name": "_sql", 
       "description": "The file path of the SQL result file that has been generated from\nan energy simulation.", 
+      "type": "string", 
       "default": null
     }, 
     {
-      "name": "_output_names", 
       "access": "item", 
-      "type": "string", 
+      "name": "_output_names", 
       "description": "A list of EnergyPlus output names as strings (eg.\n'Surface Window System Solar Transmittance'. These data corresponding\nto these outputs will be returned from this component.", 
+      "type": "string", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "6 :: Result", 
+  "code": "\nimport os\nimport subprocess\nimport json\n\ntry:\n    from ladybug.datacollection import HourlyContinuousCollection, \\\n        MonthlyCollection, DailyCollection\n    from ladybug.sql import SQLiteResult\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\ndef serialize_data(data_dicts):\n    \"\"\"Reserialize a list of collection dictionaries.\"\"\"\n    if len(data_dicts) == 0:\n        return []\n    elif data_dicts[0]['type'] == 'HourlyContinuous':\n        return [HourlyContinuousCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Monthly':\n        return [MonthlyCollection.from_dict(data) for data in data_dicts]\n    elif data_dicts[0]['type'] == 'Daily':\n        return [DailyCollection.from_dict(data) for data in data_dicts]\n\n\nif all_required_inputs(ghenv.Component):\n    if os.name == 'nt':  # we are on windows; use IronPython like usual\n        sql_obj = SQLiteResult(_sql)  # create the SQL result parsing object\n        results = sql_obj.data_collections_by_output_name(_output_names)\n\n    else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython\n        # Execute the honybee CLI to obtain the results via CPython\n        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',\n                'data-by-outputs', _sql, _output_names]\n        custom_env = os.environ.copy()\n        custom_env['PYTHONHOME'] = ''\n        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)\n        stdout = process.communicate()\n        data_dicts = json.loads(stdout[0])\n        results = serialize_data(data_dicts[0])\n", 
+  "category": "HB-Energy", 
+  "name": "HB Read Custom Result", 
+  "description": "Parse any time series data from an energy simulation SQL result file.\n-"
 }

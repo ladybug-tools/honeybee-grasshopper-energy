@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2023, Ladybug Tools.
+# Copyright (c) 2024, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -38,7 +38,7 @@ Create an Equipment object that can be used to specify equipment usage in a Prog
 
 ghenv.Component.Name = 'HB Equipment'
 ghenv.Component.NickName = 'Equipment'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.8.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

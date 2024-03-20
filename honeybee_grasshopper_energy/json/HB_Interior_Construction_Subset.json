@@ -1,64 +1,64 @@
 {
-  "description": "Create a list of interior constructions that can be used to edit or create a\nConstructionSet object.\n-", 
+  "version": "1.8.0", 
+  "nickname": "InteriorSubset", 
   "outputs": [
     [
       {
-        "type": null, 
+        "access": "None", 
         "name": "interior_set", 
         "description": "A list of interior constructions that can be used to edit\nor create a ConstructionSet object.", 
-        "access": "None", 
+        "type": null, 
         "default": null
       }
     ]
   ], 
-  "code": "\ntry:  # import honeybee_energy dependencies\n    from honeybee_energy.construction.opaque import OpaqueConstruction\n    from honeybee_energy.construction.window import WindowConstruction\n    from honeybee_energy.construction.dynamic import WindowConstructionDynamic\n    from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \\\n        window_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import give_warning, turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\ndef opaque_constr(construction, input_name):\n    \"\"\"Get an OpaqueConstrucion from the library if it's a string.\"\"\"\n    if isinstance(construction, str):\n        return opaque_construction_by_identifier(construction)\n    else:\n        assert isinstance(construction, OpaqueConstruction), \\\n            'Expected OpaqueConstruction for {}. Got {}'.format(\n                input_name, type(construction))\n    return construction\n\n\ndef window_constr(construction, input_name):\n    \"\"\"Get a WindowConstrucion from the library if it's a string.\"\"\"\n    if isinstance(construction, str):\n        return window_construction_by_identifier(construction)\n    else:\n        win_cls = (WindowConstruction, WindowConstructionDynamic)\n        assert isinstance(construction, win_cls), \\\n            'Expected WindowConstruction for {}. Got {}'.format(\n                input_name, type(construction))\n    return construction\n\n\ndef check_symmetric(constr_type, construction):\n    \"\"\"Give a warning on the component that a construction is asymmetric.\"\"\"\n    if not construction.is_symmetric:   # check whether the construction is symmetric.\n        message = 'Input {} is asymmetric (materials in reversed order ' \\\n            'do not equal those in the current order).\\nThis can cause issues if the ' \\\n            'resulting constr_set is applied across multiple Rooms.\\nMaterials: {}'.format(\n                constr_type, construction.layers)\n        give_warning(ghenv.Component, message)\n\n\n# go through each input construction\nif _interior_wall_ is not None:\n    _interior_wall_ = opaque_constr(_interior_wall_, '_interior_wall_')\n    check_symmetric('_interior_wall_', _interior_wall_)\nif _ceiling_ is not None:\n    _ceiling_ = opaque_constr(_ceiling_, '_ceiling_')\nif _interior_floor_ is not None:\n    _interior_floor_ = opaque_constr(_interior_floor_, '_interior_floor_')\nif _interior_window_ is not None:\n    _interior_window_ = window_constr(_interior_window_, '_interior_window_')\n    check_symmetric('_interior_window_', _interior_window_)\nif _interior_door_ is not None:\n    _interior_door_ = opaque_constr(_interior_door_, '_interior_door_')\n    check_symmetric('_interior_door_', _interior_door_)\nif _int_glass_door_ is not None:\n    _int_glass_door_ = window_constr(_int_glass_door_, '_int_glass_door_')\n    check_symmetric('_int_glass_door_', _int_glass_door_)\n\n# check whether the ceiling has the revered materials of the floor\nif _ceiling_ is not None or _interior_floor_ is not None:\n    if _ceiling_ is None or _interior_floor_ is  None or \\\n            _ceiling_.layers != list(reversed(_interior_floor_.layers)):\n        warn = '_ceiling_ does not have materials in reversed ' \\\n            ' order of the _interior_floor_.\\nThis can cause issues if the ' \\\n            'resulting constr_set is applied across multiple Rooms.'\n        give_warning(ghenv.Component, warn)\n        print(warn)\n\n# return the final list from the component\ninterior_set = [_interior_wall_, _ceiling_, _interior_floor_, _interior_window_,\n                _interior_door_, _int_glass_door_]\n", 
-  "name": "HB Interior Construction Subset", 
-  "version": "1.7.1", 
-  "category": "HB-Energy", 
-  "subcategory": "0 :: Basic Properties", 
-  "nickname": "InteriorSubset", 
   "inputs": [
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_interior_wall_", 
       "description": "A construction object for interior walls (or text for\nthe identifier of the construction within the library).", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_ceiling_", 
       "description": "A construction object for ceilings (or text for the identifier of\nthe construction within the library).", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_interior_floor_", 
       "description": "A construction object for interior floors (or text for\nthe identifier of the construction within the library).", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_interior_window_", 
       "description": "A construction object for all apertures with a Surface\nboundary condition. This can also be text for the identifier of the\nconstruction within the library.", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_interior_door_", 
       "description": "A construction object for all opaque doors with a Surface\nboundary condition. This can also be text for the identifier of the\nconstruction within the library.", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }, 
     {
-      "type": "System.Object", 
+      "access": "item", 
       "name": "_int_glass_door_", 
       "description": "A construction object for all glass doors with a Surface\nboundary condition. This can also be text for the identifier of the\nconstruction within the library.", 
-      "access": "item", 
+      "type": "System.Object", 
       "default": null
     }
-  ]
+  ], 
+  "subcategory": "0 :: Basic Properties", 
+  "code": "\ntry:  # import honeybee_energy dependencies\n    from honeybee_energy.construction.opaque import OpaqueConstruction\n    from honeybee_energy.construction.window import WindowConstruction\n    from honeybee_energy.construction.dynamic import WindowConstructionDynamic\n    from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \\\n        window_construction_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import give_warning, turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\ndef opaque_constr(construction, input_name):\n    \"\"\"Get an OpaqueConstrucion from the library if it's a string.\"\"\"\n    if isinstance(construction, str):\n        return opaque_construction_by_identifier(construction)\n    else:\n        assert isinstance(construction, OpaqueConstruction), \\\n            'Expected OpaqueConstruction for {}. Got {}'.format(\n                input_name, type(construction))\n    return construction\n\n\ndef window_constr(construction, input_name):\n    \"\"\"Get a WindowConstrucion from the library if it's a string.\"\"\"\n    if isinstance(construction, str):\n        return window_construction_by_identifier(construction)\n    else:\n        win_cls = (WindowConstruction, WindowConstructionDynamic)\n        assert isinstance(construction, win_cls), \\\n            'Expected WindowConstruction for {}. Got {}'.format(\n                input_name, type(construction))\n    return construction\n\n\ndef check_symmetric(constr_type, construction):\n    \"\"\"Give a warning on the component that a construction is asymmetric.\"\"\"\n    if not construction.is_symmetric:   # check whether the construction is symmetric.\n        message = 'Input {} is asymmetric (materials in reversed order ' \\\n            'do not equal those in the current order).\\nThis can cause issues if the ' \\\n            'resulting constr_set is applied across multiple Rooms.\\nMaterials: {}'.format(\n                constr_type, construction.layers)\n        give_warning(ghenv.Component, message)\n\n\n# go through each input construction\nif _interior_wall_ is not None:\n    _interior_wall_ = opaque_constr(_interior_wall_, '_interior_wall_')\n    check_symmetric('_interior_wall_', _interior_wall_)\nif _ceiling_ is not None:\n    _ceiling_ = opaque_constr(_ceiling_, '_ceiling_')\nif _interior_floor_ is not None:\n    _interior_floor_ = opaque_constr(_interior_floor_, '_interior_floor_')\nif _interior_window_ is not None:\n    _interior_window_ = window_constr(_interior_window_, '_interior_window_')\n    check_symmetric('_interior_window_', _interior_window_)\nif _interior_door_ is not None:\n    _interior_door_ = opaque_constr(_interior_door_, '_interior_door_')\n    check_symmetric('_interior_door_', _interior_door_)\nif _int_glass_door_ is not None:\n    _int_glass_door_ = window_constr(_int_glass_door_, '_int_glass_door_')\n    check_symmetric('_int_glass_door_', _int_glass_door_)\n\n# check whether the ceiling has the revered materials of the floor\nif _ceiling_ is not None or _interior_floor_ is not None:\n    if _ceiling_ is None or _interior_floor_ is  None or \\\n            _ceiling_.layers != list(reversed(_interior_floor_.layers)):\n        warn = '_ceiling_ does not have materials in reversed ' \\\n            ' order of the _interior_floor_.\\nThis can cause issues if the ' \\\n            'resulting constr_set is applied across multiple Rooms.'\n        give_warning(ghenv.Component, warn)\n        print(warn)\n\n# return the final list from the component\ninterior_set = [_interior_wall_, _ceiling_, _interior_floor_, _interior_window_,\n                _interior_door_, _int_glass_door_]\n", 
+  "category": "HB-Energy", 
+  "name": "HB Interior Construction Subset", 
+  "description": "Create a list of interior constructions that can be used to edit or create a\nConstructionSet object.\n-"
 }

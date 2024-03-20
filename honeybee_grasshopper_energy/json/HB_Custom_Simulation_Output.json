@@ -1,5 +1,5 @@
 {
-  "version": "1.7.2", 
+  "version": "1.8.0", 
   "nickname": "CustomOutput", 
   "outputs": [
     [
@@ -43,7 +43,7 @@
     }, 
     {
       "access": "item", 
-      "name": "x", 
+      "name": "_unmet_setpt_tol_", 
       "description": "A number in degrees Celsius for the difference that the zone\nconditions must be from the thermostat setpoint in order\nfor the setpoint to be considered unmet. This will affect how unmet\nhours are reported in the output. ASHRAE 90.1 uses a tolerance of\n1.11C, which is equivalent to 1.8F. (Default: 1.11C).", 
       "type": "double", 
       "default": null

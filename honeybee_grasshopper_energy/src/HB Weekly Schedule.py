@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2023, Ladybug Tools.
+# Copyright (c) 2024, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -92,7 +92,7 @@ Create a schedule from lists of daily values for each day of the week.
 
 ghenv.Component.Name = 'HB Weekly Schedule'
 ghenv.Component.NickName = 'WeeklySchedule'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.8.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
