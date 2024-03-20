@@ -65,7 +65,7 @@ each schedule should be applied.
 
 ghenv.Component.Name = "HB Seasonal Schedule"
 ghenv.Component.NickName = 'SeasonalSchedule'
-ghenv.Component.Message = '1.7.0'
+ghenv.Component.Message = '1.7.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "4"
@@ -131,7 +131,7 @@ if all_required_inputs(ghenv.Component):
     if len(_winter_des_) != 0:
         w_vals = [_winter_des_[0]] * 24 if len(_winter_des_) == 1 else _winter_des_
         w_id = '{}_WntrDsn'.format(schedule.identifier)
-        w_day = ScheduleDay.from_values_at_timestep(s_id, s_vals)
+        w_day = ScheduleDay.from_values_at_timestep(w_id, w_vals)
         schedule.winter_designday_schedule = w_day
 
     # get the idf strings of the schedule
