@@ -28,8 +28,6 @@ often requires
                 * FloorWithCarpet
                 * CeilingMetalPanel
                 * FloorWithHardwood
-        min_op_time_: A number for the minimum number of hours of operation
-            for the radiant system before it shuts off. (Default: 1).
         switch_time_: A number for the minimum number of hours for when the system
             can switch between heating and cooling. (Default: 24).
 
@@ -39,7 +37,7 @@ often requires
 
 ghenv.Component.Name = 'HB Radiant HVAC Properties'
 ghenv.Component.NickName = 'RadiantHVAC'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -87,8 +85,6 @@ if all_required_inputs(ghenv.Component):
     # adjust the properties of each radiant HVAC that was found
     for r_hvac_rooms in rad_hvac_dict.values():
         new_r_hvac = r_hvac_rooms[0].properties.energy.hvac.duplicate()
-        if min_op_time_:
-            new_r_hvac.minimum_operation_time = min_op_time_
         if switch_time_:
             new_r_hvac.switch_over_time = switch_time_
         if radiant_type_:
