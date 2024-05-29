@@ -1,0 +1,64 @@
+{
+  "version": "1.8.0", 
+  "nickname": "EmptyOSM", 
+  "outputs": [
+    [
+      {
+        "access": "None", 
+        "name": "osw", 
+        "description": "File path to the OpenStudio Workflow JSON on this machine. This workflow\nis executed using the OpenStudio command line interface (CLI), which\nwill create the empty OSM following the input simulation parameter\nspecifications.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "osm", 
+        "description": "The file path to the empty OpenStudio Model (OSM) that has been generated\non this computer.", 
+        "type": null, 
+        "default": null
+      }, 
+      {
+        "access": "None", 
+        "name": "idf", 
+        "description": "The file path of the empty EnergyPlus Input Data File (IDF) that has been\ngenerated on this computer.", 
+        "type": null, 
+        "default": null
+      }
+    ]
+  ], 
+  "inputs": [
+    {
+      "access": "item", 
+      "name": "_epw_file", 
+      "description": "Path to an .epw file on this computer as a text string.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_sim_par_", 
+      "description": "A honeybee Energy SimulationParameter object that describes all\nof the setting for the simulation. If None, some default simulation\nparameters will automatically be used.", 
+      "type": "System.Object", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_folder_", 
+      "description": "An optional folder on this computer, into which the IDF and result\nfiles will be written.", 
+      "type": "string", 
+      "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_write", 
+      "description": "Set to \"True\" to create the empty OSM file.", 
+      "type": "bool", 
+      "default": null
+    }
+  ], 
+  "subcategory": "5 :: Simulate", 
+  "code": "\nimport sys\nimport os\nimport re\nimport json\n\ntry:\n    from ladybug.futil import preparedir, nukedir\n    from ladybug.epw import EPW\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    import honeybee.config as hb_config\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.simulation.parameter import SimulationParameter\n    from honeybee_energy.run import to_empty_osm_osw, run_osw\n    from honeybee_energy.result.osw import OSW\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from lbt_recipes.version import check_openstudio_version\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _write:\n    # check the presence of openstudio\n    check_openstudio_version()\n\n    # process the simulation parameters\n    if _sim_par_ is None:\n        _sim_par_ = SimulationParameter()\n        _sim_par_.output.add_zone_energy_use()\n        _sim_par_.output.add_hvac_energy_use()\n        _sim_par_.output.add_electricity_generation()\n    else:\n        _sim_par_ = _sim_par_.duplicate()  # ensure input is not edited\n\n    # assign design days from the DDY next to the EPW if there are None\n    if len(_sim_par_.sizing_parameter.design_days) == 0:\n        msg = None\n        folder, epw_file_name = os.path.split(_epw_file)\n        ddy_file = os.path.join(folder, epw_file_name.replace('.epw', '.ddy'))\n        if os.path.isfile(ddy_file):\n            try:\n                _sim_par_.sizing_parameter.add_from_ddy_996_004(ddy_file)\n            except AssertionError:\n                msg = 'No ddy_file_ was input into the _sim_par_ sizing ' \\\n                    'parameters\\n and no design days were found in the .ddy file '\\\n                    'next to the _epw_file.'\n        else:\n             msg = 'No ddy_file_ was input into the _sim_par_ sizing parameters\\n' \\\n                'and no .ddy file was found next to the _epw_file.'\n        if msg is not None:\n            epw_obj = EPW(_epw_file)\n            des_days = [epw_obj.approximate_design_day('WinterDesignDay'),\n                        epw_obj.approximate_design_day('SummerDesignDay')]\n            _sim_par_.sizing_parameter.design_days = des_days\n            msg = msg + '\\nDesign days were generated from the input _epw_file but this ' \\\n                '\\nis not as accurate as design days from DDYs distributed with the EPW.'\n            give_warning(ghenv.Component, msg)\n            print(msg)\n\n    # process the simulation folder name and the directory\n    _folder_ = hb_config.folders.default_simulation_folder if _folder_ is None else _folder_\n    directory = os.path.join(_folder_, 'openstudio')\n\n    # delete any existing files in the directory and prepare it for simulation\n    nukedir(directory, True)\n    preparedir(directory)\n\n    # write the simulation parameter JSON\n    sim_par_dict = _sim_par_.to_dict()\n    sim_par_json = os.path.join(directory, 'simulation_parameter.json')\n    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8\n        with open(sim_par_json, 'wb') as fp:\n            sim_par_str = json.dumps(sim_par_dict, ensure_ascii=False)\n            fp.write(sim_par_str.encode('utf-8'))\n    else:\n        with open(sim_par_json, 'w', encoding='utf-8') as fp:\n            sim_par_str = json.dump(sim_par_dict, fp, ensure_ascii=False)\n\n    # collect the two jsons for output and write out the osw file\n    osw = to_empty_osm_osw(directory, sim_par_json, epw_file=_epw_file)\n\n    # run the measure to translate the JSON\n    osm, idf = run_osw(osw, silent=True)\n    if idf is None:  # measures failed to run correctly; parse out.osw\n        log_osw = OSW(os.path.join(directory, 'out.osw'))\n        errors = []\n        for error, tb in zip(log_osw.errors, log_osw.error_tracebacks):\n            if 'Cannot create a surface' in error:\n                error = 'Your {{Cad}} Model units system is: {}. ' \\\n                    'Is this correct?\\n{}'.format(units_system(), error)\n            print(tb)\n            errors.append(error)\n        raise Exception('Failed to run OpenStudio CLI:\\n{}'.format('\\n'.join(errors)))\n", 
+  "category": "HB-Energy", 
+  "name": "HB Empty OSM", 
+  "description": "Create an empty OpenStudio Model (OSM) file with no building geometry.\n_\nThis is useful as a starting point for OSMs to which detailed Ironbug systems\nwill be added. Such models with only Ironbug HVAC components can simulate\nin EnergyPlus if they use the LoadProfile:Plant object to represent the\nbuilding loads.\n_\nThey are useful for evaluating the performance of such heating/cooling plants\nand, by setting the simulation parameters and EPW file with this component, any\nsizing criteria for the plant components can be set.\n-"
+}
