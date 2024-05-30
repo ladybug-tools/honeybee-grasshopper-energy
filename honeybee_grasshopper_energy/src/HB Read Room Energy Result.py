@@ -53,7 +53,7 @@ that has been generated from an energy simulation.
 
 ghenv.Component.Name = 'HB Read Room Energy Result'
 ghenv.Component.NickName = 'RoomEnergyResult'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -115,7 +115,7 @@ cooling_outputs = LoadBalance.COOLING + (
     'Zone VRF Air Terminal Cooling Electricity Energy',
     'VRF Heat Pump Cooling Electricity Energy',
     'Chiller Heater System Cooling Electricity Energy',
-    'District Cooling Chilled Water Energy',
+    'District Cooling Water Energy',
     'Evaporative Cooler Electricity Energy')
 heating_outputs = LoadBalance.HEATING + (
     'Boiler NaturalGas Energy',
@@ -128,7 +128,7 @@ heating_outputs = LoadBalance.HEATING + (
     'VRF Heat Pump Defrost Electricity Energy',
     'VRF Heat Pump Crankcase Heater Electricity Energy',
     'Chiller Heater System Heating Electricity Energy',
-    'District Heating Hot Water Energy',
+    'District Heating Water Energy',
     'Baseboard Electricity Energy',
     'Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption',
     'Boiler Electricity Energy',
