@@ -54,9 +54,12 @@ WindowConstruction.
         setpoint_: A number that corresponds to the specified control_type. This can
             be a value in (W/m2), (C) or (W) depending upon the control type.
         schedule_: An optional ScheduleRuleset or ScheduleFixedInterval to be applied
-            on top of the control type. If None, the control type will govern all
-            behavior of the construction.
-    
+            on top of the control type. If specified, the window will only be
+            switched on when both the schedule value is > 0 and and control_type
+            criteria are met. Otherwise, the shade is off. If a schedule is
+            unspecified, the control type will govern all behavior of the
+            construction.
+
     Returns:
         constr: A shaded window construction that can be assigned to Honeybee
             Apertures or ConstructionSets.
@@ -64,7 +67,7 @@ WindowConstruction.
 
 ghenv.Component.Name = 'HB Window Construction Shade'
 ghenv.Component.NickName = 'WindowConstrShd'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = '4'

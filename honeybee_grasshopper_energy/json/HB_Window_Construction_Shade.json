@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0", 
+  "version": "1.8.1", 
   "nickname": "WindowConstrShd", 
   "outputs": [
     [
@@ -58,7 +58,7 @@
     {
       "access": "item", 
       "name": "schedule_", 
-      "description": "An optional ScheduleRuleset or ScheduleFixedInterval to be applied\non top of the control type. If None, the control type will govern all\nbehavior of the construction.", 
+      "description": "An optional ScheduleRuleset or ScheduleFixedInterval to be applied\non top of the control type. If specified, the window will only be\nswitched on when both the schedule value is > 0 and and control_type\ncriteria are met. Otherwise, the shade is off. If a schedule is\nunspecified, the control type will govern all behavior of the\nconstruction.", 
       "type": "System.Object", 
       "default": null
     }
