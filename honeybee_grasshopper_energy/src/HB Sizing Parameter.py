@@ -86,7 +86,7 @@ Create parameters with criteria for sizing the heating and cooling system.
 
 ghenv.Component.Name = 'HB Sizing Parameter'
 ghenv.Component.NickName = 'SizingPar'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -97,7 +97,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import turn_off_old_tag
+    from ladybug_rhino.grasshopper import turn_off_old_tag, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 turn_off_old_tag(ghenv.Component)
@@ -122,6 +122,13 @@ EFF_STANDARDS = {
     '2016': 'ASHRAE_2016',
     '2019': 'ASHRAE_2019'
 }
+
+# give a warning if both efficiency standard and factors are set
+if eff_standard_ is not None and (_heating_fac_ is not None or _cooling_fac_ is not None):
+    msg = 'Applying an ASHRAE efficiency standard requires the use of\n '\
+        'a heating factor of 1.25 and a cooling factor of 1.15.\n' \
+        'The input _heating_fac_ and _cooling_fac_ will be ignored.'
+    give_warning(ghenv.Component, msg)
 
 # set default sizing factors
 heating_fac = 1.25 if _heating_fac_ is None else _heating_fac_
