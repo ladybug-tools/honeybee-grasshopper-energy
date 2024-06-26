@@ -39,7 +39,7 @@ Parse electricity generation results from an energy simulation SQL result file.
 
 ghenv.Component.Name = 'HB Read Generation Result'
 ghenv.Component.NickName = 'GenerationResult'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -144,12 +144,13 @@ if all_required_inputs(ghenv.Component):
     )
 
     # group the generator results by identifier
-    dc_dict = OrderedDict()
-    for g_data in dc_power:
-        gen_id = g_data.header.metadata['System'].split('..')[0]
-        g_data.header.metadata['System'] = gen_id
-        try:
-            dc_dict[gen_id] += g_data
-        except KeyError:
-            dc_dict[gen_id] = g_data
-    dc_power = [dcp for dcp in dc_dict.values()]
+    if len(dc_power) != 0 and not isinstance(dc_power[0], (float, int)):
+        dc_dict = OrderedDict()
+        for g_data in dc_power:
+            gen_id = g_data.header.metadata['System'].split('..')[0]
+            g_data.header.metadata['System'] = gen_id
+            try:
+                dc_dict[gen_id] += g_data
+            except KeyError:
+                dc_dict[gen_id] = g_data
+        dc_power = [dcp for dcp in dc_dict.values()]
