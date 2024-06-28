@@ -38,7 +38,7 @@ Get information about end use intensity from an EnergyPlus SQL file.
 
 ghenv.Component.Name = 'HB End Use Intensity'
 ghenv.Component.NickName = 'EUI'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -65,7 +65,7 @@ except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
 try:
-    from ladybug_rhino.grasshopper import all_required_inputs
+    from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -111,3 +111,8 @@ if all_required_inputs(ghenv.Component):
         gross_floor = round(a_typ.to_ip([gross_floor], 'm2')[0][0], 3)
         eui_end_use = [round(eui_typ.to_ip([val], 'kWh/m2')[0][0], 3)
                        for val in eui_end_use]
+
+    if gross_floor == 0:
+        msg = 'Model has no floor area. All energy intensity results will be zero.'
+        print(msg)
+        give_warning(ghenv.Component, msg)
