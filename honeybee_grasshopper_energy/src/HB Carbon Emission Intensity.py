@@ -57,7 +57,7 @@ _
 
 ghenv.Component.Name = 'HB Carbon Emission Intensity'
 ghenv.Component.NickName = 'CEI'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -154,3 +154,8 @@ if all_required_inputs(ghenv.Component):
             'cannot be accurately estimated.\nTry using a different HVAC system.'
         print(msg)
         give_warning(ghenv.Component, msg)
+    if gross_floor == 0:
+        msg = 'Model has no floor area. All carbon intensity results will be zero.'
+        print(msg)
+        give_warning(ghenv.Component, msg)
+
