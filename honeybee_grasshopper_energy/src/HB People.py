@@ -43,7 +43,7 @@ directly to a Room.
 
 ghenv.Component.Name = "HB People"
 ghenv.Component.NickName = 'People'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -79,7 +79,10 @@ if all_required_inputs(ghenv.Component):
         _activity_sch_ = schedule_by_identifier(_activity_sch_)
 
     # create the People object
-    people = People(name, _ppl_per_area, _occupancy_sch, _activity_sch_,
-                    latent_fraction=latent)
-    if _name_ is not None:
-        people.display_name = _name_
+    if _ppl_per_area == 0:
+        people = None
+    else:
+        people = People(name, _ppl_per_area, _occupancy_sch, _activity_sch_,
+                        latent_fraction=latent)
+        if _name_ is not None:
+            people.display_name = _name_
