@@ -38,7 +38,7 @@ Create an Equipment object that can be used to specify equipment usage in a Prog
 
 ghenv.Component.Name = 'HB Equipment'
 ghenv.Component.NickName = 'Equipment'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -75,11 +75,14 @@ if all_required_inputs(ghenv.Component):
     lost_fract_ = lost_fract_ if lost_fract_ is not None else 0.0
 
     # create the Equipment object
-    if gas_:
-        equip = GasEquipment(name, _watts_per_area, _schedule,
-                             radiant_fract_, latent_fract_, lost_fract_)
+    if _watts_per_area == 0:
+        equip = None
     else:
-        equip = ElectricEquipment(name, _watts_per_area, _schedule,
-                                  radiant_fract_, latent_fract_, lost_fract_)
-    if _name_ is not None:
-        equip.display_name = _name_
+        if gas_:
+            equip = GasEquipment(name, _watts_per_area, _schedule,
+                                 radiant_fract_, latent_fract_, lost_fract_)
+        else:
+            equip = ElectricEquipment(name, _watts_per_area, _schedule,
+                                      radiant_fract_, latent_fract_, lost_fract_)
+        if _name_ is not None:
+            equip.display_name = _name_

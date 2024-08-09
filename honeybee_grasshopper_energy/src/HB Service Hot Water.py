@@ -38,7 +38,7 @@ a ProgramType.
 
 ghenv.Component.Name = 'HB Service Hot Water'
 ghenv.Component.NickName = 'ServiceHotWater'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -75,7 +75,10 @@ if all_required_inputs(ghenv.Component):
     _latent_fract_ = _latent_fract_ if _latent_fract_ is not None else 0.05
 
     # create the ServiceHotWater object
-    hot_water = ServiceHotWater(name, _flow_per_area, _schedule, _target_temp_,
-                                _sensible_fract_, _latent_fract_)
-    if _name_ is not None:
-        hot_water.display_name = _name_
+    if _flow_per_area == 0:
+        hot_water = None
+    else:
+        hot_water = ServiceHotWater(name, _flow_per_area, _schedule, _target_temp_,
+                                    _sensible_fract_, _latent_fract_)
+        if _name_ is not None:
+            hot_water.display_name = _name_
