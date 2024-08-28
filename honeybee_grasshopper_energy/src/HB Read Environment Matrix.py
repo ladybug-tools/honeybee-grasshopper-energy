@@ -43,7 +43,7 @@ air temperature, MRT, longwave MRT, and shortwave MRT delta.
 
 ghenv.Component.Name = 'HB Read Environment Matrix'
 ghenv.Component.NickName = 'EnvMtx'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -132,46 +132,6 @@ def load_matrix(comf_result):
     return comf_mtx
 
 
-def create_result_header(env_conds, sub_path):
-    """Create a DataCollection Header for a given metric."""
-    with open(os.path.join(env_conds, 'results_info.json')) as json_file:
-        base_head = Header.from_dict(json.load(json_file))
-    if sub_path == 'mrt':
-        return Header(MeanRadiantTemperature(), 'C', base_head.analysis_period)
-    elif sub_path == 'air_temperature':
-        return Header(AirTemperature(), 'C', base_head.analysis_period)
-    elif sub_path == 'longwave_mrt':
-        return Header(RadiantTemperature(), 'C', base_head.analysis_period)
-    elif sub_path == 'shortwave_mrt':
-        return Header(RadiantTemperatureDelta(), 'dC', base_head.analysis_period)
-    elif sub_path == 'rel_humidity':
-        return Header(RelativeHumidity(), '%', base_head.analysis_period)
-
-
-def sum_matrices(mtxs_1, mtxs_2, dest_dir):
-    """Sum together matrices of two folders."""
-    if not os.path.isdir(dest_dir):
-        os.makedirs(dest_dir)
-    for mtx_file in os.listdir(mtxs_1):
-        if mtx_file.endswith('.csv'):
-            mtx_file1 = os.path.join(mtxs_1, mtx_file)
-            mtx_file2 = os.path.join(mtxs_2, mtx_file)
-            matrix_1 = csv_to_num_matrix(mtx_file1)
-            matrix_2 = csv_to_num_matrix(mtx_file2)
-            data = [[d1 + d2 for d1, d2 in zip(r1, r2)]
-                    for r1, r2 in zip(matrix_1, matrix_2)]
-            csv_path = os.path.join(dest_dir, mtx_file)
-            with open(csv_path, 'w') as csv_file:
-                for dat in data:
-                    str_data = (str(v) for v in dat)
-                    csv_file.write(','.join(str_data) + '\n')
-        elif mtx_file == 'grids_info.json':
-            shutil.copyfile(
-                os.path.join(mtxs_1, mtx_file),
-                os.path.join(dest_dir, mtx_file)
-            )
-
-
 if all_required_inputs(ghenv.Component) and _load:
     # get the folders and that correspond with the requested metric
     _metric_ = _metric_ if _metric_ is not None else 'mrt'
@@ -190,42 +150,16 @@ if all_required_inputs(ghenv.Component) and _load:
         comf_mtx = load_matrix(dest_folder)
     else:  # otherwise, process them into a load-able format
         # make sure the requested metric is valid for the study
-        if sub_path == 'mrt':
-            source_folders = [os.path.join(_env_conds, 'longwave_mrt'),
-                              os.path.join(_env_conds, 'shortwave_mrt')]
-            dest_folders = [os.path.join(_env_conds, 'final', 'longwave_mrt'),
-                            os.path.join(_env_conds, 'final', 'shortwave_mrt')]
-        else:
+        if sub_path != 'mrt':
             assert os.path.isdir(source_folder), \
-                'Metric "{}" does not exist for this comfort study.'.format(sub_path)
-            source_folders, dest_folders = [source_folder], [dest_folder]
-        # restructure the results to align with the sensor grids
-        dist_info = os.path.join(_env_conds, '_redist_info.json')
-        for src_f, dst_f in zip(source_folders, dest_folders):
-            if not os.path.isdir(dst_f):
-                os.makedirs(dst_f)
-                cmds = [folders.python_exe_path, '-m', 'honeybee_radiance', 'grid',
-                        'merge-folder', src_f, dst_f, 'csv',
-                        '--dist-info', dist_info]
-                shell = True if os.name == 'nt' else False
-                custom_env = os.environ.copy()
-                custom_env['PYTHONHOME'] = ''
-                process = subprocess.Popen(
-                    cmds, stdout=subprocess.PIPE, shell=shell, env=custom_env)
-                stdout = process.communicate()
-                grid_info_src = os.path.join(_env_conds, 'grids_info.json')
-                grid_info_dst = os.path.join(dst_f, 'grids_info.json')
-                shutil.copyfile(grid_info_src, grid_info_dst)
-            data_header = create_result_header(_env_conds, os.path.split(dst_f)[-1])
-            result_info_path = os.path.join(dst_f, 'results_info.json')
-            with open(result_info_path, 'w') as fp:
-                json.dump(data_header.to_dict(), fp, indent=4)
-        # if MRT was requested, sum together the longwave and shortwave
-        if sub_path == 'mrt':
-            sum_matrices(dest_folders[0], dest_folders[1], dest_folder)
-            data_header = create_result_header(_env_conds, sub_path)
-            result_info_path = os.path.join(dest_folder, 'results_info.json')
-            with open(result_info_path, 'w') as fp:
-                json.dump(data_header.to_dict(), fp, indent=4)
+                    'Metric "{}" does not exist for this comfort study.'.format(sub_path)
+        cmds = [folders.python_exe_path, '-m', 'ladybug_comfort', 'map',
+                'restructure-env-conditions', _env_conds, dest_folder, sub_path]
+        shell = True if os.name == 'nt' else False
+        custom_env = os.environ.copy()
+        custom_env['PYTHONHOME'] = ''
+        process = subprocess.Popen(
+            cmds, stdout=subprocess.PIPE, shell=shell, env=custom_env)
+        stdout = process.communicate()
         # load the resulting matrix into Grasshopper
         comf_mtx = load_matrix(dest_folder)

@@ -37,19 +37,26 @@ pmv, utci category, or adaptive comfort degrees from neutral temperature.
 
 ghenv.Component.Name = 'HB Read Thermal Matrix'
 ghenv.Component.NickName = 'ThermalMtx'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '7 :: Thermal Map'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 import os
 import json
+import subprocess
+
+try:
+    from honeybee.config import folders
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
 
 try:
     from ladybug.header import Header
     from ladybug.datacollection import HourlyContinuousCollection, \
         HourlyDiscontinuousCollection
     from ladybug.futil import csv_to_num_matrix
+    from ladybug.datautil import collections_from_csv
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug:\n\t{}'.format(e))
 
@@ -72,22 +79,53 @@ if all_required_inputs(ghenv.Component) and _load:
     with open(os.path.join(_comf_result, 'grids_info.json')) as json_file:
         grid_list = json.load(json_file)
 
-    # loop through the grid CSV files, parse their results, and build data collections
+    # check file extension
+    grid_file = os.path.join(_comf_result, '{}.csv'.format(grid_list[0]['full_id']))
+    extension = 'csv'
+    if not os.path.exists(grid_file):
+        extension = 'npy'
+
     comf_matrix = []
-    for grid in grid_list:
-        grid_name = grid['full_id'] if 'full_id' in grid else 'id'
-        metadata = {'grid': grid_name}
-        grid_file = os.path.join(_comf_result, '{}.csv'.format(grid_name))
-        data_matrix = csv_to_num_matrix(grid_file)
-        grid_data = []
-        for i, row in enumerate(data_matrix):
-            header = data_header.duplicate()
-            header.metadata = metadata.copy()
-            header.metadata['sensor_index'] = i
-            data = HourlyContinuousCollection(header, row) if continuous else \
-                HourlyDiscontinuousCollection(header, row, dates)
-            grid_data.append(data)
-        comf_matrix.append(grid_data)
+    if extension == 'csv':
+        # loop through the grid CSV files, parse their results, and build data collections
+        for grid in grid_list:
+            grid_name = grid['full_id'] if 'full_id' in grid else 'id'
+            metadata = {'grid': grid_name}
+            grid_file = os.path.join(_comf_result, '{}.csv'.format(grid_name))
+            data_matrix = csv_to_num_matrix(grid_file)
+            grid_data = []
+            for i, row in enumerate(data_matrix):
+                header = data_header.duplicate()
+                header.metadata = metadata.copy()
+                header.metadata['sensor_index'] = i
+                data = HourlyContinuousCollection(header, row) if continuous else \
+                    HourlyDiscontinuousCollection(header, row, dates)
+                grid_data.append(data)
+            comf_matrix.append(grid_data)
+    else:
+        csv_files = []
+        csv_exists = []
+        # collect csv files and check if they already exists
+        for grid in grid_list:
+            grid_name = grid['full_id'] if 'full_id' in grid else 'id'
+            grid_file = os.path.join(_comf_result, 'datacollections', '{}.csv'.format(grid_name))
+            csv_files.append(grid_file)
+            csv_exists.append(os.path.exists(grid_file))
+        # run command if csv files do not exist
+        if not all(csv_exists):
+            cmds = [folders.python_exe_path, '-m', 'honeybee_radiance_postprocess',
+                    'data-collection', 'folder-to-datacollections', _comf_result,
+                    os.path.join(_comf_result, 'results_info.json')]
+            use_shell = True if os.name == 'nt' else False
+            custom_env = os.environ.copy()
+            custom_env['PYTHONHOME'] = ''
+            process = subprocess.Popen(
+                cmds, cwd=_comf_result, shell=use_shell, env=custom_env,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout = process.communicate()  # wait for the process to finish
+        for grid_file in csv_files:
+            grid_data = collections_from_csv(grid_file)
+            comf_matrix.append(grid_data)
 
     # wrap the maptrix into an object so that it does not slow the Grasshopper UI
     comf_mtx = objectify_output(
