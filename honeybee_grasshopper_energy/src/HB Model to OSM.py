@@ -74,7 +74,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -257,7 +257,13 @@ if all_required_inputs(ghenv.Component) and _write:
             with open(idf, "a") as idf_file:
                 idf_file.write(add_str)
         if idf is None:  # measures failed to run correctly; parse out.osw
-            log_osw = OSW(os.path.join(directory, 'out.osw'))
+            try:
+                log_osw = OSW(os.path.join(directory, 'out.osw'))
+            except FileNotFoundError:
+                msg = 'OpenStudio failed to initialize.\nCheck that you can run ' \
+                    'the OpenStudio executable at: {}'.format(
+                        energy_folders.openstudio_exe)
+                raise Exception(msg)
             errors = []
             for error, tb in zip(log_osw.errors, log_osw.error_tracebacks):
                 if 'Cannot create a surface' in error:
