@@ -62,7 +62,7 @@ Visualize Room-level energy simulation results as colored Room geometry.
 
 ghenv.Component.Name = "HB Color Rooms"
 ghenv.Component.NickName = 'ColorRooms'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -143,8 +143,8 @@ if all_required_inputs(ghenv.Component):
 
     # sense if the conneccted data is for a solar enclosure and split the data if so
     space_based = False
-    zone_solar = 'Zone Windows Total Transmitted Solar Radiation Energy'
-    if 'type' in _data[0].header.metadata and _data[0].header.metadata['type'] == zone_solar:
+    zone_solar = 'Windows Total Transmitted Solar Radiation Energy'
+    if 'type' in _data[0].header.metadata and zone_solar in _data[0].header.metadata['type']:
         space_based = True
         if isinstance(_rooms_model[0], Model):
             _data = split_solar_enclosure_data(_data, rooms)
