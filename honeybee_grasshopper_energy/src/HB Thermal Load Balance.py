@@ -42,6 +42,10 @@ honeybee Rooms or a Model.
             heat loss (negative) or heat gain (positive).
         face_energy_flow_: An array of data collections for the surface heat loss
             (negative) or heat gain (positive).
+        detailed_faces_: Boolean to note whether the opaque conduction losses
+            should be broken down into walls, roofs, and floors. Setting
+            this to True will also cause storage to be broken down into
+            storage in walls, floors, windows, and air. (Default: False).
 
     Returns:
         report: ...
@@ -67,7 +71,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -149,6 +153,10 @@ if all_required_inputs(ghenv.Component):
     mech_vent_load_ = check_input(mech_vent_load_)
     nat_vent_load_ = check_input(nat_vent_load_)
     face_energy_flow_ = check_input(face_energy_flow_)
+    all_data = (
+        cooling_, heating_, lighting_, electric_equip_, gas_equip_, process_,
+        hot_water_, people_gain_, solar_gain_, infiltration_load_,
+        mech_vent_load_, nat_vent_load_, face_energy_flow_)
 
     # process hot water to ensure it's the correct type
     hw_type = 'Water Use Equipment Heating Energy'
@@ -161,15 +169,16 @@ if all_required_inputs(ghenv.Component):
             }
 
     # construct the load balance object and output the results
-    load_bal_obj = LoadBalance(
-        rooms, cooling_, heating_, lighting_, electric_equip_, gas_equip_, process_,
-        hot_water_, people_gain_, solar_gain_, infiltration_load_, mech_vent_load_,
-        nat_vent_load_, face_energy_flow_, units_system(), use_all_solar=is_model)
-    if is_model:
-        load_bal_obj.floor_area = floor_area
-
-    balance = load_bal_obj.load_balance_terms(False, False)
-    if len(balance) != 0:
-        balance_stor = balance + [load_bal_obj.storage]
-        norm_bal = load_bal_obj.load_balance_terms(True, False)
-        norm_bal_stor = load_bal_obj.load_balance_terms(True, True)
+    if not all(load is None for load in all_data):
+        load_bal_obj = LoadBalance(
+            rooms, cooling_, heating_, lighting_, electric_equip_, gas_equip_, process_,
+            hot_water_, people_gain_, solar_gain_, infiltration_load_, mech_vent_load_,
+            nat_vent_load_, face_energy_flow_, units_system(), use_all_solar=is_model)
+        if is_model:
+            load_bal_obj.floor_area = floor_area
+    
+        balance = load_bal_obj.load_balance_terms(False, False)
+        if len(balance) != 0:
+            balance_stor = balance + [load_bal_obj.storage]
+            norm_bal = load_bal_obj.load_balance_terms(True, False, detailed_faces_)
+            norm_bal_stor = load_bal_obj.load_balance_terms(True, True, detailed_faces_)
