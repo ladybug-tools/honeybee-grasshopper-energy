@@ -96,7 +96,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -236,7 +236,7 @@ if all_required_inputs(ghenv.Component) and _run:
     floor_area = _model.floor_area
     assert floor_area != 0, 'Connected _rooms have no floors with which to compute EUI.'
     floor_area = floor_area * conversion_to_meters() ** 2
-    mults = {rm.identifier.upper(): rm.multiplier for rm in _model.rooms}
+    mults = {rm.zone.upper(): rm.multiplier for rm in _model.rooms}
     mults = None if all(mul == 1 for mul in mults.values()) else mults
 
     # process the simulation folder name and the directory
