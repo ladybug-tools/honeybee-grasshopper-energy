@@ -17,13 +17,13 @@ dynamic behavior of real buildings. In particular, the AFN more accurately model
 the flow of air from one zone to another, accounting for the pressure changes
 induced by wind and air density differences. However, using the AFN means that
 the simulation will take considerably longer to run compared to the single zone
-option and the difference in simuation resuts is only likely to be significant
+option and the difference in simulation results is only likely to be significant
 when the Model contains operable windows or the building is extremely leaky.
 _
 Passing a Honeybee Model through this component before energy simulation will
 result in the following changes to the EnergyPlus IDF:
 _
-1. All ZoneInfiltration objects will be excluded and, instead, infitration will
+1. All ZoneInfiltration objects will be excluded and, instead, infiltration will
 be modeled with AFN Crack objects assigned to each opaque Face.
 _
 2. For all AirBoundary Faces within the Model, ZoneMixing objects will be excluded
@@ -32,7 +32,7 @@ very large pressure coefficients derived from the orifice equation and the area
 of the air wall.
 _
 3. For all operable Apertures, ZoneVentilation:WindandStackOpenArea objects will
-be excluded and, instead, these opearable apertures will be modeled with AFN
+be excluded and, instead, these operable apertures will be modeled with AFN
 SimpleOpening objects.
 _
 4. For each Room with a VentilationControl object to specify setpoints at which
@@ -65,20 +65,20 @@ dictate when the operable Apertures of the Room open.
             parameters for exterior cracks that produce a total air flow rate
             equivalent to the room's infiltration rate at an envelope pressure
             difference of 4 Pa. This default derivation is not as complete of a
-            representation of building ariflow dynamics as the DesignBuilder
-            Crack Templates are. However, since the airflow leakae parameters are
+            representation of building airflow dynamics as the DesignBuilder
+            Crack Templates are. However, since the airflow leakage parameters are
             derived from values in m3/s-m2 of infiltration, they are easier to
             relate to the results of infiltration blower-door tests, which
             typically express infiltration rates in these units.
         _delta_pressure_: The air pressure difference across the building envelope in
             Pascals, which is used to calculate infiltration crack flow
-            coefficients when no leakage tempate is specified. The resulting
+            coefficients when no leakage template is specified. The resulting
             average simulated air pressure difference will roughly equal this
             delta pressure times the nth root of the ratio between the simulated
             and target room infiltration rates. (Default: 4).
         _ref_pressure_: The reference barometric pressure measurement in Pascals
             under which the surface crack data were obtained. (Default: 101325).
-        _high_rise_: Booling indicating whether the Model is LowRise or HighRise.
+        _high_rise_: Boolean indicating whether the Model is LowRise or HighRise.
             This parameter is used to estimate building-wide wind pressure
             coefficients for the AFN by approximating the building geometry
             as an extruded rectangle. LowRise corresponds to a building where
@@ -114,7 +114,7 @@ dictate when the operable Apertures of the Room open.
 
 ghenv.Component.Name = 'HB Airflow Newtwork'
 ghenv.Component.NickName = 'AFN'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
