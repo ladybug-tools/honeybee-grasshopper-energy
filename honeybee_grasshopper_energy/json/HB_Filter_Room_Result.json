@@ -1,0 +1,43 @@
+{
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.result.match import match_rooms_to_data\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:  # import the ladybug_{{cad}} dependencies\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, give_warning\n    from ladybug_{{cad}}.config import conversion_to_meters\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # extract any rooms from input Models and convert geo to meters if necessary\n    rooms = []\n    for hb_obj in _rooms:\n        if isinstance(hb_obj, Room):\n            rooms.append(hb_obj)\n        elif isinstance(hb_obj, Model):\n            rooms.extend(hb_obj.rooms)\n        else:\n            raise TypeError(\n                'Expected Honeybee Room or Model. Got {}.'.format(type(hb_obj)))\n    m_convert = conversion_to_meters()\n    if norm_ and m_convert != 1:  # duplicate and scale all objects to meters\n        rooms = [room.duplicate() for room in rooms]\n        [room.scale(m_convert) for room in rooms]\n\n    # match the data with the rooms\n    match_tups = match_rooms_to_data(_data, rooms)\n\n    # divide the individual data collections by floor area if requested\n    if norm_:\n        data = []\n        for tup in match_tups:\n            total_flr_area = tup[0].floor_area * tup[2]  # includes effect of multiplier\n            try:\n                data.append(tup[1].normalize_by_area(total_flr_area, 'm2'))\n            except ZeroDivisionError:  # no floor area; not normalizable\n                pass\n    else:\n        data = [tup[1] for tup in match_tups]\n", 
+  "category": "HB-Energy", 
+  "inputs": [
+    {
+      "type": "System.Object", 
+      "name": "_data", 
+      "access": "list", 
+      "default": null, 
+      "description": "A list of data collections output from an energy simulation, which\nwill be filtered based on the input _rooms. Data collections can be\nof any class (eg. MonthlyCollection, DailyCollection) but they\nshould originate from an energy simulation sql (with header\nmetadata that has 'Zone' or 'System' keys). These keys will be\nused to match the data in the collections to the input rooms."
+    }, 
+    {
+      "type": "System.Object", 
+      "name": "_rooms", 
+      "access": "list", 
+      "default": null, 
+      "description": "Honeybee Rooms, which will be matched with the input _data. This can\nalso be an enitre Model."
+    }, 
+    {
+      "type": "bool", 
+      "name": "norm_", 
+      "access": "item", 
+      "default": null, 
+      "description": "Boolean to note whether results should be normalized by the Room floor\narea if the data type of the data_colections supports it. (Default: False)"
+    }
+  ], 
+  "nickname": "FilterRoomResult", 
+  "version": "1.8.0", 
+  "outputs": [
+    [
+      {
+        "type": null, 
+        "name": "data", 
+        "access": "None", 
+        "default": null, 
+        "description": "The input _data filtered by the connected _rooms (and optionally normalized\nby the floor area of each individual room)."
+      }
+    ]
+  ], 
+  "subcategory": "6 :: Result", 
+  "name": "HB Filter Room Result", 
+  "description": "Filter data collections of energy simulation results using a list of Rooms to\nwhich the simulations relate.\n_\nThis can be used in combination with components like \"HB Rooms by Attribute\" to\nget simulation resutls for subset of rooms (eg. all of the offices).\n-"
+}
