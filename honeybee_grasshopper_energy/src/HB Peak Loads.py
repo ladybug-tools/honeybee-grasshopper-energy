@@ -98,7 +98,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -111,7 +111,7 @@ try:
     from ladybug.futil import write_to_file_by_name, nukedir
     from ladybug.ddy import DDY
     from ladybug.epw import EPW
-    from ladybug.sql import SQLiteResult
+    from ladybug.sql import SQLiteResult, ZoneSize
     from ladybug.datacollection import HourlyContinuousCollection
     from ladybug.header import Header
     from ladybug.analysisperiod import AnalysisPeriod
@@ -173,10 +173,21 @@ def find_max_cooling_des_day(des_days, sim_par, base_strs):
     write_to_file_by_name(directory, 'in.idf', idf_str_init, True)
     sql, zsz, rdd, html, err = run_idf(idf, silent=True)
     # determine the design day with the highest peak using the sizing results
-    sql_obj = SQLiteResult(sql)
+    if os.name == 'nt':
+        sql_obj = SQLiteResult(sql)
+        zone_cooling_sizes = sql_obj.zone_cooling_sizes
+    else:
+        cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
+                'zone-sizes', sql]
+        custom_env = os.environ.copy()
+        custom_env['PYTHONHOME'] = ''
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
+        stdout = process.communicate()
+        zone_size_dicts = json.loads(stdout[0])
+        zone_cooling_sizes = [ZoneSize.from_dict(zs) for zs in zone_size_dicts['cooling']]
     d_day_dict = {d_day.name.upper(): [0, d_day] for d_day in des_days}
     peak_cool_dict = {}
-    for zs in sql_obj.zone_cooling_sizes:
+    for zs in zone_cooling_sizes:
         d_day_dict[zs.design_day_name][0] += zs.calculated_design_load
         peak_cool_dict[zs.zone_name] = zs.calculated_design_load
     day_loads = list(d_day_dict.values())
@@ -199,7 +210,7 @@ def check_and_filter_des_days(sim_par, des_days, day_type, base_strs=None):
         check_for_filter_failure(des_days)
         if len(des_days) == 1:
             _sim_par_.sizing_parameter.add_design_day(des_days[0])
-        else:  # find the most appropriate design day bu type
+        else:  # find the most appropriate design day by type
             peak_cool_dict = None
             if day_type == 'WinterDesignDay':
                 des_days = [dday for dday in des_days if ' DB' in dday.name]
