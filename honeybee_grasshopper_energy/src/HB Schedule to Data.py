@@ -48,7 +48,7 @@ certain threshold.
 
 ghenv.Component.Name = "HB Schedule to Data"
 ghenv.Component.NickName = 'SchToData'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "2"
@@ -80,7 +80,7 @@ if all_required_inputs(ghenv.Component):
     week_start_day = 'Sunday' if _week_start_day_ is None else _week_start_day_.title()
 
     # process the analysis period if it is input
-    if analysis_period_ is not None:
+    if analysis_period_ is not None and not analysis_period_.is_reversed:
         start_date = analysis_period_.st_time.date
         end_date = analysis_period_.end_time.date
         timestep = analysis_period_.timestep
@@ -103,6 +103,7 @@ if all_required_inputs(ghenv.Component):
         data = _schedule.data_collection_at_timestep(timestep, start_date, end_date)
 
     # if there are hour inputs on the analysis_period_, apply it to the data
-    if analysis_period_ is not None and \
-            (analysis_period_.st_hour != 0 or analysis_period_.end_hour != 23):
-        data = data.filter_by_analysis_period(analysis_period_)
+    if analysis_period_ is not None:
+        if (analysis_period_.st_hour != 0 or analysis_period_.end_hour != 23) or \
+                analysis_period_.is_reversed:
+            data = data.filter_by_analysis_period(analysis_period_)
