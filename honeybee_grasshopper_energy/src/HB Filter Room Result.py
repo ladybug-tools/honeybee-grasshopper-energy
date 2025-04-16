@@ -34,7 +34,7 @@ get simulation resutls for subset of rooms (eg. all of the offices).
 
 ghenv.Component.Name = 'HB Filter Room Result'
 ghenv.Component.NickName = 'FilterRoomResult'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -74,7 +74,7 @@ if all_required_inputs(ghenv.Component):
         [room.scale(m_convert) for room in rooms]
 
     # match the data with the rooms
-    match_tups = match_rooms_to_data(_data, rooms)
+    match_tups = match_rooms_to_data(_data, rooms, space_based=True)
 
     # divide the individual data collections by floor area if requested
     if norm_:
