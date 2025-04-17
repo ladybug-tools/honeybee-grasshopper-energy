@@ -32,9 +32,14 @@ to an IDF file and then run through EnergyPlus.
             by Honeybee.
         _folder_: An optional folder on this computer, into which the IDF and result
             files will be written.
-        _write: Set to "True" to write out the honeybee jsons (containing the Honeybee
-            Model and Simulation Parameters) and write the OpenStudio Workflow
-            (.osw) file with instructions for executing the simulation.
+        _write: Set to "True" to write out the honeybee JSONs (containing the Honeybee
+            Model and Simulation Parameters) and write the OpenStudio Model file (OSM).
+            This process will also write either an EnergyPlus Input Data File (IDF)
+            or an OpenStudio Workflow file (OSW), which can be used to run the
+            model through EnergyPlus. Most models can be simulated with just
+            and IDF and so no OWS will be written. However, an OSW will be used
+            if any measures_ have been connected or if the simulation parameters
+            contain an efficiency standard.
         run_: Set to "True" to translate the Honeybee jsons to an OpenStudio Model
             (.osm) and EnergyPlus Input Data File (.idf) and then simulate the
             .idf in EnergyPlus. This will ensure that all result files appear
@@ -70,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.8.2'
+ghenv.Component.Message = '1.8.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -178,6 +183,8 @@ if all_required_inputs(ghenv.Component) and _write:
             try:
                 sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
             except AssertionError:
+                pass
+            if len(sim_par.sizing_parameter.design_days) == 0:
                 msg = 'No ddy_file_ was input into the _sim_par_ sizing ' \
                     'parameters\n and no design days were found in the .ddy file '\
                     'next to the _epw_file.'
