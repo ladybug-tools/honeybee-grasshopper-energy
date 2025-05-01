@@ -15,7 +15,7 @@ Note that the default settings used by this component are only suitable for eval
 annual loads in the case where an error of up to 5% is acceptable. Also
 note that annual loads are not the same as annual energy use or utility costs
 and, while the "cop" inputs can be used to approximate some effects of real
-heating + cooling systems, any evaulation of actual energy use, utility costs,
+heating + cooling systems, any evaluation of actual energy use, utility costs,
 or GHG emissions should be done by modeling a detailed HVAC using the "HB
 Model to OSM" component.
 -
@@ -32,7 +32,7 @@ Model to OSM" component.
             energy balance calculation will be run. This has a dramatic
             impact on the speed of the simulation and the accuracy of
             results. Higher timesteps lead to longer simulations and
-            more accurate results. At the lowest aceptable timestep of 1,
+            more accurate results. At the lowest acceptable timestep of 1,
             the results can have an error up to 5% but increasing the
             timestep to 4 should drop errors to below 1%. (Default: 1).
             The following values are acceptable:
@@ -96,7 +96,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.8.1'
+ghenv.Component.Message = '1.8.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -372,7 +372,7 @@ if all_required_inputs(ghenv.Component) and _run:
             bal_obj = LoadBalance.from_sql_file(_model, sql)
             balance = bal_obj.load_balance_terms(True, True)
         else:  # we are on Mac; sqlite3 module doesn't work in Mac IronPython
-            # Execute the honybee CLI to obtain the results via CPython
+            # Execute the honeybee CLI to obtain the results via CPython
             model_json = os.path.join(directory, 'in.hbjson')
             with open(model_json, 'w') as fp:
                 json.dump(_model.to_dict(), fp)

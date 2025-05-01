@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0", 
+  "version": "1.8.1", 
   "nickname": "BlindMat", 
   "outputs": [
     [
@@ -79,7 +79,7 @@
     {
       "access": "item", 
       "name": "_t_infrared_", 
-      "description": "Long-wave hemisperical transmittance of the blind material. (Default: 0).", 
+      "description": "Long-wave hemispherical transmittance of the blind material. (Default: 0).", 
       "type": "double", 
       "default": null
     }, 

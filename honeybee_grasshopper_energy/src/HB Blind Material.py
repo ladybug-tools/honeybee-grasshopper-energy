@@ -34,7 +34,7 @@ Window blind properties consist of flat, equally-spaced slats.
         _reflectance_: Number between 0 and 1 for the reflectance of solar
             radiation and visible light off of the blind material. (Default: 0.5,
             which is typical of a painted white blind).
-        _t_infrared_: Long-wave hemisperical transmittance of the blind material. (Default: 0).
+        _t_infrared_: Long-wave hemispherical transmittance of the blind material. (Default: 0).
         _emissivity_: Number between 0 and 1 for the infrared hemispherical emissivity
             of the blind material. (Default: 0.9, which is typical of most
             painted blinds).
@@ -50,7 +50,7 @@ Window blind properties consist of flat, equally-spaced slats.
 
 ghenv.Component.Name = 'HB Blind Material'
 ghenv.Component.NickName = 'BlindMat'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '1 :: Constructions'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

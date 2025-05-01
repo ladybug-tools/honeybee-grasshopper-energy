@@ -114,7 +114,7 @@ dictate when the operable Apertures of the Room open.
 
 ghenv.Component.Name = 'HB Airflow Newtwork'
 ghenv.Component.NickName = 'AFN'
-ghenv.Component.Message = '1.8.1'
+ghenv.Component.Message = '1.8.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -135,7 +135,7 @@ try:
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
-leakage_tempaltes = {
+leakage_templates = {
     'excellent': 'Excellent',
     'medium': 'Medium',
     'verypoor': 'VeryPoor'
@@ -148,7 +148,7 @@ if all_required_inputs(ghenv.Component):
 
     # set default properties for the leakage if they are not input
     try:
-        leakage = leakage_tempaltes[leakage_template_.lower()] \
+        leakage = leakage_templates[leakage_template_.lower()] \
             if leakage_template_ is not None else 'Medium'
     except KeyError:
         raise TypeError('leakage_template_ "{}" is not recognized. Choose from: '
@@ -178,7 +178,7 @@ if all_required_inputs(ghenv.Component):
     # set up the Model-wide VentilationSimulationParameters for the AFN
     vent_sim_par = model.properties.energy.ventilation_simulation_control
     vent_sim_par.vent_control_type = 'MultiZoneWithoutDistribution'
-    if _long_axis_ is not None:  # assing this first so it's in the autocalculation
+    if _long_axis_ is not None:  # assign this first so it's in the autocalculation
         vent_sim_par.long_axis_angle = _long_axis_
     model.properties.energy.autocalculate_ventilation_simulation_control()
 
