@@ -28,7 +28,7 @@ Apply a detailed Ironbug HVAC to Honeybee Rooms or a Honeybee Model.
 
 ghenv.Component.Name = "HB Detailed HVAC"
 ghenv.Component.NickName = 'DetailedHVAC'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -98,11 +98,11 @@ if all_required_inputs(ghenv.Component):
 
     # apply the HVAC system to the rooms
     hvac_rooms = set(hvac.thermal_zones)
-    hvac_count, rel_rooms, no_setp_rooms = 0, [], []
+    hvac_count, rel_rooms, no_setp_rooms = 0, set(), []
     for room in rooms:
-        if room.identifier in hvac_rooms:
+        if room.zone in hvac_rooms:
             room.properties.energy.hvac = hvac
-            rel_rooms.append(room.identifier)
+            rel_rooms.add(room.zone)
             hvac_count += 1
             if room.properties.energy.setpoint is None:
                 no_setp_rooms.append(room.full_id)
