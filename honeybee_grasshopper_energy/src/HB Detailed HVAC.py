@@ -28,7 +28,7 @@ Apply a detailed Ironbug HVAC to Honeybee Rooms or a Honeybee Model.
 
 ghenv.Component.Name = "HB Detailed HVAC"
 ghenv.Component.NickName = 'DetailedHVAC'
-ghenv.Component.Message = '1.8.1'
+ghenv.Component.Message = '1.8.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -115,11 +115,10 @@ if all_required_inputs(ghenv.Component):
         give_warning(ghenv.Component, msg)
     if len(rel_rooms) != len(hvac_rooms):
         missing_rooms = []
-        found_rooms = set(rel_rooms)
-        for rm_id in hvac_rooms:
-            if rm_id not in found_rooms:
-                missing_rooms.append(rm_id)
-        msg = 'The Ironbug HVAC system contains the following rooms that are not ' \
+        for zone_id in hvac_rooms:
+            if zone_id not in rel_rooms:
+                missing_rooms.append(zone_id)
+        msg = 'The Ironbug HVAC system contains the following zones that are not ' \
             'in the connected _hb_objs.\n{}'.format('\n'.join(missing_rooms))
         print(msg)
         give_warning(ghenv.Component, msg)
