@@ -62,11 +62,10 @@ Visualize Room-level energy simulation results as colored Room geometry.
 
 ghenv.Component.Name = "HB Color Rooms"
 ghenv.Component.NickName = 'ColorRooms'
-ghenv.Component.Message = '1.8.1'
+ghenv.Component.Message = '1.8.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
-
 
 try:
     from honeybee.model import Model
