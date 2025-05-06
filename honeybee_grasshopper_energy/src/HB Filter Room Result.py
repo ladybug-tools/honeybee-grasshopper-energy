@@ -26,6 +26,10 @@ get simulation resutls for subset of rooms (eg. all of the offices).
             also be an enitre Model.
         norm_: Boolean to note whether results should be normalized by the Room floor
             area if the data type of the data_colections supports it. (Default: False)
+        merge_zn_: Boolean to note whether the output data should include one data
+            collection per room with the output aligned with input rooms (False)
+            OR duplicate data collections for rooms belonging to the same zone
+            should be merged (True). (Default: False).
 
     Returns:
         data: The input _data filtered by the connected _rooms (and optionally normalized
@@ -34,10 +38,12 @@ get simulation resutls for subset of rooms (eg. all of the offices).
 
 ghenv.Component.Name = 'HB Filter Room Result'
 ghenv.Component.NickName = 'FilterRoomResult'
-ghenv.Component.Message = '1.8.1'
+ghenv.Component.Message = '1.8.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
+
+from collections import OrderedDict
 
 try:  # import the core honeybee dependencies
     from honeybee.model import Model
@@ -47,6 +53,7 @@ except ImportError as e:
 
 try:
     from honeybee_energy.result.match import match_rooms_to_data
+    from honeybee_energy.result.loadbalance import LoadBalance
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -55,6 +62,8 @@ try:  # import the ladybug_rhino dependencies
     from ladybug_rhino.config import conversion_to_meters
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+
+SPACE_OUTPUTS = LoadBalance.SOLAR_GAIN + LoadBalance.HOT_WATER
 
 
 if all_required_inputs(ghenv.Component):
@@ -73,17 +82,46 @@ if all_required_inputs(ghenv.Component):
         rooms = [room.duplicate() for room in rooms]
         [room.scale(m_convert) for room in rooms]
 
+    # determine whether the data is space-based
+    space_based = False
+    sample_data = _data[0]
+    if 'Zone' in sample_data.header.metadata:
+        if sample_data.header.metadata['type'] in SPACE_OUTPUTS:
+            space_based = True
+
     # match the data with the rooms
-    match_tups = match_rooms_to_data(_data, rooms, space_based=True)
+    match_tups = match_rooms_to_data(_data, rooms, space_based=space_based)
 
     # divide the individual data collections by floor area if requested
     if norm_:
-        data = []
-        for tup in match_tups:
-            total_flr_area = tup[0].floor_area * tup[2]  # includes effect of multiplier
-            try:
-                data.append(tup[1].normalize_by_area(total_flr_area, 'm2'))
-            except ZeroDivisionError:  # no floor area; not normalizable
-                pass
+        if merge_zn_ and not space_based:
+            zone_dict = OrderedDict()
+            for tup in match_tups:
+                total_flr_area = tup[0].floor_area
+                dat = tup[1]
+                d_key = tuple(sorted(dat.header.metadata.items()))
+                try:
+                    zone_dict[d_key][1] += total_flr_area
+                except KeyError:
+                    zone_dict[d_key] = [dat, total_flr_area]
+            data = []
+            for val in zone_dict.values():
+                try:
+                    data.append(val[0].normalize_by_area(val[1], 'm2'))
+                except ZeroDivisionError:  # no floor area; not normalizable
+                    pass
+        else:
+            data = []
+            for tup in match_tups:
+                total_flr_area = tup[0].floor_area * tup[2]  # includes effect of multiplier
+                try:
+                    data.append(tup[1].normalize_by_area(total_flr_area, 'm2'))
+                except ZeroDivisionError:  # no floor area; not normalizable
+                    pass
     else:
         data = [tup[1] for tup in match_tups]
+        if merge_zn_ and not space_based:
+            zone_dict = OrderedDict()
+            for dat in data:
+                zone_dict[tuple(sorted(dat.header.metadata.items()))] = dat
+            data = zone_dict.values()
