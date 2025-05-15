@@ -10,11 +10,11 @@
 """
 Apply schedules to a Room, Model or ProgramType.
 _
-Note that, if a schedule is assigned to a Room or ProgramType that posseses
+Note that, if a schedule is assigned to a Room or ProgramType that possesses
 no value for a given load, an error will be raised. For example, assigning a
 gas_equip_sch_ to a Room that has no GasEquipment object associated with it.
 This situation can be avoided by first passing the Rooms or ProgramTypes
-through the "HB Apply Load Values" component to eastablish a value for a
+through the "HB Apply Load Values" component to establish a value for a
 given load.
 -
 
@@ -28,7 +28,7 @@ given load.
             of the year. This can also be the identifier of a schedule to be looked
             up in the schedule library.
         activity_sch_: A schedule for the activity of the occupants over the course of the
-            year. The type limt of this schedule should be "ActivityLevel"
+            year. The type limit of this schedule should be "ActivityLevel"
             and the values of the schedule equal to the number of Watts given off
             by an individual person in the room. If None, it will a default constant
             schedule with 120 Watts per person will be used, which is typical of
@@ -58,12 +58,12 @@ given load.
             This can also be a identifier of a schedule to be looked up in the
             schedule library. The type limit of this schedule should be
             temperature and the values should be the temperature setpoint in
-            degrees Celcius.
+            degrees Celsius.
         cooling_setpt_sch_: A temperature schedule for the cooling setpoint.
             This can also be a identifier of a schedule to be looked up in the
             schedule library. The type limit of this schedule should be
             temperature and the values should be the temperature setpoint in
-            degrees Celcius.
+            degrees Celsius.
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -72,7 +72,7 @@ given load.
 
 ghenv.Component.Name = "HB Apply Room Schedules"
 ghenv.Component.NickName = 'ApplyRoomSch'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.8.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -122,7 +122,7 @@ def dup_load(hb_obj, object_name, input_name):
         return dup_load
     except AttributeError:
         raise ValueError(
-            '{0} has been input but the Room or ProgramType posseses no {1} object.'
+            '{0} has been input but the Room or ProgramType possesses no {1} object.'
             '\nUse the "HB Apply Load Values" component to define a {1} '
             'object.'.format(input_name, object_name))
 
