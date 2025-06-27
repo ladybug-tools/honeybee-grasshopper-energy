@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2024, Ladybug Tools.
+# Copyright (c) 2025, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -37,7 +37,7 @@ often requires
 
 ghenv.Component.Name = 'HB Radiant HVAC Properties'
 ghenv.Component.NickName = 'RadiantHVAC'
-ghenv.Component.Message = '1.8.1'
+ghenv.Component.Message = '1.9.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
