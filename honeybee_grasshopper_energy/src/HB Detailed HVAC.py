@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2024, Ladybug Tools.
+# Copyright (c) 2025, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -28,7 +28,7 @@ Apply a detailed Ironbug HVAC to Honeybee Rooms or a Honeybee Model.
 
 ghenv.Component.Name = "HB Detailed HVAC"
 ghenv.Component.NickName = 'DetailedHVAC'
-ghenv.Component.Message = '1.8.2'
+ghenv.Component.Message = '1.9.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

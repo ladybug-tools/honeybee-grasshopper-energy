@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2024, Ladybug Tools.
+# Copyright (c) 2025, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -86,7 +86,7 @@ Create parameters with criteria for sizing the heating and cooling system.
 
 ghenv.Component.Name = 'HB Sizing Parameter'
 ghenv.Component.NickName = 'SizingPar'
-ghenv.Component.Message = '1.8.1'
+ghenv.Component.Message = '1.9.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'

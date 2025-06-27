@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2024, Ladybug Tools.
+# Copyright (c) 2025, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -38,7 +38,7 @@ get simulation resutls for subset of rooms (eg. all of the offices).
 
 ghenv.Component.Name = 'HB Filter Room Result'
 ghenv.Component.NickName = 'FilterRoomResult'
-ghenv.Component.Message = '1.8.2'
+ghenv.Component.Message = '1.9.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'

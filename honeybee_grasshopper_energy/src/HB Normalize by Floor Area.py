@@ -1,7 +1,7 @@
 # Honeybee: A Plugin for Environmental Analysis (GPL)
 # This file is part of Honeybee.
 #
-# Copyright (c) 2024, Ladybug Tools.
+# Copyright (c) 2025, Ladybug Tools.
 # You should have received a copy of the GNU Affero General Public License
 # along with Honeybee; If not, see <http://www.gnu.org/licenses/>.
 # 
@@ -33,7 +33,7 @@ floor area of the corresponding honeybee Rooms.
 
 ghenv.Component.Name = "HB Normalize by Floor Area"
 ghenv.Component.NickName = 'NormByFlr'
-ghenv.Component.Message = '1.8.0'
+ghenv.Component.Message = '1.9.0'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
