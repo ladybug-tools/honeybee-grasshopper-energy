@@ -75,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -286,7 +286,11 @@ if all_required_inputs(ghenv.Component) and _write:
         # execute the command
         custom_env = os.environ.copy()
         custom_env['PYTHONHOME'] = ''
-        shell = False if os.name == 'nt' and run_ == 1 else True
+        if os.name == 'nt':
+            shell = False if run_ == 1 else True
+        else:
+            cmds = ' '.join(cmds)
+            shell = True
         process = subprocess.Popen(cmds, shell=shell, env=custom_env)
         result = process.communicate()  # freeze the canvas while running
 
@@ -294,11 +298,13 @@ if all_required_inputs(ghenv.Component) and _write:
         osw = os.path.join(directory, 'workflow.osw')
         osw = osw if os.path.isfile(osw) else None
         if not os.path.isfile(osm):
-            print(' '.join(cmds))
+            cmds = ' '.join(cmds) if os.name == 'nt' else cmds
+            print(cmds)
             raise ValueError('Failed to translate Model to OpenStudio.')
         if run_ > 0:
             if not os.path.isfile(idf):
-                print(' '.join(cmds))
+                cmds = ' '.join(cmds) if os.name == 'nt' else cmds
+                print(cmds)
                 raise ValueError('Failed to translate Model to EnergyPlus.')
             sql, zsz, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
 
