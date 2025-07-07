@@ -75,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.9.1'
+ghenv.Component.Message = '1.9.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -267,29 +267,33 @@ if all_required_inputs(ghenv.Component) and _write:
 
         # put together the arguments for the command to be run
         if run_ > 0:  # use the simulate command
-            cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'simulate',
-                    'model', model_json, _epw_file, '--sim-par-json', sim_par_json,
-                    '--folder', directory]
+            cmds = ['"{}"'.format(folders.python_exe_path),
+                    '-m', 'honeybee_energy', 'simulate', 'model',
+                    '"{}"'.format(model_json), '"{}"'.format(_epw_file),
+                    '--sim-par-json', '"{}"'.format(sim_par_json),
+                    '--folder', '"{}"'.format(directory)]
         else:  # use the translate command
-            cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'translate',
-                    'model-to-sim-folder', model_json, _epw_file, '--sim-par-json',
-                    sim_par_json, '--folder', directory]
+            cmds = ['"{}"'.format(folders.python_exe_path),
+                    '-m', 'honeybee_energy', 'translate', 'model-to-sim-folder',
+                    '"{}"'.format(model_json), '"{}"'.format(_epw_file),
+                    '--sim-par-json', '"{}"'.format(sim_par_json),
+                    '--folder', '"{}"'.format(directory)]
         if add_idf is not None:
             cmds.append('--additional-idf')
-            cmds.append(add_idf)
+            cmds.append('"{}"'.format(add_idf))
         if measure_folder is not None:
             cmds.append('--measures')
-            cmds.append(measure_folder)
+            cmds.append('"{}"'.format(measure_folder))
         osm = os.path.join(directory, 'in.osm')
         idf = os.path.join(directory, 'run', 'in.idf')
 
         # execute the command
         custom_env = os.environ.copy()
         custom_env['PYTHONHOME'] = ''
+        cmds = ' '.join(cmds)
         if os.name == 'nt':
             shell = False if run_ == 1 else True
         else:
-            cmds = ' '.join(cmds)
             shell = True
         process = subprocess.Popen(cmds, shell=shell, env=custom_env)
         result = process.communicate()  # freeze the canvas while running
@@ -298,7 +302,6 @@ if all_required_inputs(ghenv.Component) and _write:
         osw = os.path.join(directory, 'workflow.osw')
         osw = osw if os.path.isfile(osw) else None
         if not os.path.isfile(osm):
-            cmds = ' '.join(cmds) if os.name == 'nt' else cmds
             print(cmds)
             raise ValueError('Failed to translate Model to OpenStudio.')
         if run_ > 0:
