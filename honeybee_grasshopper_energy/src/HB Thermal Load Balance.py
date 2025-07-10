@@ -71,7 +71,7 @@ honeybee Rooms or a Model.
 
 ghenv.Component.Name = 'HB Thermal Load Balance'
 ghenv.Component.NickName = 'LoadBalance'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -176,9 +176,19 @@ if all_required_inputs(ghenv.Component):
             nat_vent_load_, face_energy_flow_, units_system(), use_all_solar=is_model)
         if is_model:
             load_bal_obj.floor_area = floor_area
-    
         balance = load_bal_obj.load_balance_terms(False, False)
         if len(balance) != 0:
             balance_stor = balance + [load_bal_obj.storage]
             norm_bal = load_bal_obj.load_balance_terms(True, False, detailed_faces_)
             norm_bal_stor = load_bal_obj.load_balance_terms(True, True, detailed_faces_)
+
+        # give warnings about key missing items
+        if face_energy_flow_ is None:
+            msg = 'No face_energy_flow_ was input, meaning the result will not ' \
+                'account for any conduction losses or gains.'
+            print(msg)
+            give_warning(ghenv.Component, msg)
+    else:
+        msg = 'No valid loads were input and so no load balace was output.'
+        print(msg)
+        give_warning(ghenv.Component, msg)
