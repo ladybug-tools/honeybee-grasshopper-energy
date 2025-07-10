@@ -75,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.9.2'
+ghenv.Component.Message = '1.9.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -302,8 +302,12 @@ if all_required_inputs(ghenv.Component) and _write:
         osw = os.path.join(directory, 'workflow.osw')
         osw = osw if os.path.isfile(osw) else None
         if not os.path.isfile(osm):
-            print(cmds)
-            raise ValueError('Failed to translate Model to OpenStudio.')
+            # get the error from stdout
+            process = subprocess.Popen(cmds, shell=shell, env=custom_env, stderr=subprocess.PIPE)
+            result = process.communicate()  # freeze the canvas while running
+            print(result[1])
+            raise ValueError('Failed to translate Model to OpenStudio.\n{}'.format(
+                '\n'.join(str(result[1]).split('\n')[-3:])))
         if run_ > 0:
             if not os.path.isfile(idf):
                 cmds = ' '.join(cmds) if os.name == 'nt' else cmds
