@@ -75,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.9.3'
+ghenv.Component.Message = '1.9.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -175,9 +175,9 @@ if all_required_inputs(ghenv.Component) and _write:
         sim_par = _sim_par_.duplicate()  # ensure input is not edited
 
     # assign design days from the DDY next to the EPW if there are None
+    folder, epw_file_name = os.path.split(_epw_file)
     if len(sim_par.sizing_parameter.design_days) == 0:
         msg = None
-        folder, epw_file_name = os.path.split(_epw_file)
         ddy_file = os.path.join(folder, epw_file_name.replace('.epw', '.ddy'))
         if os.path.isfile(ddy_file):
             try:
