@@ -29,7 +29,7 @@ Search for available ConstructionSets within the honeybee energy standards libra
 
 ghenv.Component.Name = 'HB Search Construction Sets'
 ghenv.Component.NickName = 'SearchConstrSet'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -43,6 +43,12 @@ try:  # import the honeybee-energy dependencies
     from honeybee_energy.lib.constructionsets import CONSTRUCTION_SETS
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
+try:
+    from ladybug_rhino.grasshopper import turn_off_old_tag
+except ImportError as e:
+    raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
+turn_off_old_tag(ghenv.Component)
 
 
 if len(keywords_) == 0:
