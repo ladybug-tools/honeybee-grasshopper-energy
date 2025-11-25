@@ -35,6 +35,9 @@ directly to a Room.
             through respiration and sweating that occurs at warmer temperatures
             and higher activity levels, which is generally truer to physics
             compared to a fixed number.
+        rad_fraction_: A number between 0 and 1 for the fraction of the sensible
+            heat given off by people that is radiant (as opposed to
+            convective). (Default: 0.3).
 
     Returns:
         people: A People object that can be used to create a ProgramType or
@@ -43,7 +46,7 @@ directly to a Room.
 
 ghenv.Component.Name = "HB People"
 ghenv.Component.NickName = 'People'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -71,6 +74,7 @@ if all_required_inputs(ghenv.Component):
     name = clean_and_id_ep_string('People') if _name_ is None else \
         clean_ep_string(_name_)
     latent = autocalculate if latent_fraction_ is None else latent_fraction_
+    rad = 0.3 if rad_fraction_ is None else rad_fraction_
 
     # get the schedules
     if isinstance(_occupancy_sch, str):
@@ -83,6 +87,6 @@ if all_required_inputs(ghenv.Component):
         people = None
     else:
         people = People(name, _ppl_per_area, _occupancy_sch, _activity_sch_,
-                        latent_fraction=latent)
+                        latent_fraction=latent, radiant_fraction=rad)
         if _name_ is not None:
             people.display_name = _name_
