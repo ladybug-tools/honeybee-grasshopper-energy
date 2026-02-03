@@ -49,6 +49,10 @@ in the simulation.
             demand controlled ventilation. If None, a constant design level of
             ventilation will be used throughout all timesteps of the
             simulation. (Default: None).
+        _method_: Text to set how the different ventilation criteria are reconciled
+            against one another. Choose from the options below. (Default: Sum).
+            * Sum
+            * Max
 
     Returns:
         vent: An Ventilation object that can be used to create a ProgramType or
@@ -57,7 +61,7 @@ in the simulation.
 
 ghenv.Component.Name = 'HB Ventilation'
 ghenv.Component.NickName = 'Ventilation'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -93,9 +97,10 @@ _flow_per_person_ = _flow_per_person_ if _flow_per_person_ is not None else 0.0
 _flow_per_area_ = _flow_per_area_ if _flow_per_area_ is not None else 0.0
 _flow_per_zone_ = _flow_per_zone_ if _flow_per_zone_ is not None else 0.0
 _ach_ = _ach_ if _ach_ is not None else 0.0
+_method_ = _method_ if _method_ is not None else 'Sum'
 
 # create the Ventilation object
 vent = Ventilation(name, _flow_per_person_, _flow_per_area_,
-                    _flow_per_zone_, _ach_, _schedule_)
+                    _flow_per_zone_, _ach_, _schedule_, _method_)
 if _name_ is not None:
     vent.display_name = _name_

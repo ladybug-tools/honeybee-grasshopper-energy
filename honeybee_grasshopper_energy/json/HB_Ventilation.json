@@ -1,5 +1,5 @@
 {
-  "version": "1.9.0", 
+  "version": "1.9.1", 
   "nickname": "Ventilation", 
   "outputs": [
     [
@@ -54,10 +54,17 @@
       "description": "An optional fractional schedule for the ventilation over the course\nof the year. The fractional values will get multiplied by the\ntotal design flow rate (determined from the fields above and the\ncalculation_method) to yield a complete ventilation profile. Setting\nthis schedule to be the occupancy schedule of the zone will mimic\ndemand controlled ventilation. If None, a constant design level of\nventilation will be used throughout all timesteps of the\nsimulation. (Default: None).", 
       "type": "System.Object", 
       "default": null
+    }, 
+    {
+      "access": "item", 
+      "name": "_method_", 
+      "description": "Text to set how the different ventilation criteria are reconciled\nagainst one another. Choose from the options below. (Default: Sum).\n* Sum\n* Max", 
+      "type": "string", 
+      "default": null
     }
   ], 
   "subcategory": "3 :: Loads", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.ventilation import Ventilation\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# make a default Ventilation name if none is provided\nname = clean_and_id_ep_string('Ventilation') if _name_ is None else \\\n    clean_ep_string(_name_)\n\n# get the schedule\nif isinstance(_schedule_, str):\n    _schedule_ = schedule_by_identifier(_schedule_)\n\n# get default _flow_per_person_, _flow_per_area_, and _ach_\n_flow_per_person_ = _flow_per_person_ if _flow_per_person_ is not None else 0.0\n_flow_per_area_ = _flow_per_area_ if _flow_per_area_ is not None else 0.0\n_flow_per_zone_ = _flow_per_zone_ if _flow_per_zone_ is not None else 0.0\n_ach_ = _ach_ if _ach_ is not None else 0.0\n\n# create the Ventilation object\nvent = Ventilation(name, _flow_per_person_, _flow_per_area_,\n                    _flow_per_zone_, _ach_, _schedule_)\nif _name_ is not None:\n    vent.display_name = _name_\n", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.ventilation import Ventilation\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# make a default Ventilation name if none is provided\nname = clean_and_id_ep_string('Ventilation') if _name_ is None else \\\n    clean_ep_string(_name_)\n\n# get the schedule\nif isinstance(_schedule_, str):\n    _schedule_ = schedule_by_identifier(_schedule_)\n\n# get default _flow_per_person_, _flow_per_area_, and _ach_\n_flow_per_person_ = _flow_per_person_ if _flow_per_person_ is not None else 0.0\n_flow_per_area_ = _flow_per_area_ if _flow_per_area_ is not None else 0.0\n_flow_per_zone_ = _flow_per_zone_ if _flow_per_zone_ is not None else 0.0\n_ach_ = _ach_ if _ach_ is not None else 0.0\n_method_ = _method_ if _method_ is not None else 'Sum'\n\n# create the Ventilation object\nvent = Ventilation(name, _flow_per_person_, _flow_per_area_,\n                    _flow_per_zone_, _ach_, _schedule_, _method_)\nif _name_ is not None:\n    vent.display_name = _name_\n", 
   "category": "HB-Energy", 
   "name": "HB Ventilation", 
   "description": "Create a Ventilation object that can be used to create a ProgramType or be\nassigned directly to a Room.\n_\nNote the the 4 ventilation types (_flow_per_person_, _flow_per_area_, _flow_per_zone_,\n_ach_) are ultimately summed together to yeild the ventilation design flow rate used\nin the simulation.\n-"
