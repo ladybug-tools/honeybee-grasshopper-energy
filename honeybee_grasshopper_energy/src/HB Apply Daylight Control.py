@@ -63,7 +63,7 @@ Schedule" component under HB-Radiance should be used.
 
 ghenv.Component.Name = 'HB Apply Daylight Control'
 ghenv.Component.NickName = 'DaylightControl'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -81,7 +81,7 @@ except ImportError as e:
 
 try:
     from ladybug_rhino.togeometry import to_point3d
-    from ladybug_rhino.config import conversion_to_meters, tolerance
+    from ladybug_rhino.config import conversion_to_meters, current_tolerance
     from ladybug_rhino.grasshopper import all_required_inputs, longest_list, \
         give_warning
 except ImportError as e:
@@ -123,7 +123,7 @@ if all_required_inputs(ghenv.Component):
                 dist_from_floor, longest_list(_ill_setpoint_, i),
                 longest_list(_control_fract_, i), longest_list(_min_power_in_, i),
                 longest_list(_min_light_out_, i), longest_list(off_at_min_, i),
-                tolerance)
+                current_tolerance())
             if dl_control is None:
                 unassigned_rooms.append(room.display_name)
     else:

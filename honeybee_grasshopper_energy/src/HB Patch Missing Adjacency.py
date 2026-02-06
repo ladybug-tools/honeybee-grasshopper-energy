@@ -29,7 +29,7 @@ AirBoundary, the type will be set to a Wall.
 
 ghenv.Component.Name = 'HB Patch Missing Adjacency'
 ghenv.Component.NickName = 'PatchAdj'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -43,7 +43,7 @@ except ImportError as e:
 
 try:
     from ladybug_rhino.grasshopper import all_required_inputs
-    from ladybug_rhino.config import tolerance, units_system
+    from ladybug_rhino.config import current_tolerance, units_system
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
 
@@ -61,7 +61,7 @@ if all_required_inputs(ghenv.Component):
     rooms = [room.duplicate() for room in rooms]  # duplicate to avoid editing input
 
     # patch adjacency across all of the Rooms
-    adj_model = Model('patch_adj_model', rooms=rooms, tolerance=tolerance,
+    adj_model = Model('patch_adj_model', rooms=rooms, tolerance=current_tolerance(),
                       units=units_system())
     adj_model.properties.energy.missing_adjacencies_to_adiabatic()
     rooms = adj_model.rooms
