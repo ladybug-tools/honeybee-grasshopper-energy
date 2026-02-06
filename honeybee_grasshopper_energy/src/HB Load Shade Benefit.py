@@ -135,7 +135,7 @@ http://www.ibpsa.org/proceedings/bs2011/p_1209.pdf
 
 ghenv.Component.Name = 'HB Load Shade Benefit'
 ghenv.Component.NickName = 'LoadShadeBenefit'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -187,7 +187,7 @@ try:
     from ladybug_rhino.fromgeometry import from_face3d, from_mesh3d, \
         from_point3d, from_vector3d
     from ladybug_rhino.config import conversion_to_meters, units_system, \
-        tolerance, angle_tolerance, units_abbreviation
+        current_tolerance, angle_tolerance, units_abbreviation
     from ladybug_rhino.fromobjects import legend_objects
     from ladybug_rhino.text import text_objects
     from ladybug_rhino.intersect import join_geometry_to_mesh, generate_intersection_rays, \
@@ -274,7 +274,7 @@ if all_required_inputs(ghenv.Component) and _run:
     # create the Model from the _rooms and context_
     _model = Model('Load_Shade_Benefit', rooms, orphaned_shades=context_,
                    units=units_system(),
-                   tolerance=tolerance, angle_tolerance=angle_tolerance)
+                   tolerance=current_tolerance(), angle_tolerance=angle_tolerance)
 
     # process the simulation folder name and the directory
     directory = os.path.join(folders.default_simulation_folder, _model.identifier)

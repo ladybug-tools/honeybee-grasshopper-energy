@@ -72,7 +72,7 @@ generator objects.
 
 ghenv.Component.Name = 'HB Generation Loads'
 ghenv.Component.NickName = 'GenLoads'
-ghenv.Component.Message = '1.9.0'
+ghenv.Component.Message = '1.9.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -112,7 +112,7 @@ except ImportError as e:
 
 try:
     from ladybug_rhino.togeometry import to_vector2d
-    from ladybug_rhino.config import units_system, tolerance, angle_tolerance
+    from ladybug_rhino.config import units_system, current_tolerance, angle_tolerance
     from ladybug_rhino.grasshopper import all_required_inputs, give_warning
 except ImportError as e:
     raise ImportError('\nFailed to import ladybug_rhino:\n\t{}'.format(e))
@@ -137,7 +137,7 @@ if all_required_inputs(ghenv.Component) and _run:
     models = [obj.duplicate() for obj in _hb_objs if isinstance(obj, Model)]
     other_objs = [obj.duplicate() for obj in _hb_objs if not isinstance(obj, Model)]
     model = Model.from_objects('Generation_Loads', other_objs, units_system(),
-                               tolerance, angle_tolerance)
+                               current_tolerance(), angle_tolerance)
     for m in models:
         model.add_model(m)
     model.rooms_to_orphaned()
