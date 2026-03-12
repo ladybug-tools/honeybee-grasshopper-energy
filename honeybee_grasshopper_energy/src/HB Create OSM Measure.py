@@ -12,14 +12,14 @@ Run an OpenStudio Meausre that is intended to create an entire OSM file
 (OpenStudio Model). Examples of such measures include the "Create DOE
 Prototype Building" measure such as that wich can be downloaded here:
 _
-https://github.com/NREL/openstudio-model-articulation-gem/tree/develop/lib/
+https://github.com/NatLabRockies/openstudio-model-articulation-gem/tree/develop/lib/
 measures/create_DOE_prototype_building
 
 -
     Args:
         _measure: A Measure from the "HB Load Measure" component that is intended to
             generate an OSM from input arguments. Measures can be downloaded
-            from the NREL Building Components Library (BCL) at (https://bcl.nrel.gov/).
+            from the Building Components Library (BCL) at (https://bcl.nrel.gov/).
         add_str_: Optional additional text strings here to be written into the IDF.
             The input here should be complete EnergyPlus objects as a single
             string following the IDF format. This can be used to add addition
@@ -42,7 +42,7 @@ measures/create_DOE_prototype_building
 
 ghenv.Component.Name = 'HB Create OSM Measure'
 ghenv.Component.NickName = 'OSMMeasure'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -100,9 +100,6 @@ if all_required_inputs(ghenv.Component) and _run:
     # assign the measure_paths to the osw_dict
     if 'measure_paths' not in osw_dict:
         osw_dict['measure_paths'] = []
-    if energy_folders.honeybee_openstudio_gem_path:  # include honeybee-openstudio measure path
-        measure_dir = os.path.join(energy_folders.honeybee_openstudio_gem_path, 'measures')
-        osw_dict['measure_paths'].append(measure_dir)
 
     # add the measure to the OSW
     measure_paths = set()  # set of all unique measure paths

@@ -1,64 +1,64 @@
 {
-  "version": "1.10.0", 
-  "nickname": "OSMMeasure", 
+  "name": "HB Create OSM Measure", 
+  "code": "\nimport sys\nimport re\nimport os\nimport json\n\ntry:\n    from ladybug.futil import preparedir, nukedir\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.measure import Measure\n    from honeybee_energy.run import run_osw\n    from honeybee_energy.result.osw import OSW\n    from honeybee_energy.config import folders as energy_folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from lbt_recipes.version import check_openstudio_version\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # check the presence of openstudio and check that the version is compatible\n    check_openstudio_version()\n\n    # process the simulation folder name and the directory\n    _folder_ = folders.default_simulation_folder if _folder_ is None else _folder_\n    clean_name = re.sub(r'[^.A-Za-z0-9_-]', '_', _measure.display_name)\n    directory = os.path.join(_folder_, clean_name, 'openstudio')\n\n    # delete any existing files in the directory and prepare it for simulation\n    nukedir(directory, True)\n    preparedir(directory)\n\n    # create a dictionary representation of the .osw with steps to run\n    # the model measure and the simulation parameter measure\n    osw_dict = {'steps': []}\n    # assign the measure_paths to the osw_dict\n    if 'measure_paths' not in osw_dict:\n        osw_dict['measure_paths'] = []\n\n    # add the measure to the OSW\n    measure_paths = set()  # set of all unique measure paths\n    _measure.validate()  # ensure that all required arguments have values\n    measure_paths.add(os.path.dirname(_measure.folder))\n    osw_dict['steps'].append(_measure.to_osw_dict())  # add measure to workflow\n\n    # load the inject IDF measure if strings_to_inject have bee specified\n    str_inject = None if add_str_ == [] or add_str_[0] is None \\\n        else '\\n'.join(add_str_)\n    if str_inject is not None and str_inject != '':\n        assert energy_folders.inject_idf_measure_path is not None, \\\n            'Additional IDF strings input but the inject_idf measure is not installed.'\n        idf_measure = Measure(energy_folders.inject_idf_measure_path)\n        inject_idf = os.path.join(directory, 'inject.idf')\n        with open(inject_idf, \"w\") as idf_file:\n            idf_file.write(str_inject)\n        units_arg = idf_measure.arguments[0]\n        units_arg.value = inject_idf\n        measure_paths.add(os.path.dirname(idf_measure.folder))\n        osw_dict['steps'].append(idf_measure.to_osw_dict())  # add measure to workflow\n\n    # write the dictionary to a workflow.osw\n    for m_path in measure_paths:\n       osw_dict['measure_paths'].append(m_path)\n    osw_json = os.path.join(directory, 'workflow.osw')\n    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8\n        with open(osw_json, 'w') as fp:\n            workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)\n            fp.write(workflow_str.encode('utf-8'))\n    else:\n        with open(osw_json, 'wb', encoding='utf-8') as fp:\n            workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)\n    osw = os.path.abspath(osw_json)\n    osm, idf = run_osw(osw, silent=False)\n\n    # if the measure fails, report it\n    if idf is None:  # measures failed to run correctly; parse out.osw\n        log_osw = OSW(os.path.join(directory, 'out.osw'))\n        errors = []\n        for error, tb in zip(log_osw.errors, log_osw.error_tracebacks):\n            print(tb)\n            errors.append(error)\n        raise Exception('Failed to run OpenStudio CLI:\\n{}'.format('\\n'.join(errors)))\n", 
+  "inputs": [
+    {
+      "type": "System.Object", 
+      "access": "item", 
+      "default": null, 
+      "name": "_measure", 
+      "description": "A Measure from the \"HB Load Measure\" component that is intended to\ngenerate an OSM from input arguments. Measures can be downloaded\nfrom the Building Components Library (BCL) at (https://bcl.nrel.gov/)."
+    }, 
+    {
+      "type": "System.Object", 
+      "access": "list", 
+      "default": null, 
+      "name": "add_str_", 
+      "description": "Optional additional text strings here to be written into the IDF.\nThe input here should be complete EnergyPlus objects as a single\nstring following the IDF format. This can be used to add addition\nEnergyPlus outputs in the resulting IDF among other features."
+    }, 
+    {
+      "type": "string", 
+      "access": "item", 
+      "default": null, 
+      "name": "_folder_", 
+      "description": "An optional folder on this computer, into which the IDF and OSM\nfiles will be written. If none, a sub-folder within the default\nsimulation folder will be used."
+    }, 
+    {
+      "type": "bool", 
+      "access": "item", 
+      "default": null, 
+      "name": "_run", 
+      "description": "Script variable Python"
+    }
+  ], 
   "outputs": [
     [
       {
+        "type": null, 
         "access": "None", 
+        "default": null, 
         "name": "osw", 
-        "description": "File path to the OpenStudio Workflow JSON on this machine. This workflow\nis executed using the OpenStudio command line interface (CLI) and\nit includes measures to create the OSM from the measure", 
-        "type": null, 
-        "default": null
+        "description": "File path to the OpenStudio Workflow JSON on this machine. This workflow\nis executed using the OpenStudio command line interface (CLI) and\nit includes measures to create the OSM from the measure"
       }, 
       {
+        "type": null, 
         "access": "None", 
+        "default": null, 
         "name": "osm", 
-        "description": "The file path to the OpenStudio Model (OSM) that has been generated\non this computer.", 
-        "type": null, 
-        "default": null
+        "description": "The file path to the OpenStudio Model (OSM) that has been generated\non this computer."
       }, 
       {
-        "access": "None", 
-        "name": "idf", 
-        "description": "The file path of the EnergyPlus Input Data File (IDF) that has been\ngenerated on this computer.", 
         "type": null, 
-        "default": null
+        "access": "None", 
+        "default": null, 
+        "name": "idf", 
+        "description": "The file path of the EnergyPlus Input Data File (IDF) that has been\ngenerated on this computer."
       }
     ]
   ], 
-  "inputs": [
-    {
-      "access": "item", 
-      "name": "_measure", 
-      "description": "A Measure from the \"HB Load Measure\" component that is intended to\ngenerate an OSM from input arguments. Measures can be downloaded\nfrom the NREL Building Components Library (BCL) at (https://bcl.nrel.gov/).", 
-      "type": "System.Object", 
-      "default": null
-    }, 
-    {
-      "access": "list", 
-      "name": "add_str_", 
-      "description": "Optional additional text strings here to be written into the IDF.\nThe input here should be complete EnergyPlus objects as a single\nstring following the IDF format. This can be used to add addition\nEnergyPlus outputs in the resulting IDF among other features.", 
-      "type": "System.Object", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_folder_", 
-      "description": "An optional folder on this computer, into which the IDF and OSM\nfiles will be written. If none, a sub-folder within the default\nsimulation folder will be used.", 
-      "type": "string", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_run", 
-      "description": "Script variable Python", 
-      "type": "bool", 
-      "default": null
-    }
-  ], 
-  "subcategory": "5 :: Simulate", 
-  "code": "\nimport sys\nimport re\nimport os\nimport json\n\ntry:\n    from ladybug.futil import preparedir, nukedir\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee.config import folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.measure import Measure\n    from honeybee_energy.run import run_osw\n    from honeybee_energy.result.osw import OSW\n    from honeybee_energy.config import folders as energy_folders\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from lbt_recipes.version import check_openstudio_version\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import lbt_recipes:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component) and _run:\n    # check the presence of openstudio and check that the version is compatible\n    check_openstudio_version()\n\n    # process the simulation folder name and the directory\n    _folder_ = folders.default_simulation_folder if _folder_ is None else _folder_\n    clean_name = re.sub(r'[^.A-Za-z0-9_-]', '_', _measure.display_name)\n    directory = os.path.join(_folder_, clean_name, 'openstudio')\n\n    # delete any existing files in the directory and prepare it for simulation\n    nukedir(directory, True)\n    preparedir(directory)\n\n    # create a dictionary representation of the .osw with steps to run\n    # the model measure and the simulation parameter measure\n    osw_dict = {'steps': []}\n    # assign the measure_paths to the osw_dict\n    if 'measure_paths' not in osw_dict:\n        osw_dict['measure_paths'] = []\n    if energy_folders.honeybee_openstudio_gem_path:  # include honeybee-openstudio measure path\n        measure_dir = os.path.join(energy_folders.honeybee_openstudio_gem_path, 'measures')\n        osw_dict['measure_paths'].append(measure_dir)\n\n    # add the measure to the OSW\n    measure_paths = set()  # set of all unique measure paths\n    _measure.validate()  # ensure that all required arguments have values\n    measure_paths.add(os.path.dirname(_measure.folder))\n    osw_dict['steps'].append(_measure.to_osw_dict())  # add measure to workflow\n\n    # load the inject IDF measure if strings_to_inject have bee specified\n    str_inject = None if add_str_ == [] or add_str_[0] is None \\\n        else '\\n'.join(add_str_)\n    if str_inject is not None and str_inject != '':\n        assert energy_folders.inject_idf_measure_path is not None, \\\n            'Additional IDF strings input but the inject_idf measure is not installed.'\n        idf_measure = Measure(energy_folders.inject_idf_measure_path)\n        inject_idf = os.path.join(directory, 'inject.idf')\n        with open(inject_idf, \"w\") as idf_file:\n            idf_file.write(str_inject)\n        units_arg = idf_measure.arguments[0]\n        units_arg.value = inject_idf\n        measure_paths.add(os.path.dirname(idf_measure.folder))\n        osw_dict['steps'].append(idf_measure.to_osw_dict())  # add measure to workflow\n\n    # write the dictionary to a workflow.osw\n    for m_path in measure_paths:\n       osw_dict['measure_paths'].append(m_path)\n    osw_json = os.path.join(directory, 'workflow.osw')\n    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8\n        with open(osw_json, 'w') as fp:\n            workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)\n            fp.write(workflow_str.encode('utf-8'))\n    else:\n        with open(osw_json, 'wb', encoding='utf-8') as fp:\n            workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)\n    osw = os.path.abspath(osw_json)\n    osm, idf = run_osw(osw, silent=False)\n\n    # if the measure fails, report it\n    if idf is None:  # measures failed to run correctly; parse out.osw\n        log_osw = OSW(os.path.join(directory, 'out.osw'))\n        errors = []\n        for error, tb in zip(log_osw.errors, log_osw.error_tracebacks):\n            print(tb)\n            errors.append(error)\n        raise Exception('Failed to run OpenStudio CLI:\\n{}'.format('\\n'.join(errors)))\n", 
+  "version": "1.10.1", 
   "category": "HB-Energy", 
-  "name": "HB Create OSM Measure", 
-  "description": "Run an OpenStudio Meausre that is intended to create an entire OSM file\n(OpenStudio Model). Examples of such measures include the \"Create DOE\nPrototype Building\" measure such as that wich can be downloaded here:\n_\nhttps://github.com/NREL/openstudio-model-articulation-gem/tree/develop/lib/\nmeasures/create_DOE_prototype_building\n-"
+  "subcategory": "5 :: Simulate", 
+  "description": "Run an OpenStudio Meausre that is intended to create an entire OSM file\n(OpenStudio Model). Examples of such measures include the \"Create DOE\nPrototype Building\" measure such as that wich can be downloaded here:\n_\nhttps://github.com/NatLabRockies/openstudio-model-articulation-gem/tree/develop/lib/\nmeasures/create_DOE_prototype_building\n-", 
+  "nickname": "OSMMeasure"
 }

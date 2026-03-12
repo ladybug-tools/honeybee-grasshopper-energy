@@ -43,7 +43,7 @@ sizing criteria for the plant components can be set.
 
 ghenv.Component.Name = 'HB Empty OSM'
 ghenv.Component.NickName = 'EmptyOSM'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -52,6 +52,7 @@ import sys
 import os
 import re
 import json
+import subprocess
 
 try:
     from ladybug.futil import preparedir, nukedir
@@ -66,10 +67,14 @@ except ImportError as e:
 
 try:
     from honeybee_energy.simulation.parameter import SimulationParameter
-    from honeybee_energy.run import to_empty_osm_osw, run_osw
-    from honeybee_energy.result.osw import OSW
+    from honeybee_energy.run import empty_osm
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
+
+try:
+    from honeybee_openstudio.openstudio import OSModel
+except (ImportError, AssertionError):  # Openstudio C# bindings are not usable
+    OSModel = None
 
 try:
     from lbt_recipes.version import check_openstudio_version
@@ -127,30 +132,33 @@ if all_required_inputs(ghenv.Component) and _write:
     # delete any existing files in the directory and prepare it for simulation
     nukedir(directory, True)
     preparedir(directory)
+    osm = os.path.join(directory, 'in.osm')
+    idf = os.path.join(directory, 'in.idf')
 
-    # write the simulation parameter JSON
-    sim_par_dict = _sim_par_.to_dict()
-    sim_par_json = os.path.join(directory, 'simulation_parameter.json')
-    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
-        with open(sim_par_json, 'wb') as fp:
-            sim_par_str = json.dumps(sim_par_dict, ensure_ascii=False)
-            fp.write(sim_par_str.encode('utf-8'))
-    else:
-        with open(sim_par_json, 'w', encoding='utf-8') as fp:
-            sim_par_str = json.dump(sim_par_dict, fp, ensure_ascii=False)
+    if OSModel is not None:  # create the model using IronPython
+        osm, idf = empty_osm(_sim_par_, _epw_file, osm, idf)
+    else:  # create the model via cPython using the CLI
+        # write the simulation parameter JSON
+        sim_par_dict = _sim_par_.to_dict()
+        sim_par_json = os.path.join(directory, 'simulation_parameter.json')
+        if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+            with open(sim_par_json, 'wb') as fp:
+                sim_par_str = json.dumps(sim_par_dict, ensure_ascii=False)
+                fp.write(sim_par_str.encode('utf-8'))
+        else:
+            with open(sim_par_json, 'w', encoding='utf-8') as fp:
+                sim_par_str = json.dump(sim_par_dict, fp, ensure_ascii=False)
 
-    # collect the two jsons for output and write out the osw file
-    osw = to_empty_osm_osw(directory, sim_par_json, epw_file=_epw_file)
-
-    # run the measure to translate the JSON
-    osm, idf = run_osw(osw, silent=True)
-    if idf is None:  # measures failed to run correctly; parse out.osw
-        log_osw = OSW(os.path.join(directory, 'out.osw'))
-        errors = []
-        for error, tb in zip(log_osw.errors, log_osw.error_tracebacks):
-            if 'Cannot create a surface' in error:
-                error = 'Your Rhino Model units system is: {}. ' \
-                    'Is this correct?\n{}'.format(units_system(), error)
-            print(tb)
-            errors.append(error)
-        raise Exception('Failed to run OpenStudio CLI:\n{}'.format('\n'.join(errors)))
+        # execute the command
+        cmds = ['"{}"'.format(hb_config.folders.python_exe_path),
+                '-m', 'honeybee_energy', 'translate', 'empty-osm',
+                '--epw-file', '"{}"'.format(_epw_file),
+                '--sim-par-json', '"{}"'.format(sim_par_json),
+                '--osm-file', '"{}"'.format(osm), '--idf-file', '"{}"'.format(idf)]
+        custom_env = os.environ.copy()
+        custom_env['PYTHONHOME'] = ''
+        cmds = ' '.join(cmds)
+        process = subprocess.Popen(cmds, shell=True, env=custom_env, stderr=subprocess.PIPE)
+        stderr = process.communicate()  # freeze the canvas while running
+        if stderr[1] != '':
+            raise Exception(stderr[1])
