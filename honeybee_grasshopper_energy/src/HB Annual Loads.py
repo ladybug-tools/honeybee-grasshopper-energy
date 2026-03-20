@@ -96,7 +96,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -229,6 +229,7 @@ if all_required_inputs(ghenv.Component) and _run:
     # set defaults for COP
     _heat_cop_ = 1 if _heat_cop_ is None else _heat_cop_
     _cool_cop_ = 1 if _cool_cop_ is None else _cool_cop_
+    timestep = _timestep_ if _timestep_ is not None else 1
 
     # create the Model from the _rooms and shades_
     _model = Model('Annual_Loads', _rooms, orphaned_shades=shades_, units=units_system(),
@@ -246,7 +247,7 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # create simulation parameters for the coarsest/fastest E+ sim possible
     _sim_par_ = SimulationParameter()
-    _sim_par_.timestep = _timestep_ if _timestep_ is not None else 1
+    _sim_par_.timestep = timestep
     _sim_par_.shadow_calculation.solar_distribution = 'FullExterior'
     _sim_par_.output.add_zone_energy_use()
     _sim_par_.output.reporting_frequency = 'Monthly'
@@ -294,7 +295,9 @@ if all_required_inputs(ghenv.Component) and _run:
         is not None else energyplus_idf_version(compatibe_ep_version)
     sim_par_str = _sim_par_.to_idf()
     model_str = _model.to.idf(
-        _model, schedule_directory=sch_directory, patch_missing_adjacencies=True)
+        _model, schedule_directory=sch_directory,
+        patch_missing_adjacencies=True, timestep=timestep
+    )
     idf_str = '\n\n'.join([ver_str, sim_par_str, model_str])
 
     # write the final string into an IDF

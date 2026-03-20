@@ -135,7 +135,7 @@ http://www.ibpsa.org/proceedings/bs2011/p_1209.pdf
 
 ghenv.Component.Name = 'HB Load Shade Benefit'
 ghenv.Component.NickName = 'LoadShadeBenefit'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -317,7 +317,9 @@ if all_required_inputs(ghenv.Component) and _run:
         is not None else energyplus_idf_version(compatibe_ep_version)
     sim_par_str = _sim_par_.to_idf()
     model_str = _model.to.idf(
-        _model, schedule_directory=sch_directory, patch_missing_adjacencies=True)
+        _model, schedule_directory=sch_directory,
+        patch_missing_adjacencies=True, timestep=timestep
+    )
     idf_str = '\n\n'.join([ver_str, sim_par_str, model_str])
 
     # write the final string into an IDF

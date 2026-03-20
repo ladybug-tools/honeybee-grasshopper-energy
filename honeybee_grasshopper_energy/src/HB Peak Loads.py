@@ -98,7 +98,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -303,6 +303,7 @@ term_order = \
 if all_required_inputs(ghenv.Component) and _run:
     # check the presence of energyplus and check that the version is compatible
     check_energyplus_version()
+    timestep = _timestep_ if _timestep_ is not None else 6
 
     # create the Model from the _rooms and shades_
     _model = Model('Peak_Loads', _rooms, orphaned_shades=shades_, units=units_system(),
@@ -315,7 +316,7 @@ if all_required_inputs(ghenv.Component) and _run:
 
     # create simulation parameters for a design-day-optimized E+ sim
     _sim_par_ = SimulationParameter()
-    _sim_par_.timestep = _timestep_ if _timestep_ is not None else 6
+    _sim_par_.timestep = timestep
     _sim_par_.output.reporting_frequency = 'Timestep'
     _sim_par_.simulation_control.run_for_sizing_periods = True
     _sim_par_.simulation_control.run_for_run_periods = False
@@ -334,7 +335,9 @@ if all_required_inputs(ghenv.Component) and _run:
     ver_str = energyplus_idf_version() if energy_folders.energyplus_version \
         is not None else energyplus_idf_version(compatibe_ep_version)
     model_str = _model.to.idf(
-        _model, schedule_directory=sch_directory, patch_missing_adjacencies=True)
+        _model, schedule_directory=sch_directory,
+        patch_missing_adjacencies=True, timestep=timestep
+    )
 
     # load design days to the simulation parameters
     peak_cool_dict = None
