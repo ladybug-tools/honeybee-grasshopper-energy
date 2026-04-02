@@ -12,16 +12,15 @@ Search for available Materials within the honeybee energy standards library.
 -
 
     Args:
-        keywords_: Optional keywords to be used to narrow down the output list of
+        keywords_: Optional keywords to be used to filter the output list of
             materials. If nothing is input here, all available materials
             will be output.
         join_words_: If False or None, this component will automatically split
             any strings of multiple keywords (spearated by spaces) into separate
-            keywords for searching. This results in a greater liklihood of
-            finding an item in the search but it may not be appropropriate for
-            all cases. You may want to set it to True when you are searching for
-            a specific phrase that includes spaces. Default: False.
-    
+            keywords for searching. This results in a greater likelihood of
+            finding an item in the search but it is not desriable when searching
+            for a specific sequence of words. (Default: False).
+
     Returns:
         opaque_mats: A list of opaque materials within the honeybee energy
             standards library (filtered by keywords_ if they are input).
@@ -31,7 +30,7 @@ Search for available Materials within the honeybee energy standards library.
 
 ghenv.Component.Name = "HB Search Materials"
 ghenv.Component.NickName = 'SearchMats'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = "1 :: Constructions"
 ghenv.Component.AdditionalHelpFromDocStrings = "1"

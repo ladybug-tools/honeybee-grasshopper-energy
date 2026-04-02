@@ -25,7 +25,7 @@ vintage and construction type.
             etc.). The Honeybee "Building Vintages" component lists all of the
             vintages available in the library. Default: "2019" (for ASHRAE 90.1 2019).
             Note that vintages are often called "templates" within the OpenStudio
-            standards gem and so this property effective maps to the standards
+            standards gem and so this property effectively maps to the standards
             gem "template".
         _constr_type_: Text for the construction type of the set. (eg. "SteelFramed",
             "WoodFramed", "Mass", "Metal Building"). The Honeybee "Construction Types"
@@ -38,7 +38,7 @@ vintage and construction type.
 
 ghenv.Component.Name = 'HB Construction Set by Climate'
 ghenv.Component.NickName = 'ConstrSetClimate'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -58,7 +58,7 @@ CONSTRUCTION_TYPES = ('SteelFramed', 'WoodFramed', 'Mass', 'Metal Building')
 
 if all_required_inputs(ghenv.Component):
     # check the climate zone
-    _climate_zone = _climate_zone[0]  # strip out any qualifiers like A, C, or C
+    _climate_zone = _climate_zone[0]  # strip out any qualifiers like A, B, or C
     assert 1 <= int(_climate_zone) <=8, 'Input _climate_zone "{}" is not valid. ' \
         'Climate zone must be between 1 and 8.'.format(_climate_zone)
 
@@ -74,7 +74,7 @@ if all_required_inputs(ghenv.Component):
     if _constr_type_ is not None:
         assert _constr_type_ in CONSTRUCTION_TYPES, \
             'Input _constr_type_ "{}" is not valid. Choose from:\n' \
-            '{}'.format(_vintage_, '\n'.join(CONSTRUCTION_TYPES))
+            '{}'.format(_constr_type_, '\n'.join(CONSTRUCTION_TYPES))
     else:
         _constr_type_ = 'SteelFramed'
 
