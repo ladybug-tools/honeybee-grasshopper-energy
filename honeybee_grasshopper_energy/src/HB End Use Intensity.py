@@ -15,6 +15,10 @@ Get information about end use intensity from an EnergyPlus SQL file.
         _sql: The file path of the SQL result file that has been generated from
             an energy simulation. This can also be a list of EnergyPlus files
             in which case, EUI will be computed across all files.
+        abs_: A boolean to note whether the output values are reported in absolute kWh
+            of energy use (True) instead of energy use intensity in kWh/m2 (False).
+            Setting this to "True" can be useful when the model contains no
+            but there is still energy use to be evaluated. (Default: False).
         ip_: Boolean to note whether the EUI should be in SI (kWh/m2) or IP
             (kBtu/ft2) units. (Default: False).
 
@@ -38,7 +42,7 @@ Get information about end use intensity from an EnergyPlus SQL file.
 
 ghenv.Component.Name = 'HB End Use Intensity'
 ghenv.Component.NickName = 'EUI'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '6 :: Result'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -71,18 +75,20 @@ except ImportError as e:
 
 
 # Use the SQLiteResult class to parse the result files directly on Windows.
-def get_results_windows(sql_files):
-    results = eui_from_sql(sql_files)
+def get_results_windows(sql_files, absolute):
+    results = eui_from_sql(sql_files, absolute)
     return results['eui'], results['total_floor_area'], results['end_uses']
 
 
 # The SQLite3 module doesn't work in IronPython on Mac, so we must make a call
 # to the Honeybee CLI (which runs on CPython) to get the results.
-def get_results_mac(sql_files):
+def get_results_mac(sql_files, absolute):
     from collections import OrderedDict
     cmds = [folders.python_exe_path, '-m', 'honeybee_energy', 'result',
             'energy-use-intensity']
     cmds.extend(sql_files)
+    if absolute:
+        cmds.append('--absolute')
     custom_env = os.environ.copy()
     custom_env['PYTHONHOME'] = ''
     process = subprocess.Popen(cmds, stdout=subprocess.PIPE, env=custom_env)
@@ -98,7 +104,7 @@ if all_required_inputs(ghenv.Component):
 
     # get the results
     get_results = get_results_windows if os.name == 'nt' else get_results_mac
-    eui, gross_floor, end_use_pairs = get_results(_sql)
+    eui, gross_floor, end_use_pairs = get_results(_sql, abs_)
 
     # create separate lists for end use values and labels
     eui_end_use = end_use_pairs.values()
@@ -107,12 +113,19 @@ if all_required_inputs(ghenv.Component):
     # convert data to IP if requested
     if ip_:
         eui_typ, a_typ, e_typ = EnergyIntensity(), Area(), Energy()
-        eui = round(eui_typ.to_ip([eui], 'kWh/m2')[0][0], 3)
         gross_floor = round(a_typ.to_ip([gross_floor], 'm2')[0][0], 3)
-        eui_end_use = [round(eui_typ.to_ip([val], 'kWh/m2')[0][0], 3)
-                       for val in eui_end_use]
+        if abs_:
+            eui = round(e_typ.to_ip([eui], 'kWh')[0][0], 3)
+            eui_end_use = [round(e_typ.to_ip([val], 'kWh')[0][0], 3)
+                           for val in eui_end_use]
+        else:
+            eui = round(eui_typ.to_ip([eui], 'kWh/m2')[0][0], 3)
+            eui_end_use = [round(eui_typ.to_ip([val], 'kWh/m2')[0][0], 3)
+                           for val in eui_end_use]
 
-    if gross_floor == 0:
-        msg = 'Model has no floor area. All energy intensity results will be zero.'
+    if gross_floor == 0 and not abs_:
+        msg = 'Model has no floor area. All energy intensity results will be zero.\n' \
+            'Set abs_ to "True" to get absolute energy use that is not normalized ' \
+            'by floor area.'
         print(msg)
         give_warning(ghenv.Component, msg)
