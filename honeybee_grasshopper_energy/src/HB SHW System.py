@@ -35,6 +35,8 @@ to be connected to the system.
                 * HeatPump_WaterHeater - 3.5
                 * Gas_TanklessHeater - 0.8
                 * Electric_TanklessHeater - 1.0
+                * District_WaterHeater - 1.0
+                * District_TanklessHeater - 1.0
         _condition_: A number for the ambient temperature in which the hot water tank
             is located [C]. This can also be a Room in which the tank is
             located. (Default: 22).
@@ -48,7 +50,7 @@ to be connected to the system.
 
 ghenv.Component.Name = "HB SHW System"
 ghenv.Component.NickName = 'SHW'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '5'
