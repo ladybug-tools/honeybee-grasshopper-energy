@@ -135,7 +135,7 @@ http://www.ibpsa.org/proceedings/bs2011/p_1209.pdf
 
 ghenv.Component.Name = 'HB Load Shade Benefit'
 ghenv.Component.NickName = 'LoadShadeBenefit'
-ghenv.Component.Message = '1.10.1'
+ghenv.Component.Message = '1.10.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -426,11 +426,16 @@ if all_required_inputs(ghenv.Component) and _run:
                         f_harm -= min(ht, sl)
                 # Normalize by the area of the cell so there's is a consistent metric
                 # between cells of different areas.
-                shd_help = ((f_help / face_area)) * pt_div
-                shd_harm = ((f_harm / face_area)) * pt_div
-                shade_help.append(shd_help)
-                shade_harm.append(shd_harm)
-                shade_net.append(shd_help + shd_harm)
+                if face_area != 0:
+                    shd_help = ((f_help / face_area)) * pt_div
+                    shd_harm = ((f_harm / face_area)) * pt_div
+                    shade_help.append(shd_help)
+                    shade_harm.append(shd_harm)
+                    shade_net.append(shd_help + shd_harm)
+                else:
+                    shade_help.append(0)
+                    shade_harm.append(0)
+                    shade_net.append(0)
 
     # create the mesh and legend outputs
     mesh = Mesh3D.join_meshes(mesh)
