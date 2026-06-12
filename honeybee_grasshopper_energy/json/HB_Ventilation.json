@@ -1,71 +1,92 @@
 {
-  "version": "1.10.0", 
   "nickname": "Ventilation", 
+  "inputs": [
+    {
+      "name": "_name_", 
+      "type": "string", 
+      "default": null, 
+      "description": "Text to set the name for the Ventilation and to be incorporated\ninto a unique Ventilation identifier. If None, a unique name will\nbe generated.", 
+      "access": "item"
+    }, 
+    {
+      "name": "_flow_per_person_", 
+      "type": "double", 
+      "default": null, 
+      "description": "A numerical value for the intensity of outdoor air ventilation\nin m3/s per person. This will be added to the _flow_per_area_,\n_flow_per_zone_ and _ach_ to produce the final minimum outdoor\nair specification. Note that setting this value here does not mean\nthat ventilation is varied based on real-time occupancy but rather\nthat the minimum level of ventilation is determined using this value\nand the People object of the Room. To vary ventilation on a timestep\nbasis, a ventilation schedule should be used or the dcv_ option\nshould be selected on the HVAC system if it is available. (Default: 0).", 
+      "access": "item"
+    }, 
+    {
+      "name": "_flow_per_area_", 
+      "type": "double", 
+      "default": null, 
+      "description": "A numerical value for the intensity of ventilation in m3/s per square\nmeter of floor area. This will be added to the _flow_per_person_,\n_flow_per_zone_ and _ach_ to produce the final minimum outdoor\nair specification. (Default: 0).", 
+      "access": "item"
+    }, 
+    {
+      "name": "_flow_per_zone_", 
+      "type": "double", 
+      "default": null, 
+      "description": "A numerical value for the design level of ventilation in m3/s for\nthe entire zone. This will be added to the _flow_per_person_,\n_flow_per_area_ and _ach_ to produce the final minimum outdoor\nair specification. (Default: 0).", 
+      "access": "item"
+    }, 
+    {
+      "name": "_ach_", 
+      "type": "double", 
+      "default": null, 
+      "description": "A numberical value for the design level of ventilation in air changes per hour\n(ACH) for the entire zone. This will be added to the _flow_per_person_,\n_flow_per_area_ and _flow_per_zone_ to produce the final minimum outdoor\nair specification. (Default: 0).", 
+      "access": "item"
+    }, 
+    {
+      "name": "_schedule_", 
+      "type": "System.Object", 
+      "default": null, 
+      "description": "An optional fractional schedule for the ventilation over the course\nof the year. The fractional values will get multiplied by the\ntotal design flow rate (determined from the fields above and the\ncalculation_method) to yield a complete ventilation profile. Setting\nthis schedule to be the occupancy schedule of the zone will mimic\ndemand controlled ventilation. If None, a constant design level of\nventilation will be used throughout all timesteps of the\nsimulation. (Default: None).", 
+      "access": "item"
+    }, 
+    {
+      "name": "_method_", 
+      "type": "string", 
+      "default": null, 
+      "description": "Text to set how the different ventilation criteria are reconciled\nagainst one another. Choose from the options below. (Default: Sum).\n* Sum\n* Max", 
+      "access": "item"
+    }, 
+    {
+      "name": "x", 
+      "type": "double", 
+      "default": null, 
+      "description": "A positive number to note the air distribution effectiveness\nof the ventilation system when it operates in cooling mode\n(or how well the system is able to mix the air when cooling).\nA value of 1 means that air is well mixed and specified air flows are not\nadjusted in the course of simulation. Values less than 1 indicate systems\nthat do not mix the air as well and so the specified airflows are increased.\nValues greater than 1 indicate systems that are particularly good at\ndelivering outdoor air to the breathing zone of a room and so the\nspecified airflows can be reduced. (Default: 1).", 
+      "access": "item"
+    }, 
+    {
+      "name": "y", 
+      "type": "double", 
+      "default": null, 
+      "description": "A positive number to note the air distribution effectiveness\nof the ventilation system when it operates in heating mode\n(or how well the system is able to mix the air when heating).\nA value of 1 means that air is well mixed and specified air flows are not\nadjusted in the course of simulation. Values less than 1 indicate systems\nthat do not mix the air as well and so the specified airflows are increased.\nValues greater than 1 indicate systems that are particularly good at\ndelivering outdoor air to the breathing zone of a room and so the\nspecified airflows can be reduced. (Default: 1).", 
+      "access": "item"
+    }, 
+    {
+      "name": "z", 
+      "type": "double", 
+      "default": null, 
+      "description": "A number that is greater than or equal to zero, which notes\nthe fraction of a zone's recirculation air that does not directly\nmix with the outdoor air. Used in cases where a central ventilation\nsystem supplies several zones and the return air is not collected\nthrough ducts back to the central air handler (eg. a plenum return\nsystem is used). This means unused outdoor ventilation air from other\nzones in the central system can be credited to the room. (Default: 0).", 
+      "access": "item"
+    }
+  ], 
   "outputs": [
     [
       {
-        "access": "None", 
         "name": "vent", 
-        "description": "An Ventilation object that can be used to create a ProgramType or\nbe assigned directly to a Room.", 
         "type": null, 
-        "default": null
+        "default": null, 
+        "description": "An Ventilation object that can be used to create a ProgramType or\nbe assigned directly to a Room.", 
+        "access": "None"
       }
     ]
   ], 
-  "inputs": [
-    {
-      "access": "item", 
-      "name": "_name_", 
-      "description": "Text to set the name for the Ventilation and to be incorporated\ninto a unique Ventilation identifier. If None, a unique name will\nbe generated.", 
-      "type": "string", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_flow_per_person_", 
-      "description": "A numerical value for the intensity of outdoor air ventilation\nin m3/s per person. This will be added to the _flow_per_area_,\n_flow_per_zone_ and _ach_ to produce the final minimum outdoor\nair specification. Note that setting this value here does not mean\nthat ventilation is varied based on real-time occupancy but rather\nthat the minimum level of ventilation is determined using this value\nand the People object of the Room. To vary ventilation on a timestep\nbasis, a ventilation schedule should be used or the dcv_ option\nshould be selected on the HVAC system if it is available. (Default: 0).", 
-      "type": "double", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_flow_per_area_", 
-      "description": "A numerical value for the intensity of ventilation in m3/s per square\nmeter of floor area. This will be added to the _flow_per_person_,\n_flow_per_zone_ and _ach_ to produce the final minimum outdoor\nair specification. (Default: 0).", 
-      "type": "double", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_flow_per_zone_", 
-      "description": "A numerical value for the design level of ventilation in m3/s for\nthe entire zone. This will be added to the _flow_per_person_,\n_flow_per_area_ and _ach_ to produce the final minimum outdoor\nair specification. (Default: 0).", 
-      "type": "double", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_ach_", 
-      "description": "A numberical value for the design level of ventilation in air changes per hour\n(ACH) for the entire zone. This will be added to the _flow_per_person_,\n_flow_per_area_ and _flow_per_zone_ to produce the final minimum outdoor\nair specification. (Default: 0).", 
-      "type": "double", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_schedule_", 
-      "description": "An optional fractional schedule for the ventilation over the course\nof the year. The fractional values will get multiplied by the\ntotal design flow rate (determined from the fields above and the\ncalculation_method) to yield a complete ventilation profile. Setting\nthis schedule to be the occupancy schedule of the zone will mimic\ndemand controlled ventilation. If None, a constant design level of\nventilation will be used throughout all timesteps of the\nsimulation. (Default: None).", 
-      "type": "System.Object", 
-      "default": null
-    }, 
-    {
-      "access": "item", 
-      "name": "_method_", 
-      "description": "Text to set how the different ventilation criteria are reconciled\nagainst one another. Choose from the options below. (Default: Sum).\n* Sum\n* Max", 
-      "type": "string", 
-      "default": null
-    }
-  ], 
-  "subcategory": "3 :: Loads", 
-  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.ventilation import Ventilation\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# make a default Ventilation name if none is provided\nname = clean_and_id_ep_string('Ventilation') if _name_ is None else \\\n    clean_ep_string(_name_)\n\n# get the schedule\nif isinstance(_schedule_, str):\n    _schedule_ = schedule_by_identifier(_schedule_)\n\n# get default _flow_per_person_, _flow_per_area_, and _ach_\n_flow_per_person_ = _flow_per_person_ if _flow_per_person_ is not None else 0.0\n_flow_per_area_ = _flow_per_area_ if _flow_per_area_ is not None else 0.0\n_flow_per_zone_ = _flow_per_zone_ if _flow_per_zone_ is not None else 0.0\n_ach_ = _ach_ if _ach_ is not None else 0.0\n_method_ = _method_ if _method_ is not None else 'Sum'\n\n# create the Ventilation object\nvent = Ventilation(name, _flow_per_person_, _flow_per_area_,\n                    _flow_per_zone_, _ach_, _schedule_, _method_)\nif _name_ is not None:\n    vent.display_name = _name_\n", 
-  "category": "HB-Energy", 
   "name": "HB Ventilation", 
-  "description": "Create a Ventilation object that can be used to create a ProgramType or be\nassigned directly to a Room.\n_\nNote the the 4 ventilation types (_flow_per_person_, _flow_per_area_, _flow_per_zone_,\n_ach_) are ultimately summed together to yeild the ventilation design flow rate used\nin the simulation.\n-"
+  "description": "Create a Ventilation object that can be used to create a ProgramType or be\nassigned directly to a Room.\n_\nNote the the 4 ventilation types (_flow_per_person_, _flow_per_area_, _flow_per_zone_,\n_ach_) are ultimately summed together to yeild the ventilation design flow rate used\nin the simulation.\n-", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.ventilation import Ventilation\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# make a default Ventilation name if none is provided\nname = clean_and_id_ep_string('Ventilation') if _name_ is None else \\\n    clean_ep_string(_name_)\n\n# get the schedule\nif isinstance(_schedule_, str):\n    _schedule_ = schedule_by_identifier(_schedule_)\n\n# get default _flow_per_person_, _flow_per_area_, and _ach_\n_flow_per_person_ = _flow_per_person_ if _flow_per_person_ is not None else 0.0\n_flow_per_area_ = _flow_per_area_ if _flow_per_area_ is not None else 0.0\n_flow_per_zone_ = _flow_per_zone_ if _flow_per_zone_ is not None else 0.0\n_ach_ = _ach_ if _ach_ is not None else 0.0\n_method_ = _method_ if _method_ is not None else 'Sum'\neffectiveness_cool_ = 1 if effectiveness_cool_ is None else effectiveness_cool_\neffectiveness_heat_ = 1 if effectiveness_heat_ is None else effectiveness_heat_\nsecondary_recirc_ = 0 if secondary_recirc_ is None else secondary_recirc_\n\n# create the Ventilation object\nvent = Ventilation(\n    name, _flow_per_person_, _flow_per_area_, _flow_per_zone_, _ach_,\n    _schedule_, _method_, effectiveness_cool_, effectiveness_heat_,\n    secondary_recirc_\n)\nif _name_ is not None:\n    vent.display_name = _name_\n", 
+  "subcategory": "3 :: Loads", 
+  "category": "HB-Energy", 
+  "version": "1.10.1"
 }

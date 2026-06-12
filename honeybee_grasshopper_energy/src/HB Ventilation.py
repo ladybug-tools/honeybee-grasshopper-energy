@@ -53,6 +53,31 @@ in the simulation.
             against one another. Choose from the options below. (Default: Sum).
             * Sum
             * Max
+        effectiveness_cool_: A positive number to note the air distribution effectiveness
+            of the ventilation system when it operates in cooling mode
+            (or how well the system is able to mix the air when cooling).
+            A value of 1 means that air is well mixed and specified air flows are not
+            adjusted in the course of simulation. Values less than 1 indicate systems
+            that do not mix the air as well and so the specified airflows are increased.
+            Values greater than 1 indicate systems that are particularly good at
+            delivering outdoor air to the breathing zone of a room and so the
+            specified airflows can be reduced. (Default: 1).
+        effectiveness_heat_: A positive number to note the air distribution effectiveness
+            of the ventilation system when it operates in heating mode
+            (or how well the system is able to mix the air when heating).
+            A value of 1 means that air is well mixed and specified air flows are not
+            adjusted in the course of simulation. Values less than 1 indicate systems
+            that do not mix the air as well and so the specified airflows are increased.
+            Values greater than 1 indicate systems that are particularly good at
+            delivering outdoor air to the breathing zone of a room and so the
+            specified airflows can be reduced. (Default: 1).
+        secondary_recirc_: A number that is greater than or equal to zero, which notes
+            the fraction of a zone's recirculation air that does not directly
+            mix with the outdoor air. Used in cases where a central ventilation
+            system supplies several zones and the return air is not collected
+            through ducts back to the central air handler (eg. a plenum return
+            system is used). This means unused outdoor ventilation air from other
+            zones in the central system can be credited to the room. (Default: 0).
 
     Returns:
         vent: An Ventilation object that can be used to create a ProgramType or
@@ -61,7 +86,7 @@ in the simulation.
 
 ghenv.Component.Name = 'HB Ventilation'
 ghenv.Component.NickName = 'Ventilation'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = '3'
@@ -98,9 +123,15 @@ _flow_per_area_ = _flow_per_area_ if _flow_per_area_ is not None else 0.0
 _flow_per_zone_ = _flow_per_zone_ if _flow_per_zone_ is not None else 0.0
 _ach_ = _ach_ if _ach_ is not None else 0.0
 _method_ = _method_ if _method_ is not None else 'Sum'
+effectiveness_cool_ = 1 if effectiveness_cool_ is None else effectiveness_cool_
+effectiveness_heat_ = 1 if effectiveness_heat_ is None else effectiveness_heat_
+secondary_recirc_ = 0 if secondary_recirc_ is None else secondary_recirc_
 
 # create the Ventilation object
-vent = Ventilation(name, _flow_per_person_, _flow_per_area_,
-                    _flow_per_zone_, _ach_, _schedule_, _method_)
+vent = Ventilation(
+    name, _flow_per_person_, _flow_per_area_, _flow_per_zone_, _ach_,
+    _schedule_, _method_, effectiveness_cool_, effectiveness_heat_,
+    secondary_recirc_
+)
 if _name_ is not None:
     vent.display_name = _name_
