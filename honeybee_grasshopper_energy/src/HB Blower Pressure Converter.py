@@ -50,10 +50,10 @@ where:
 
 ghenv.Component.Name = 'HB Blower Pressure Converter'
 ghenv.Component.NickName = 'BlowerPressure'
-ghenv.Component.Message = '1.10.1'
+ghenv.Component.Message = '1.10.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
-ghenv.Component.AdditionalHelpFromDocStrings = '4'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 try:
     from honeybee_energy.properties.room import RoomEnergyProperties
