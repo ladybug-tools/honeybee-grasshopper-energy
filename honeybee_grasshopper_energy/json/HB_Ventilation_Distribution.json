@@ -1,57 +1,57 @@
 {
+  "version": "1.10.1", 
+  "description": "Adjust ventilation properties that impact how minimum outdoor air requirements\nare computed for rooms.\n_\nThis includes whether or not the different types of outdoor air flow rates\nare summed together (the default) or the maximum is taken across the flow rates.\n_\nIt also includes terms for the ventilation distribution effectivness, which\ncan raise the outdoor air requirements if a given system configuration does not\nevenly distribute air througout the room. It can also lower the outdoor air\nrequirement if a system configuration is particularly good at delivering\nair to the breathing zone of the room.\n-", 
   "nickname": "VentDistrib", 
+  "category": "HB-Energy", 
   "inputs": [
     {
-      "name": "_room_or_program", 
-      "type": "System.Object", 
       "default": null, 
+      "access": "list", 
       "description": "Honeybee Rooms or ProgramType objects which will have ventilation\nproperties changed. This can also be the identifier of a ProgramType\nto be looked up in the program type library. This can also be a\nHoneybee Model for which all Rooms will have their ventilation\nproperties changed.", 
-      "access": "list"
+      "type": "System.Object", 
+      "name": "_room_or_program"
     }, 
     {
-      "name": "use_max_flow_", 
-      "type": "bool", 
       "default": null, 
+      "access": "list", 
       "description": "Set to \"True\" to use the maximum flow rate across the the different\ntypes of outdoor air criteria instead of summing them together (the default).\nSumming together ventilation per-person and per-floor-area is how\nstandards like ASHRAE 62.1 are written but other standards may\nuse the maximum across specified criteria.", 
-      "access": "list"
+      "type": "bool", 
+      "name": "use_max_flow_"
     }, 
     {
-      "name": "effectiveness_cool_", 
-      "type": "double", 
       "default": null, 
+      "access": "list", 
       "description": "A positive number to note the air distribution effectiveness\nof the ventilation system when it operates in cooling mode\n(or how well the system is able to mix the air when cooling).\nA value of 1 means that air is well mixed and specified air flows are not\nadjusted in the course of simulation. Values less than 1 indicate systems\nthat do not mix the air as well and so the specified airflows are increased.\nValues greater than 1 indicate systems that are particularly good at\ndelivering outdoor air to the breathing zone of a room and so the\nspecified airflows can be reduced. (Default: 1).", 
-      "access": "list"
+      "type": "double", 
+      "name": "effectiveness_cool_"
     }, 
     {
-      "name": "effectiveness_heat_", 
-      "type": "double", 
       "default": null, 
+      "access": "list", 
       "description": "A positive number to note the air distribution effectiveness\nof the ventilation system when it operates in heating mode\n(or how well the system is able to mix the air when heating).\nA value of 1 means that air is well mixed and specified air flows are not\nadjusted in the course of simulation. Values less than 1 indicate systems\nthat do not mix the air as well and so the specified airflows are increased.\nValues greater than 1 indicate systems that are particularly good at\ndelivering outdoor air to the breathing zone of a room and so the\nspecified airflows can be reduced. (Default: 1).", 
-      "access": "list"
+      "type": "double", 
+      "name": "effectiveness_heat_"
     }, 
     {
-      "name": "secondary_recirc_", 
-      "type": "double", 
       "default": null, 
+      "access": "list", 
       "description": "A number that is greater than or equal to zero, which notes\nthe fraction of a zone's recirculation air that does not directly\nmix with the outdoor air. Used in cases where a central ventilation\nsystem supplies several zones and the return air is not collected\nthrough ducts back to the central air handler (eg. a plenum return\nsystem is used). This means unused outdoor ventilation air from other\nzones in the central system can be credited to the room. (Default: 0).", 
-      "access": "list"
+      "type": "double", 
+      "name": "secondary_recirc_"
     }
   ], 
   "outputs": [
     [
       {
-        "name": "mod_obj", 
-        "type": null, 
         "default": null, 
+        "access": "None", 
         "description": "The input Rooms or ProgramTypes with ventilation properties adjusted.", 
-        "access": "None"
+        "type": null, 
+        "name": "mod_obj"
       }
     ]
   ], 
   "name": "HB Ventilation Distribution", 
-  "description": "Adjust ventilation properties that impact how minimum outdoor air requirements\nare computed for rooms.\n_\nThis includes whether or not the different types of outdoor air flow rates\nare summed together (the default) or the maximum is taken across the flow rates.\n_\nIt also includes terms for the ventilation distribution effectivness, which\ncan raise the outdoor air requirements if a given system configuration does not\nevenly distribute air througout the room. It can also lower the outdoor air\nrequirement if a system configuration is particularly good at delivering\nair to the breathing zone of the room.\n-", 
   "code": "\nimport uuid\n\ntry:\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.ventilation import Ventilation\n    from honeybee_energy.lib.programtypes import program_type_by_identifier, \\\n        building_program_type_by_identifier\n    from honeybee_energy.programtype import ProgramType\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, longest_list\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef dup_load(hb_obj, object_name, object_class):\n    \"\"\"Duplicate a load object assigned to a Room or ProgramType.\"\"\"\n    # try to get the load object assgined to the Room or ProgramType\n    try:  # assume it's a Room\n        load_obj = hb_obj.properties\n        for attribute in ('energy', object_name):\n            load_obj = getattr(load_obj, attribute)\n    except AttributeError:  # it's a ProgramType\n        load_obj = getattr(hb_obj, object_name)\n\n    load_id = '{}_{}'.format(hb_obj.identifier, object_name)\n    try:  # duplicate the load object\n        dup_load = load_obj.duplicate()\n        dup_load.identifier = load_id\n        return dup_load\n    except AttributeError:  # create a new object\n        return object_class(load_id)\n\n\ndef duplicate_and_id_program(program):\n    \"\"\"Duplicate a program and give it a new unique ID.\"\"\"\n    new_prog = program.duplicate()\n    new_prog.identifier = '{}_{}'.format(program.identifier, str(uuid.uuid4())[:8])\n    return new_prog\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    mod_obj, edit_objs = [], []\n    for obj in _room_or_program:\n        if isinstance(obj, Room):\n            new_obj = obj.duplicate()\n            mod_obj.append(new_obj)\n            edit_objs.append(new_obj)\n        elif isinstance(obj, Model):\n            new_obj = obj.duplicate()\n            mod_obj.append(new_obj)\n            edit_objs.extend(new_obj.rooms)\n        elif isinstance(obj, ProgramType):\n            new_obj = duplicate_and_id_program(obj)\n            mod_obj.append(new_obj)\n            edit_objs.append(new_obj)\n        elif isinstance(obj, str):\n            try:\n                program = building_program_type_by_identifier(obj)\n            except ValueError:\n                program = program_type_by_identifier(obj)\n            new_obj = duplicate_and_id_program(program)\n            mod_obj.append(new_obj)\n            edit_objs.append(new_obj)\n        else:\n            raise TypeError('Expected Honeybee Room, Model or ProgramType. '\n                            'Got {}.'.format(type(obj)))\n\n    # set default values and check the inputs\n    use_max_flow_ = [False] if len(use_max_flow_) == 0 else use_max_flow_\n    effectiveness_cool_ = [1] if len(effectiveness_cool_) == 0 else effectiveness_cool_\n    effectiveness_heat_ = [1] if len(effectiveness_heat_) == 0 else effectiveness_heat_\n    secondary_recirc_ = [0] if len(secondary_recirc_) == 0 else secondary_recirc_\n\n    # assign the ventilation criteria\n    for i, obj in enumerate(edit_objs):\n        vent = dup_load(obj, 'ventilation', Ventilation)\n        if longest_list(use_max_flow_, i):\n            vent.method = 'Max'\n        else:\n            vent.method = 'Sum'\n        vent.effectiveness_cooling = longest_list(effectiveness_cool_, i)\n        vent.effectiveness_heating = longest_list(effectiveness_heat_, i)\n        vent.secondary_recirculation = longest_list(secondary_recirc_, i)\n        try:  # assume it's a Room\n            obj.properties.energy.ventilation = vent\n        except AttributeError:  # it's a ProgramType\n            obj.ventilation = vent\n", 
-  "subcategory": "3 :: Loads", 
-  "category": "HB-Energy", 
-  "version": "1.10.0"
+  "subcategory": "3 :: Loads"
 }

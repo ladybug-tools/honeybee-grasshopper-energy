@@ -1,50 +1,50 @@
 {
+  "version": "1.10.2", 
+  "description": "Convert infiltration flow measured at a particular blower door pressure to flow\nmeasured at a typical building pressure.\n_\nThe formulas used by this component work the same whether the input infiltration\nflow is per unit area [m3/s/m2] or total flow in ACH or [m3/s].\n_\nThis is accomplished by computing a normalized-area air mass flow coefficient that\nis derived the power law relationship between pressure and air flow.\n    Cqa = Qblow / dPblow^n\nAnd then using the coefficient to approximate air flow at typical building pressure.\n    Qbldg = Cqa * dPbldg^n\n.\nwhere:\n    Cqa: Air mass flow coefficient at 1 Pa [kg/m2/s/P^n or kg/s/P^n]\n    Qblow: Blower-induced volumetric air flow rate [m3/s/m2 or m3/s or ACH].\n    dPblow: Blower-induced change in pressure across building envelope orifice [Pa]\n    Qbldg: Typical building volumetric air flow rate [m3/s/m2 or m3/s or ACH]\n    dPbldg: Typical building change in pressure across building envelope orifice [Pa]\n    d: Air density [1.2041 kg/m3]\n    n: Air mass flow exponent [0.65]\n-", 
   "nickname": "BlowerPressure", 
+  "category": "HB-Energy", 
   "inputs": [
     {
-      "name": "_blower_infilt", 
-      "type": "double", 
       "default": null, 
+      "access": "item", 
       "description": "A numerical value for the air flow induced by blower pressure.\nThis value can be infiltration flow per unit area of exterior\nsurface [m3/s/m2] or total flow in ACH or [m3/s]. The units input\nhere will match those of the infilt output at building pressure.", 
-      "access": "item"
+      "type": "double", 
+      "name": "_blower_infilt"
     }, 
     {
-      "name": "_blower_pressure_", 
-      "type": "double", 
       "default": null, 
+      "access": "item", 
       "description": "A number representing the pressure differential in Pascals (Pa)\nbetween indoors/outdoors at which the specified _blower_infilt\noccurs. Typical pressures induced by blower doors are 75 Pa and\n50 Pa. (Default: 75).", 
-      "access": "item"
+      "type": "double", 
+      "name": "_blower_pressure_"
     }, 
     {
-      "name": "_bldg_pressure_", 
-      "type": "double", 
       "default": null, 
+      "access": "item", 
       "description": "The reference air pressure difference across building envelope\nunder typical conditions in Pascals. (Default: 4).", 
-      "access": "item"
+      "type": "double", 
+      "name": "_bldg_pressure_"
     }
   ], 
   "outputs": [
     [
       {
-        "name": "infilt", 
-        "type": null, 
         "default": null, 
+        "access": "None", 
         "description": "The flow rate of infiltration at the input _bldg_pressure_. The units\nof this output match those of the input _blower_infilt.", 
-        "access": "None"
+        "type": null, 
+        "name": "infilt"
       }, 
       {
-        "name": "C_qa", 
-        "type": null, 
         "default": null, 
+        "access": "None", 
         "description": "Air mass flow coefficient per square meter at 1 Pa [kg/m2/s/P^n].", 
-        "access": "None"
+        "type": null, 
+        "name": "C_qa"
       }
     ]
   ], 
   "name": "HB Blower Pressure Converter", 
-  "description": "Convert infiltration flow measured at a particular blower door pressure to flow\nmeasured at a typical building pressure.\n_\nThe formulas used by this component work the same whether the input infiltration\nflow is per unit area [m3/s/m2] or total flow in ACH or [m3/s].\n_\nThis is accomplished by computing a normalized-area air mass flow coefficient that\nis derived the power law relationship between pressure and air flow.\n    Cqa = Qblow / dPblow^n\nAnd then using the coefficient to approximate air flow at typical building pressure.\n    Qbldg = Cqa * dPbldg^n\n.\nwhere:\n    Cqa: Air mass flow coefficient at 1 Pa [kg/m2/s/P^n or kg/s/P^n]\n    Qblow: Blower-induced volumetric air flow rate [m3/s/m2 or m3/s or ACH].\n    dPblow: Blower-induced change in pressure across building envelope orifice [Pa]\n    Qbldg: Typical building volumetric air flow rate [m3/s/m2 or m3/s or ACH]\n    dPbldg: Typical building change in pressure across building envelope orifice [Pa]\n    d: Air density [1.2041 kg/m3]\n    n: Air mass flow exponent [0.65]\n-", 
   "code": "\ntry:\n    from honeybee_energy.properties.room import RoomEnergyProperties\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\nif all_required_inputs(ghenv.Component):\n    # set default values\n    _blower_pressure_ = 75 if _blower_pressure_ is None else _blower_pressure_\n    _bldg_pressure_ = 4 if _bldg_pressure_ is None else _bldg_pressure_\n\n    # compute coeffiecient and airflow\n    C_qa = RoomEnergyProperties.solve_norm_area_flow_coefficient(\n        _blower_infilt, air_density=1, delta_pressure=_blower_pressure_)\n    infilt = C_qa * (_bldg_pressure_ ** 0.65)\n", 
-  "subcategory": "3 :: Loads", 
-  "category": "HB-Energy", 
-  "version": "1.10.1"
+  "subcategory": "3 :: Loads"
 }

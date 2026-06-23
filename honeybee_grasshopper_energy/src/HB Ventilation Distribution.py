@@ -65,10 +65,10 @@ air to the breathing zone of the room.
 
 ghenv.Component.Name = 'HB Ventilation Distribution'
 ghenv.Component.NickName = 'VentDistrib'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
-ghenv.Component.AdditionalHelpFromDocStrings = '4'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 import uuid
 
