@@ -57,9 +57,9 @@ http://www.ibpsa.org/proceedings/bs2011/p_1209.pdf
             automatically assigned to a parent Aperture. For more complex
             Shade geometries, the "HB Add Shade" component can be used to
             assign the Shade to a parent Aperture.
-        context_: Honeybee Shades representing context geometry that can block sun
-            to the _rooms, therefore discounting any benefit or harm that could
-            come to the Room's Shades.
+        context_: Honeybee Shades or ShadeMeshes representing context geometry that can
+            block sun to the _rooms, therefore discounting any benefit or harm that
+            could come to the Room's Shades.
         _epw_file: Path to an .epw file on your system as a text string. This will be
             used in the energy simulation to determine heating/cooling loads
             and to generate solar vectors for the shade benefit calculation.
@@ -135,10 +135,10 @@ http://www.ibpsa.org/proceedings/bs2011/p_1209.pdf
 
 ghenv.Component.Name = 'HB Load Shade Benefit'
 ghenv.Component.NickName = 'LoadShadeBenefit'
-ghenv.Component.Message = '1.10.2'
+ghenv.Component.Message = '1.10.3'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = '2'
+ghenv.Component.AdditionalHelpFromDocStrings = '3'
 
 import os
 import subprocess
@@ -164,6 +164,7 @@ except ImportError as e:
 try:
     from honeybee.config import folders
     from honeybee.boundarycondition import Outdoors
+    from honeybee.shademesh import ShadeMesh
     from honeybee.model import Model
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
@@ -272,9 +273,15 @@ if all_required_inputs(ghenv.Component) and _run:
         print(msg)
 
     # create the Model from the _rooms and context_
-    _model = Model('Load_Shade_Benefit', rooms, orphaned_shades=context_,
-                   units=units_system(),
-                   tolerance=current_tolerance(), angle_tolerance=angle_tolerance)
+    con_shades, con_shade_meshes = [], []
+    for s in context_:
+        if isinstance(s, ShadeMesh):
+            con_shade_meshes.append(s)
+        else:
+            con_shades.append(s)
+    _model = Model(
+        'Load_Shade_Benefit', rooms, orphaned_shades=con_shades, shade_meshes=con_shade_meshes,
+        units=units_system(), tolerance=current_tolerance(), angle_tolerance=angle_tolerance)
 
     # process the simulation folder name and the directory
     directory = os.path.join(folders.default_simulation_folder, _model.identifier)
@@ -380,7 +387,10 @@ if all_required_inputs(ghenv.Component) and _run:
     # if there is context, remove any rays that are blocked by the context
     context_mesh = None
     if len(context_) != 0 and context_[0] is not None:
-        context_mesh = join_geometry_to_mesh([from_face3d(c.geometry) for c in context_])
+        con_go_rh = [from_face3d(c.geometry) for c in con_shades]
+        for sm in con_shade_meshes:
+            con_go_rh.append(from_mesh3d(sm.geometry))
+        context_mesh = join_geometry_to_mesh(con_go_rh)
 
     # loop through the relevant rooms and compute shade benefit
     points, mesh = [], []

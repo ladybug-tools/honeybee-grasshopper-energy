@@ -14,8 +14,8 @@ room-level peak cooling and heating on summer and winter design days.
 
     Args:
         _rooms: A list of Honeybee Rooms for which peak loads will be computed.
-        shades_: An optional list of Honeybee Shades that can block the sun to
-            the input _rooms.
+        shades_: An optional list of Honeybee Shades or ShadeMeshes that can block
+            the sun to the input _rooms.
         _ddy_file: Path to a .ddy file on your system as a text string, which contains
             design day conditions for the peak load analysis. This can also
             be the path to an .epw file, in which case design days will be
@@ -98,7 +98,7 @@ room-level peak cooling and heating on summer and winter design days.
 
 ghenv.Component.Name = 'HB Peak Loads'
 ghenv.Component.NickName = 'PeakLoads'
-ghenv.Component.Message = '1.10.1'
+ghenv.Component.Message = '1.10.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -121,6 +121,7 @@ except ImportError as e:
 
 try:
     from honeybee.config import folders
+    from honeybee.shademesh import ShadeMesh
     from honeybee.model import Model
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
@@ -306,8 +307,15 @@ if all_required_inputs(ghenv.Component) and _run:
     timestep = _timestep_ if _timestep_ is not None else 6
 
     # create the Model from the _rooms and shades_
-    _model = Model('Peak_Loads', _rooms, orphaned_shades=shades_, units=units_system(),
-                   tolerance=current_tolerance(), angle_tolerance=angle_tolerance)
+    shades, shade_meshes = [], []
+    for s in shades_:
+        if isinstance(s, ShadeMesh):
+            shade_meshes.append(s)
+        else:
+            shades.append(s)
+    _model = Model(
+        'Peak_Loads', _rooms, orphaned_shades=shades, shade_meshes=shade_meshes,
+        units=units_system(), tolerance=current_tolerance(), angle_tolerance=angle_tolerance)
 
     # process the simulation folder name and the directory
     directory = os.path.join(folders.default_simulation_folder, _model.identifier)
