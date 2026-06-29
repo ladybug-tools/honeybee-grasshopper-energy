@@ -22,8 +22,8 @@ Model to OSM" component.
 
     Args:
         _rooms: A list of Honeybee Rooms for which annual loads will be computed.
-        shades_: An optional list of Honeybee Shades that can block the sun to
-            the input _rooms.
+        shades_: An optional list of Honeybee Shades or ShadeMeshes that can block
+            the sun to the input _rooms.
         _epw_file: Path to an .epw file on your system as a text string.
         _north_: A number between -360 and 360 for the counterclockwise difference
             between the North and the positive Y-axis in degrees.
@@ -96,7 +96,7 @@ Model to OSM" component.
 
 ghenv.Component.Name = 'HB Annual Loads'
 ghenv.Component.NickName = 'AnnualLoads'
-ghenv.Component.Message = '1.10.1'
+ghenv.Component.Message = '1.10.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -119,6 +119,7 @@ except ImportError as e:
 try:
     from honeybee.config import folders
     from honeybee.facetype import AirBoundary
+    from honeybee.shademesh import ShadeMesh
     from honeybee.model import Model
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee:\n\t{}'.format(e))
@@ -232,8 +233,15 @@ if all_required_inputs(ghenv.Component) and _run:
     timestep = _timestep_ if _timestep_ is not None else 1
 
     # create the Model from the _rooms and shades_
-    _model = Model('Annual_Loads', _rooms, orphaned_shades=shades_, units=units_system(),
-                   tolerance=current_tolerance(), angle_tolerance=angle_tolerance)
+    shades, shade_meshes = [], []
+    for s in shades_:
+        if isinstance(s, ShadeMesh):
+            shade_meshes.append(s)
+        else:
+            shades.append(s)
+    _model = Model(
+        'Annual_Loads', _rooms, orphaned_shades=shades, shade_meshes=shade_meshes,
+        units=units_system(), tolerance=current_tolerance(), angle_tolerance=angle_tolerance)
     floor_area = _model.floor_area
     assert floor_area != 0, 'Connected _rooms have no floors with which to compute EUI.'
     floor_area = floor_area * conversion_to_meters() ** 2
