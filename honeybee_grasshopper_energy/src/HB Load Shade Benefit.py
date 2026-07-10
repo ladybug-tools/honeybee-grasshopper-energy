@@ -135,10 +135,10 @@ http://www.ibpsa.org/proceedings/bs2011/p_1209.pdf
 
 ghenv.Component.Name = 'HB Load Shade Benefit'
 ghenv.Component.NickName = 'LoadShadeBenefit'
-ghenv.Component.Message = '1.10.3'
+ghenv.Component.Message = '1.10.4'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
-ghenv.Component.AdditionalHelpFromDocStrings = '3'
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 import os
 import subprocess
