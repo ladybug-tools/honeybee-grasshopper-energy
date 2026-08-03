@@ -24,12 +24,12 @@ AirBoundary, the type will be set to a Wall.
             will be replaced with an Adiabatic boundary.
 
     Returns:
-        rooms: Rooms that have had their missing adjacencies patched.
+        rooms: The input objects with their missing adjacencies patched.
 """
 
 ghenv.Component.Name = 'HB Patch Missing Adjacency'
 ghenv.Component.NickName = 'PatchAdj'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '0'
@@ -50,18 +50,17 @@ except ImportError as e:
 
 if all_required_inputs(ghenv.Component):
     # collect all rooms and duplicate them
-    rooms = []
-    for hb_obj in _rooms:
+    rooms = [room.duplicate() for room in _rooms]  # duplicate to avoid editing input
+    patch_rooms = []
+    for hb_obj in rooms:
         if isinstance(hb_obj, Model):
-            rooms.extend(hb_obj.rooms)
+            patch_rooms.extend(hb_obj.rooms)
         elif isinstance(hb_obj, Room):
-            rooms.append(hb_obj)
+            patch_rooms.append(hb_obj)
         else:
             raise ValueError('Expected Room or Model object. Got {}.'.format(type(hb_obj)))
-    rooms = [room.duplicate() for room in rooms]  # duplicate to avoid editing input
 
     # patch adjacency across all of the Rooms
-    adj_model = Model('patch_adj_model', rooms=rooms, tolerance=current_tolerance(),
+    adj_model = Model('patch_adj_model', rooms=patch_rooms, tolerance=current_tolerance(),
                       units=units_system())
     adj_model.properties.energy.missing_adjacencies_to_adiabatic()
-    rooms = adj_model.rooms
