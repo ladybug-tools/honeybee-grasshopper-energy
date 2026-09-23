@@ -75,7 +75,7 @@ to an IDF file and then run through EnergyPlus.
 
 ghenv.Component.Name = 'HB Model to OSM'
 ghenv.Component.NickName = 'ModelToOSM'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '5 :: Simulate'
 ghenv.Component.AdditionalHelpFromDocStrings = '1'
@@ -176,6 +176,7 @@ if all_required_inputs(ghenv.Component) and _write:
 
     # assign design days from the DDY next to the EPW if there are None
     folder, epw_file_name = os.path.split(_epw_file)
+    epw_obj = None
     if len(sim_par.sizing_parameter.design_days) == 0:
         msg = None
         ddy_file = os.path.join(folder, epw_file_name.replace('.epw', '.ddy'))
@@ -205,6 +206,9 @@ if all_required_inputs(ghenv.Component) and _write:
         if os.path.isfile(stat_file):
             stat_obj = STAT(stat_file)
             sim_par.sizing_parameter.climate_zone = stat_obj.ashrae_climate_zone
+    epw_obj = EPW(_epw_file) if epw_obj is None else epw_obj
+    if epw_obj.is_leap_year:
+        sim_par.run_period.is_leap_year = True
 
     # process the simulation folder name and the directory
     _folder_ = folders.default_simulation_folder if _folder_ is None else _folder_
