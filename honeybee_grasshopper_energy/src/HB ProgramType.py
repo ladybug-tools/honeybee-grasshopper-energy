@@ -43,6 +43,9 @@ and loads on the Room.
         _ventilation_: A Ventilation object to describe the minimum outdoor air
             requirement of the program. If None, no ventilation requirement will
             be assumed for the program. (Default: None).
+        _exhaust_: An ExhaustAir object to describe the exhaust air requirement of
+            the program. If None, no exhaust air requirement will be assumed for
+            the program. (Default: None).
         _setpoint_: A Setpoint object to describe the temperature and humidity
             setpoints of the program.  If None, the ProgramType cannot be assigned
             to a Room that is conditioned. (Default: None).
@@ -54,7 +57,7 @@ and loads on the Room.
 
 ghenv.Component.Name = 'HB ProgramType'
 ghenv.Component.NickName = 'ProgramType'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
@@ -109,5 +112,7 @@ if _infiltration_ is not None:
     program.infiltration = _infiltration_
 if _ventilation_ is not None:
     program.ventilation = _ventilation_
+if _exhaust_ is not None:
+    program.exhaust = _exhaust_
 if _setpoint_ is not None:
     program.setpoint = _setpoint_

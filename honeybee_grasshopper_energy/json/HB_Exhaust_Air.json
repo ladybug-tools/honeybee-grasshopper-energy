@@ -1,0 +1,78 @@
+{
+  "outputs": [
+    [
+      {
+        "description": "An Exhaust Air object that can be used to create a ProgramType or\nbe assigned directly to a Room.", 
+        "type": null, 
+        "access": "None", 
+        "name": "exhaust", 
+        "default": null
+      }
+    ]
+  ], 
+  "version": "1.10.0", 
+  "code": "\ntry:  # import the core honeybee dependencies\n    from honeybee.typing import clean_and_id_ep_string, clean_ep_string\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.exhaust import ExhaustAir\n    from honeybee_energy.lib.schedules import schedule_by_identifier\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import turn_off_old_tag\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\nturn_off_old_tag(ghenv.Component)\n\n\n# make a default Ventilation name if none is provided\nname = clean_and_id_ep_string('ExhaustAir') if _name_ is None else \\\n    clean_ep_string(_name_)\n\n# get the schedule\nif isinstance(_schedule_, str):\n    _schedule_ = schedule_by_identifier(_schedule_)\nif isinstance(balance_sched_, str):\n    balance_sched_ = schedule_by_identifier(balance_sched_)\n\n# get default _flow_per_person_, _flow_per_area_, and _ach_\n_flow_per_area_ = _flow_per_area_ if _flow_per_area_ is not None else 0.0\n_flow_per_fixture_ = _flow_per_fixture_ if _flow_per_fixture_ is not None else 0.0\n_fixture_count_ = _fixture_count_ if _fixture_count_ is not None else 1\n_pressure_rise_ = 125 if _pressure_rise_ is None else _pressure_rise_\n_efficiency_ = 0.35 if _efficiency_ is None else _efficiency_\n\n# create the Ventilation object\nexhaust = ExhaustAir(\n    name, _flow_per_area_, _flow_per_fixture_, _fixture_count_,\n    _schedule_, _pressure_rise_, _efficiency_, balance_sched_\n)\nif _name_ is not None:\n    exhaust.display_name = _name_\n", 
+  "inputs": [
+    {
+      "description": "Text to set the name for the Ventilation and to be incorporated\ninto a unique Ventilation identifier. If None, a unique name will\nbe generated.", 
+      "type": "string", 
+      "access": "item", 
+      "name": "_name_", 
+      "default": null
+    }, 
+    {
+      "description": "A numerical value for the intensity of exhaust air ventilation\nin m3/s per square meter of floor area. (Default: 0).", 
+      "type": "double", 
+      "access": "item", 
+      "name": "_flow_per_area_", 
+      "default": null
+    }, 
+    {
+      "description": "A numerical value for the level of exhaust air ventilation\nin m3/s for each fixture in the room. The term \"fixture\" is used\nbroadly as a way to reference a wide variety of contaminant sources\nsuch as toilets/urinals, shower heads, kitchen hoods, fume hoods,\netc. (Default: 0).", 
+      "type": "double", 
+      "access": "item", 
+      "name": "_flow_per_fixture_", 
+      "default": null
+    }, 
+    {
+      "description": "An integer for the number of fixtures in the room. This\nis multiplied by the _flow_per_fixture_, which is then added to the\nflow_per_area to yield the final exhaust air flow rate (Default: 1).", 
+      "type": "int", 
+      "access": "item", 
+      "name": "_fixture_count_", 
+      "default": null
+    }, 
+    {
+      "description": "An optional fractional schedule for the exhaust air ventilation over\nthe course of the year. The type of this schedule should be\nFractional and the fractional values get multiplied by\nthe total design flow rate to yield a complete exhaust air profile.\nValues of 0 in the schedule will shut the exhaust fan off completely.\nIf None, the design level of exhaust air will be used throughout\nall timesteps of the simulation, meaning that this schedule is\nAlways On. (Default: None).", 
+      "type": "System.Object", 
+      "access": "item", 
+      "name": "_schedule_", 
+      "default": null
+    }, 
+    {
+      "description": "A number for the the pressure rise across the fan in Pascals\n(N/m2). This is often a function of the fan speed and the conditions in\nwhich the fan is operating. It plays an important role in determining\nthe amount of energy consumed by the fan. Typical kitchen and bathroom\nexhaust fans have pressure rises around 125 Pa but, in healthcare\nsettings where filters create more resistance, higher pressures\naround 250 Pa are more common. (Default: 125).", 
+      "type": "double", 
+      "access": "item", 
+      "name": "_pressure_rise_", 
+      "default": null
+    }, 
+    {
+      "description": "A number between 0 and 1 for the overall efficiency of the fan.\nSpecifically, this is the ratio of the power delivered to the fluid\nto the electrical input power. It is the product of the fan motor\nefficiency and the fan impeller efficiency.\nFans that have a higher blade diameter, no obstructions or filters,\nand operate at lower speeds with smaller pressure rises for\ntheir size tend to have higher efficiencies. Because motor efficiencies\nare typically between 0.8 and 0.9, the best overall fan efficiencies\ntend to be around 0.7 with most typical fan efficiencies between 0.5 and\n0.7. When filters are added, which is common for most exhaust fans,\nthe total efficiency typically ends up between 0.3 and 0.4. (Default: 0.35).", 
+      "type": "double", 
+      "access": "item", 
+      "name": "_efficiency_", 
+      "default": null
+    }, 
+    {
+      "description": "An optional ScheduleRuleset or ScheduleFixedInterval\nfor the fraction of exhaust air that is unbalanced by simple airflows,\nsuch as infiltration, natural ventilation, or zone mixing. Unbalanced\nexhaust is modeled as being provided by the outdoor air system in the\ncentral air system such that values of 1 in this schedule indicate\nall exhaust air balancing done by the mechanical system and values of 0\nindicate all air balanced by simple air flows. If None, then\nall the exhaust air flow is assumed to be unbalanced by simple\nairflows. The the flow rates at the zone return air node are reduced\nby the flow rate that is being exhausted and the zone outdoor air\ncontroller will ensure that the outdoor air flow rate is sufficient\nto serve the exhaust.", 
+      "type": "System.Object", 
+      "access": "item", 
+      "name": "balance_sched_", 
+      "default": null
+    }
+  ], 
+  "nickname": "Exhaust", 
+  "category": "HB-Energy", 
+  "subcategory": "3 :: Loads", 
+  "description": "Create an ExhaustAir object that can be used to create a ProgramType or be\nassigned directly to a Room.\n_\nNote the the 2 ventilation types (flow_per_area and flow_per_fixture) are\nultimately added together to yield the final exhaust air flow rate used\nin the simulation.\n-", 
+  "name": "HB Exhaust Air"
+}

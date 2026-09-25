@@ -32,6 +32,9 @@ Deconstruct a ProgramType object into its component load objects.
         ventilation: A Ventilation object to describe the minimum outdoor air
             requirement of the program. If None, no ventilation requirement is
             be assumed for the program.
+        exhaust: An ExhaustAir object to describe the exhaust air requirement of
+            the program. If None, no exhaust air requirement will be assumed for
+            the program.
         setpoint: A Setpoint object to describe the temperature and humidity
             setpoints of the program.  If None, the ProgramType cannot be assigned
             to a Room that is conditioned.
@@ -39,7 +42,7 @@ Deconstruct a ProgramType object into its component load objects.
 
 ghenv.Component.Name = "HB Deconstruct ProgramType"
 ghenv.Component.NickName = 'DeconstrProgram'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
 ghenv.Component.AdditionalHelpFromDocStrings = "1"
@@ -72,4 +75,5 @@ if all_required_inputs(ghenv.Component):
     hot_water = _program.service_hot_water
     infiltration = _program.infiltration
     ventilation = _program.ventilation
+    exhaust = _program.exhaust
     setpoint = _program.setpoint

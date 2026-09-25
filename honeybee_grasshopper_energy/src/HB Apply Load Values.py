@@ -55,18 +55,20 @@ simulation, the "Always On" schedule will be used as a default.
             changes er hour (ACH). This will be added to the vent_per_floor_
             and vent_per_person_ to produce the final minimum outdoor air
             specification.
+        exhaust_per_floor_: A numerical value for the intensity of exhaaust air ventilation
+            in m3/s per square meter of floor area.
 
     Returns:
         report: Reports, errors, warnings, etc.
         mod_obj: The input Rooms or ProgramTypes with their load values modified.
 """
 
-ghenv.Component.Name = "HB Apply Load Values"
+ghenv.Component.Name = 'HB Apply Load Values'
 ghenv.Component.NickName = 'ApplyLoadVals'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '3 :: Loads'
-ghenv.Component.AdditionalHelpFromDocStrings = "2"
+ghenv.Component.AdditionalHelpFromDocStrings = '2'
 
 import uuid
 
@@ -83,6 +85,7 @@ try:
     from honeybee_energy.load.hotwater import ServiceHotWater
     from honeybee_energy.load.infiltration import Infiltration
     from honeybee_energy.load.ventilation import Ventilation
+    from honeybee_energy.load.exhaust import ExhaustAir
     from honeybee_energy.lib.schedules import schedule_by_identifier
     from honeybee_energy.lib.programtypes import program_type_by_identifier, \
         building_program_type_by_identifier
@@ -226,3 +229,10 @@ if all_required_inputs(ghenv.Component):
             vent = dup_load(obj, 'ventilation', Ventilation)
             vent.air_changes_per_hour = longest_list(vent_ach_, i)
             assign_load(obj, vent, 'ventilation')
+
+    # assign the exhaust_per_floor_
+    if len(exhaust_per_floor_) != 0:
+        for i, obj in enumerate(edit_objs):
+            ea = dup_load(obj, 'exhaust', ExhaustAir)
+            ea.flow_per_area = longest_list(exhaust_per_floor_, i)
+            assign_load(obj, ea, 'exhaust')

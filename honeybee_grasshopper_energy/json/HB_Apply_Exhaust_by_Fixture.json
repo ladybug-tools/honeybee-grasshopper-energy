@@ -1,0 +1,64 @@
+{
+  "outputs": [
+    [
+      {
+        "description": "The input Rooms or ProgramTypes with exhaust air defined in terms\nof a fixture count and flow per fixture.", 
+        "type": null, 
+        "access": "None", 
+        "name": "mod_obj", 
+        "default": null
+      }
+    ]
+  ], 
+  "version": "1.10.0", 
+  "code": "\nimport uuid\n\ntry:\n    from honeybee.model import Model\n    from honeybee.room import Room\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee:\\n\\t{}'.format(e))\n\ntry:\n    from honeybee_energy.load.exhaust import ExhaustAir\n    from honeybee_energy.lib.programtypes import program_type_by_identifier, \\\n        building_program_type_by_identifier\n    from honeybee_energy.programtype import ProgramType\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import honeybee_energy:\\n\\t{}'.format(e))\n\ntry:\n    from ladybug_{{cad}}.{{plugin}} import all_required_inputs, longest_list\nexcept ImportError as e:\n    raise ImportError('\\nFailed to import ladybug_{{cad}}:\\n\\t{}'.format(e))\n\n\ndef dup_load(hb_obj, object_name, object_class):\n    \"\"\"Duplicate a load object assigned to a Room or ProgramType.\"\"\"\n    # try to get the load object assgined to the Room or ProgramType\n    try:  # assume it's a Room\n        load_obj = hb_obj.properties\n        for attribute in ('energy', object_name):\n            load_obj = getattr(load_obj, attribute)\n    except AttributeError:  # it's a ProgramType\n        load_obj = getattr(hb_obj, object_name)\n\n    load_id = '{}_{}'.format(hb_obj.identifier, object_name)\n    try:  # duplicate the load object\n        dup_load = load_obj.duplicate()\n        dup_load.identifier = load_id\n        return dup_load\n    except AttributeError:  # create a new object\n        return object_class(load_id)\n\n\ndef duplicate_and_id_program(program):\n    \"\"\"Duplicate a program and give it a new unique ID.\"\"\"\n    new_prog = program.duplicate()\n    new_prog.identifier = '{}_{}'.format(program.identifier, str(uuid.uuid4())[:8])\n    return new_prog\n\n\nif all_required_inputs(ghenv.Component):\n    # duplicate the initial objects\n    mod_obj, edit_objs = [], []\n    for obj in _room_or_program:\n        if isinstance(obj, Room):\n            new_obj = obj.duplicate()\n            mod_obj.append(new_obj)\n            edit_objs.append(new_obj)\n        elif isinstance(obj, Model):\n            new_obj = obj.duplicate()\n            mod_obj.append(new_obj)\n            edit_objs.extend(new_obj.rooms)\n        elif isinstance(obj, ProgramType):\n            new_obj = duplicate_and_id_program(obj)\n            mod_obj.append(new_obj)\n            edit_objs.append(new_obj)\n        elif isinstance(obj, str):\n            try:\n                program = building_program_type_by_identifier(obj)\n            except ValueError:\n                program = program_type_by_identifier(obj)\n            new_obj = duplicate_and_id_program(program)\n            mod_obj.append(new_obj)\n            edit_objs.append(new_obj)\n        else:\n            raise TypeError('Expected Honeybee Room, Model or ProgramType. '\n                            'Got {}.'.format(type(obj)))\n\n    # assign the exhaust criteria\n    for i, obj in enumerate(edit_objs):\n        vent = dup_load(obj, 'exhaust', ExhaustAir)\n        vent.flow_per_area = 0\n        vent.flow_per_fixture = longest_list(_flow_per_fixture, i)\n        if len(_fixture_count_) != 0:\n            vent.fixture_count = longest_list(_fixture_count_, i)\n        if len(_pressure_rise_) != 0:\n            vent.pressure_rise = longest_list(_pressure_rise_, i)\n        if len(_efficiency_) != 0:\n            vent.efficiency = longest_list(_efficiency_, i)\n        if len(schedule_) != 0:\n            sched = longest_list(schedule_, i)\n            if isinstance(sched, str):\n                sched = schedule_by_identifier(sched)\n            vent.schedule = sched\n        try:  # assume it's a Room\n            obj.properties.energy.exhaust = vent\n        except AttributeError:  # it's a ProgramType\n            obj.exhaust = vent\n", 
+  "inputs": [
+    {
+      "description": "Honeybee Rooms or ProgramType objects which will have exhaust air\nedited to be defined in terms of a flow rate per fixture and a\nfixture count. This can also be the identifier of a ProgramType\nto be looked up in the program type library. This can also be a\nHoneybee Model for which all Rooms will have their exaust air\nproperties changed.", 
+      "type": "System.Object", 
+      "access": "list", 
+      "name": "_room_or_program", 
+      "default": null
+    }, 
+    {
+      "description": "A numerical value for the level of exhaust air ventilation\nin m3/s for each fixture in the room. The term \"fixture\" is used\nbroadly as a way to reference a wide variety of contaminant sources\nsuch as toilets/urinals, shower heads, kitchen hoods, fume hoods,\netc. Typical values for different types of fixtures in ASHRAE 62.1\nare as follows:\n* Private Toilet - 0.0236 m3/s\n* Public Toilet - 0.03304 m3/s\n* Locker Room Shower Head - 0.0236 m3/s\n* Residential Kitchen Hood - 0.04719 m3/s\n* Fume Hood - ~0.2832 m3/s (4' wide hood with 1.5' sash height)", 
+      "type": "double", 
+      "access": "list", 
+      "name": "_flow_per_fixture", 
+      "default": null
+    }, 
+    {
+      "description": "An integer for the number of fixtures in the room. This\nis multiplied by the _flow_per_fixture_, which is then added to the\nflow_per_area to yield the final exhaust air flow rate (Default: 1).", 
+      "type": "double", 
+      "access": "list", 
+      "name": "_fixture_count_", 
+      "default": null
+    }, 
+    {
+      "description": "An optional fractional schedule for the exhaust air ventilation over\nthe course of the year. The type of this schedule should be\nFractional and the fractional values get multiplied by\nthe total design flow rate to yield a complete exhaust air profile.\nValues of 0 in the schedule will shut the exhaust fan off completely.\nIf None, the design level of exhaust air will be used throughout\nall timesteps of the simulation, meaning that this schedule is\nAlways On. (Default: None).", 
+      "type": "System.Object", 
+      "access": "list", 
+      "name": "schedule_", 
+      "default": null
+    }, 
+    {
+      "description": "A number for the the pressure rise across the fan in Pascals\n(N/m2). This is often a function of the fan speed and the conditions in\nwhich the fan is operating. It plays an important role in determining\nthe amount of energy consumed by the fan. Typical kitchen and bathroom\nexhaust fans have pressure rises around 125 Pa but, in healthcare\nsettings where filters create more resistance, higher pressures\naround 250 Pa are more common. (Default: 125).", 
+      "type": "double", 
+      "access": "list", 
+      "name": "_pressure_rise_", 
+      "default": null
+    }, 
+    {
+      "description": "A number between 0 and 1 for the overall efficiency of the fan.\nSpecifically, this is the ratio of the power delivered to the fluid\nto the electrical input power. It is the product of the fan motor\nefficiency and the fan impeller efficiency.\nFans that have a higher blade diameter, no obstructions or filters,\nand operate at lower speeds with smaller pressure rises for\ntheir size tend to have higher efficiencies. Because motor efficiencies\nare typically between 0.8 and 0.9, the best overall fan efficiencies\ntend to be around 0.7 with most typical fan efficiencies between 0.5 and\n0.7. When filters are added, which is common for most exhaust fans,\nthe total efficiency typically ends up between 0.3 and 0.4. (Default: 0.35).", 
+      "type": "double", 
+      "access": "list", 
+      "name": "_efficiency_", 
+      "default": null
+    }
+  ], 
+  "nickname": "ExhaustFixture", 
+  "category": "HB-Energy", 
+  "subcategory": "3 :: Loads", 
+  "description": "Define exaust air for rooms or programs in terms of a flow rate per fixture and a\nfixture count for each room. Note that this overwrites any exhaust air flow\nthat might have been defined in terms of a per-unit-area.\n_\nThe term \"fixture\" is used broadly as a way to reference a wide variety of\ncontaminant sources such as toilets/urinals, shower heads, kitchen hoods,\nfume hoods, etc. Accordingly, this component is the recommended way to set up\nrooms for compliance with ventilation standards like ASHRAE 62.1, where exhaust\nair is definied in terms of how many fixutres of a certain type exist in the space.\n-", 
+  "name": "HB Apply Exhaust by Fixture"
+}

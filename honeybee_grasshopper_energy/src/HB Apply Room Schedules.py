@@ -54,6 +54,12 @@ given load.
             multiplied by the total design flow rate to yield a complete ventilation
             profile. Setting this schedule to be the occupancy schedule of the
             zone will mimic demand controlled ventilation.
+        exhaust_sch_: A fractional schedule for the exhaust air over the course of
+            the year. This can also be the identifier of a schedule to be
+            looked up in the schedule library. The schedule values get multiplied
+            by the total exhaust fan design flow rate to yield a complete
+            exhaust air profile. Values of 0 in the schedule shut the exhaust
+            fan off completely.
         heating_setpt_sch_: A temperature schedule for the heating setpoint.
             This can also be a identifier of a schedule to be looked up in the
             schedule library. The type limit of this schedule should be
@@ -72,7 +78,7 @@ given load.
 
 ghenv.Component.Name = "HB Apply Room Schedules"
 ghenv.Component.NickName = 'ApplyRoomSch'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '2 :: Schedules'
 ghenv.Component.AdditionalHelpFromDocStrings = "3"
@@ -225,6 +231,13 @@ if all_required_inputs(ghenv.Component):
             ventilation = dup_load(obj, 'ventilation', 'ventilation_sch_')
             ventilation.schedule = schedule_object(longest_list(ventilation_sch_, i))
             assign_load(obj, ventilation, 'ventilation')
+
+    # assign the exhaust schedule
+    if len(exhaust_sch_) != 0:
+        for i, obj in enumerate(edit_objs):
+            exhaust = dup_load(obj, 'exhaust', 'exhaust_sch_')
+            exhaust.schedule = schedule_object(longest_list(exhaust_sch_, i))
+            assign_load(obj, exhaust, 'exhaust')
 
     # assign the heating setpoint schedule
     if len(heating_setpt_sch_) != 0:
