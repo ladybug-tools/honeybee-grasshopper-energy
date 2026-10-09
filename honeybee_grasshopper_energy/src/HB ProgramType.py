@@ -22,33 +22,33 @@ and loads on the Room.
             starting point for the new ProgramType output from this component.
             This can also be text for the name of a ProgramType within the library
             such as that output from the "HB Search Program Types" component.
-            If None, a Plenum program type will be used as the base with no loads,
-            setpoints, or ventilation requirements assigned.
-        _people_: A People object to describe the occupancy of the program. If None,
-            no occupancy will be assumed for the program. (Default: None).
+            If unspecified, a Plenum program type will be used as the base with
+            no loads, setpoints, or ventilation requirements assigned.
+        _people_: A People object to describe the occupancy of the program. If unspecified,
+            no occupancy will be assumed for the program.
         _lighting_: A Lighting object to describe the lighting usage of the program.
-            If None, no lighting will be assumed for the program. (Default: None).
-        _electric_equip_: An ElectricEquipment object to describe the usage
-            of electric equipment within the program. If None, no electric equipment
-            will be assumed for the program. (Default: None).
-        _gas_equip_: A GasEquipment object to describe the usage of gas equipment
-            within the program. If None, no gas equipment will be assumed for
-            the program. (Default: None).
+            If unspecified, no lighting will be assumed for the program.
+        _electric_equip_: An ElectricEquipment object to describe the usage of electric
+            equipment within the program. If unspecified, no electric equipment
+            will be assumed for the program
+        _gas_equip_: A GasEquipment object to describe the usage of gas equipment within
+            the program. If unspecified, no gas equipment will be assumed for
+            the program.
         _hot_water_: A ServiceHotWater object to describe the usage of hot water
-            within the program. If None, no hot water will be assumed for
-            the program. (Default: None).
+            within the program. If unspecified, no hot water will be assumed for
+            the program.
         _infiltration_: An Infiltration object to describe the outdoor air leakage of
-            the program. If None, no infiltration will be assumed for the
-            program. (Default: None).
+            the program. If unspecified, no infiltration will be assumed for the
+            program.
         _ventilation_: A Ventilation object to describe the minimum outdoor air
-            requirement of the program. If None, no ventilation requirement will
-            be assumed for the program. (Default: None).
+            requirement of the program. If unspecified, no ventilation requirement will
+            be assumed for the program.
         _exhaust_: An ExhaustAir object to describe the exhaust air requirement of
-            the program. If None, no exhaust air requirement will be assumed for
-            the program. (Default: None).
+            the program. If unspecified, no exhaust air requirement will be assumed for
+            the program.
         _setpoint_: A Setpoint object to describe the temperature and humidity
-            setpoints of the program.  If None, the ProgramType cannot be assigned
-            to a Room that is conditioned. (Default: None).
+            setpoints of the program.  If unspecified, the ProgramType cannot be assigned
+            to a Room that is conditioned.
 
     Returns:
         program: A ProgramType object that can be assigned to Honeybee Rooms in
@@ -57,7 +57,7 @@ and loads on the Room.
 
 ghenv.Component.Name = 'HB ProgramType'
 ghenv.Component.NickName = 'ProgramType'
-ghenv.Component.Message = '1.10.1'
+ghenv.Component.Message = '1.10.2'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '0 :: Basic Properties'
 ghenv.Component.AdditionalHelpFromDocStrings = '2'
