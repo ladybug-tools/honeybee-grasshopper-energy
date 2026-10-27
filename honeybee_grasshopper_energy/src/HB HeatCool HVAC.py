@@ -33,6 +33,27 @@ of occupancy is so low that infiltration is enough to meet fresh air demand.
         _name_: Text to set the name for the heating/cooling system and to be
             incorporated into unique system identifier. If the name is not
             provided, a random name will be assigned.
+        unit_vents_: Boolean to note whether individual zone ventilators are included
+            with the basic heating and cooling system (True) or the system only
+            performs heating and cooling without any ventilation (False). Unlike a DOAS,
+            unit ventilators do not pass the outdoor air through heating or cooling
+            coils to condition it for the space. However, heat recovery effectiveness
+            can be specified, which can temper the air supplied to the zone by the
+            ventilator with exhaust air. All air flow through this ventilator
+            is always balanced for each zone between supply and exhaust and the
+            total flow rate is determined by checking the ventilation and exhaust
+            requirements of the rooms to which the system is assigned. (Default: False).
+        sensible_hr_: A number between 0 and 1 for the effectiveness of sensible
+            heat recovery within unit ventilators if specified. (Default: 0).
+        latent_hr_: A number between 0 and 1 for the effectiveness of latent heat
+            recovery within unit ventilators if specified. (Default: 0).
+        vent_avail_sch_: An optional On/Off discrete schedule to specify when unit
+            ventilators shut off (assuming that the unit_ventilators is True).
+            This will not only reduce heating and cooling load by preventing
+            outdoor air from flowing but will also shut off the fans, which can
+            result in more energy savings when spaces served by the ventilators
+            are completely unoccupied. If None, the unit ventilators will be
+            always on. (Default: None).
 
     Returns:
         report: Reports, errors, warnings, etc.
@@ -41,7 +62,7 @@ of occupancy is so low that infiltration is enough to meet fresh air demand.
 
 ghenv.Component.Name = "HB HeatCool HVAC"
 ghenv.Component.NickName = 'HeatCoolHVAC'
-ghenv.Component.Message = '1.10.0'
+ghenv.Component.Message = '1.10.1'
 ghenv.Component.Category = 'HB-Energy'
 ghenv.Component.SubCategory = '4 :: HVAC'
 ghenv.Component.AdditionalHelpFromDocStrings = '4'
@@ -59,6 +80,7 @@ except ImportError as e:
 try:  # import the honeybee-energy extension
     from honeybee_energy.config import folders
     from honeybee_energy.hvac.heatcool import EQUIPMENT_TYPES_DICT
+    from honeybee_energy.lib.schedules import schedule_by_identifier
 except ImportError as e:
     raise ImportError('\nFailed to import honeybee_energy:\n\t{}'.format(e))
 
@@ -130,6 +152,16 @@ if all_required_inputs(ghenv.Component):
     hvac = hvac_class(name, vintage, _sys_name)
     if _name_ is not None:
         hvac.display_name = _name_
+    if unit_vents_:
+        hvac.unit_ventilators= unit_vents_
+    if sensible_hr_:
+        hvac.sensible_heat_recovery= sensible_hr_
+    if latent_hr_:
+        hvac.latent_heat_recovery= latent_hr_
+    if vent_avail_sch_ is not None:
+        if isinstance(vent_avail_sch_, str):
+            vent_avail_sch_ = schedule_by_identifier(vent_avail_sch_)
+        hvac.vent_availability_schedule = vent_avail_sch_
 
     # apply the HVAC system to the rooms
     no_setp_rooms = []
